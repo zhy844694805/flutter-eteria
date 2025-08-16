@@ -20,11 +20,12 @@ class MemorialProvider extends ChangeNotifier {
   List<Memorial> get filteredMemorials {
     var filtered = _memorials.where((memorial) {
       final matchesFilter = _currentFilter == FilterType.all ||
-          (_currentFilter == FilterType.person && memorial.type == MemorialType.person);
+          FilterTypeExtension.fromRelationship(memorial.relationship) == _currentFilter;
       
       final matchesSearch = _searchQuery.isEmpty ||
           memorial.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          memorial.description.toLowerCase().contains(_searchQuery.toLowerCase());
+          memorial.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (memorial.relationship?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
       
       return matchesFilter && matchesSearch;
     }).toList();
@@ -180,6 +181,7 @@ class MemorialProvider extends ChangeNotifier {
   Memorial createMemorial({
     required MemorialType type,
     required String name,
+    String? relationship, // 新增：与逝者的关系
     required DateTime birthDate,
     required DateTime deathDate,
     required String description,
@@ -208,6 +210,7 @@ class MemorialProvider extends ChangeNotifier {
       id: _generateNewId(),
       type: type,
       name: name,
+      relationship: relationship,
       birthDate: birthDate,
       deathDate: deathDate,
       description: description,

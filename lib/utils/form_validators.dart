@@ -56,6 +56,20 @@ class FormValidators {
     return null;
   }
 
+  // 手机号验证
+  static String? validatePhone(String value) {
+    if (value.trim().isEmpty) {
+      return null; // 手机号是可选的
+    }
+    
+    final phoneRegex = RegExp(r'^1[3-9]\d{9}$');
+    if (!phoneRegex.hasMatch(value.trim())) {
+      return '请输入有效的手机号';
+    }
+    
+    return null;
+  }
+
   // 描述文字验证
   static String? validateDescription(String? value, {String fieldName = '描述', int maxLength = 500}) {
     if (value == null || value.trim().isEmpty) {

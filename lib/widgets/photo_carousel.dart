@@ -11,6 +11,7 @@ class PhotoCarousel extends StatefulWidget {
   final bool showCounter;
   final bool autoPlay;
   final Duration autoPlayInterval;
+  final bool fullWidth; // 新增参数：是否完全填满宽度
 
   const PhotoCarousel({
     super.key,
@@ -21,6 +22,7 @@ class PhotoCarousel extends StatefulWidget {
     this.showCounter = true,
     this.autoPlay = false,
     this.autoPlayInterval = const Duration(seconds: 3),
+    this.fullWidth = false,
   });
 
   @override
@@ -101,23 +103,24 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
       );
     }
 
+    Widget pageView = PageView.builder(
+      controller: _pageController,
+      onPageChanged: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
+      itemCount: allImages.length,
+      itemBuilder: (context, index) {
+        return _buildImageItem(allImages[index]);
+      },
+    );
+
     return Stack(
       children: [
-        SizedBox(
-          height: widget.height,
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            itemCount: allImages.length,
-            itemBuilder: (context, index) {
-              return _buildImageItem(allImages[index]);
-            },
-          ),
-        ),
+        widget.fullWidth
+            ? SizedBox.expand(child: pageView)
+            : SizedBox(height: widget.height, child: pageView),
 
         // 图片计数器
         if (widget.showCounter && allImages.length > 1)
@@ -209,20 +212,33 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
   }
 
   Widget _buildImageItem(String imagePath) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-      child: GestureDetector(
-        onTap: () => _showFullScreenImage(imagePath),
-        child: PlatformImage(
-          imagePath: imagePath,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: widget.height,
-          borderRadius: BorderRadius.circular(15),
-        ),
-      ),
+    Widget imageWidget = PlatformImage(
+      imagePath: imagePath,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: widget.height == double.infinity ? null : widget.height,
+      borderRadius: widget.fullWidth ? null : BorderRadius.circular(15),
     );
+
+    if (widget.fullWidth) {
+      // 全屏模式：不添加边距，不添加圆角，完全填满容器
+      return GestureDetector(
+        onTap: () => _showFullScreenImage(imagePath),
+        child: SizedBox.expand(child: imageWidget),
+      );
+    } else {
+      // 普通模式：添加边距和圆角
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: GestureDetector(
+          onTap: () => _showFullScreenImage(imagePath),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: imageWidget,
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildDot(int index) {

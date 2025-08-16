@@ -12,6 +12,7 @@ class Memorial {
   final int id;
   final MemorialType type;
   final String name;
+  final String? relationship; // 新增：与逝者的关系
   final DateTime birthDate;
   final DateTime deathDate;
   final String description;
@@ -25,6 +26,7 @@ class Memorial {
     required this.id,
     required this.type,
     required this.name,
+    this.relationship,
     required this.birthDate,
     required this.deathDate,
     required this.description,
@@ -42,6 +44,7 @@ class Memorial {
     int? id,
     MemorialType? type,
     String? name,
+    String? relationship,
     DateTime? birthDate,
     DateTime? deathDate,
     String? description,
@@ -55,6 +58,7 @@ class Memorial {
       id: id ?? this.id,
       type: type ?? this.type,
       name: name ?? this.name,
+      relationship: relationship ?? this.relationship,
       birthDate: birthDate ?? this.birthDate,
       deathDate: deathDate ?? this.deathDate,
       description: description ?? this.description,

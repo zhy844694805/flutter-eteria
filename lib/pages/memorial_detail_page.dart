@@ -117,8 +117,11 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
     final hasImages = widget.memorial.imagePaths.isNotEmpty || widget.memorial.imageUrls.isNotEmpty;
     final totalImages = widget.memorial.imagePaths.length + widget.memorial.imageUrls.length;
     
+    // 设置SliverAppBar的完整高度
+    const double expandedHeight = 300;
+    
     return SliverAppBar(
-      expandedHeight: hasImages ? 300 : 120,
+      expandedHeight: hasImages ? expandedHeight : 120,
       pinned: true,
       backgroundColor: AppColors.background,
       flexibleSpace: FlexibleSpaceBar(
@@ -129,14 +132,17 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
               // 背景图片轮播
               Hero(
                 tag: 'memorial_image_${widget.memorial.id}',
-                child: PhotoCarousel(
-                  imagePaths: widget.memorial.imagePaths,
-                  imageUrls: widget.memorial.imageUrls,
-                  height: 300,
-                  showDots: totalImages > 1,
-                  showCounter: totalImages > 1,
-                  autoPlay: totalImages > 1,
-                  autoPlayInterval: const Duration(seconds: 4),
+                child: SizedBox.expand(
+                  child: PhotoCarousel(
+                    imagePaths: widget.memorial.imagePaths,
+                    imageUrls: widget.memorial.imageUrls,
+                    height: double.infinity, // 填满可用空间
+                    showDots: totalImages > 1,
+                    showCounter: totalImages > 1,
+                    autoPlay: totalImages > 1,
+                    autoPlayInterval: const Duration(seconds: 4),
+                    fullWidth: true, // 启用全屏模式
+                  ),
                 ),
               ),
             ] else ...[

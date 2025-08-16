@@ -19,6 +19,8 @@ class User {
   final String email;
   final String name;
   final String? avatar;
+  final String? phone;
+  final String? bio;
   final UserStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -30,6 +32,8 @@ class User {
     required this.email,
     required this.name,
     this.avatar,
+    this.phone,
+    this.bio,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -45,6 +49,8 @@ class User {
     String? email,
     String? name,
     String? avatar,
+    String? phone,
+    String? bio,
     UserStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -56,6 +62,8 @@ class User {
       email: email ?? this.email,
       name: name ?? this.name,
       avatar: avatar ?? this.avatar,
+      phone: phone ?? this.phone,
+      bio: bio ?? this.bio,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

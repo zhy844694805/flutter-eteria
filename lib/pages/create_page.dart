@@ -23,12 +23,20 @@ class _CreatePageState extends State<CreatePage> {
   final _descriptionController = TextEditingController();
 
   MemorialType _selectedType = MemorialType.person;
+  String _selectedRelationship = '父亲'; // 新增：关系选择
   DateTime? _birthDate;
   DateTime? _deathDate;
   final List<File> _selectedImages = [];
   bool _isPublic = true;
   final ImagePicker _picker = ImagePicker();
   bool _isCompressing = false;
+
+  // 关系选项列表
+  final List<String> _relationships = [
+    '父亲', '母亲', '祖父', '祖母', '外祖父', '外祖母',
+    '丈夫', '妻子', '儿子', '女儿', '兄弟', '姐妹',
+    '朋友', '同事', '老师', '同学', '其他亲属', '其他'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +62,10 @@ class _CreatePageState extends State<CreatePage> {
 
             // 逝者姓名
             _buildNameField(),
+            const SizedBox(height: 24),
+
+            // 与逝者关系
+            _buildRelationshipField(),
             const SizedBox(height: 24),
 
             // 出生日期
@@ -107,6 +119,51 @@ class _CreatePageState extends State<CreatePage> {
           controller: _nameController,
           decoration: const InputDecoration(hintText: '请输入逝者姓名'),
           validator: (value) => FormValidators.validateName(value, fieldName: '逝者姓名'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRelationshipField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '与逝者关系',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 10),
+        InkWell(
+          onTap: _showRelationshipPicker,
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: AppColors.cardBorder, width: 1),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _selectedRelationship,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 20,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -597,6 +654,92 @@ class _CreatePageState extends State<CreatePage> {
     });
   }
 
+  void _showRelationshipPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 顶部指示器
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 20),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // 标题
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                children: [
+                  Text(
+                    '选择与逝者的关系',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('完成'),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // 关系选项列表
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                itemCount: _relationships.length,
+                itemBuilder: (context, index) {
+                  final relationship = _relationships[index];
+                  final isSelected = relationship == _selectedRelationship;
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    title: Text(
+                      relationship,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                        fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                      ),
+                    ),
+                    trailing: isSelected 
+                        ? Icon(
+                            Icons.check,
+                            color: AppColors.primary,
+                            size: 20,
+                          )
+                        : null,
+                    onTap: () {
+                      setState(() {
+                        _selectedRelationship = relationship;
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+            // 底部安全区域
+            SizedBox(height: MediaQuery.of(context).padding.bottom),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   void _createMemorial() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -621,6 +764,7 @@ class _CreatePageState extends State<CreatePage> {
     final memorial = provider.createMemorial(
       type: _selectedType,
       name: _nameController.text.trim(),
+      relationship: _selectedRelationship,
       birthDate: _birthDate!,
       deathDate: _deathDate!,
       description: _descriptionController.text.trim(),
@@ -650,6 +794,7 @@ class _CreatePageState extends State<CreatePage> {
     _descriptionController.clear();
     setState(() {
       _selectedType = MemorialType.person;
+      _selectedRelationship = '父亲';
       _birthDate = null;
       _deathDate = null;
       _selectedImages.clear();

@@ -11,6 +11,9 @@ import 'providers/memorial_provider.dart';
 import 'providers/auth_provider.dart';
 
 void main() {
+  // 在调试模式下关闭溢出指示器
+  WidgetsFlutterBinding.ensureInitialized();
+  
   runApp(const EteriaApp());
 }
 
@@ -43,6 +46,13 @@ class EteriaApp extends StatelessWidget {
           Locale('zh', 'CN'), // 中文简体
           Locale('en', 'US'), // 英文（备用）
         ],
+        // 关闭溢出警告（黄黑条纹）
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+            child: child!,
+          );
+        },
         home: const MainScreen(),
       ),
     );
