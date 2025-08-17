@@ -119,7 +119,11 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
     return Stack(
       children: [
         widget.fullWidth
-            ? SizedBox.expand(child: pageView)
+            ? SizedBox(
+                width: double.infinity,
+                height: double.infinity,
+                child: pageView,
+              )
             : SizedBox(height: widget.height, child: pageView),
 
         // 图片计数器
@@ -147,50 +151,54 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
         // 导航箭头
         if (allImages.length > 1) ...[
           // 左箭头
-          if (_currentIndex > 0)
-            Positioned(
-              left: 16,
-              top: widget.height / 2 - 20,
+          Positioned(
+            left: 16,
+            top: 0,
+            bottom: 0,
+            child: Center(
               child: GestureDetector(
                 onTap: _previousImage,
                 child: Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: Colors.black.withValues(alpha: _currentIndex > 0 ? 0.5 : 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.chevron_left,
-                    color: Colors.white,
+                    color: Colors.white.withValues(alpha: _currentIndex > 0 ? 1.0 : 0.5),
                     size: 24,
                   ),
                 ),
               ),
             ),
+          ),
 
           // 右箭头
-          if (_currentIndex < allImages.length - 1)
-            Positioned(
-              right: 16,
-              top: widget.height / 2 - 20,
+          Positioned(
+            right: 16,
+            top: 0,
+            bottom: 0,
+            child: Center(
               child: GestureDetector(
                 onTap: _nextImage,
                 child: Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: Colors.black.withValues(alpha: _currentIndex < allImages.length - 1 ? 0.5 : 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.chevron_right,
-                    color: Colors.white,
+                    color: Colors.white.withValues(alpha: _currentIndex < allImages.length - 1 ? 1.0 : 0.5),
                     size: 24,
                   ),
                 ),
               ),
             ),
+          ),
         ],
 
         // 页面指示器
@@ -215,8 +223,8 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
     Widget imageWidget = PlatformImage(
       imagePath: imagePath,
       fit: BoxFit.cover,
-      width: double.infinity,
-      height: widget.height == double.infinity ? null : widget.height,
+      width: widget.fullWidth ? null : double.infinity,
+      height: widget.fullWidth ? null : widget.height,
       borderRadius: widget.fullWidth ? null : BorderRadius.circular(15),
     );
 
@@ -224,7 +232,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
       // 全屏模式：不添加边距，不添加圆角，完全填满容器
       return GestureDetector(
         onTap: () => _showFullScreenImage(imagePath),
-        child: SizedBox.expand(child: imageWidget),
+        child: imageWidget,
       );
     } else {
       // 普通模式：添加边距和圆角
@@ -258,9 +266,11 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
 
 
   void _previousImage() {
-    if (_currentIndex > 0) {
+    if (_pageController.hasClients && allImages.length > 1) {
       _resetAutoPlay();
-      _pageController.previousPage(
+      final targetIndex = _currentIndex > 0 ? _currentIndex - 1 : allImages.length - 1;
+      _pageController.animateToPage(
+        targetIndex,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -268,9 +278,11 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
   }
 
   void _nextImage() {
-    if (_currentIndex < allImages.length - 1) {
+    if (_pageController.hasClients && allImages.length > 1) {
       _resetAutoPlay();
-      _pageController.nextPage(
+      final targetIndex = _currentIndex < allImages.length - 1 ? _currentIndex + 1 : 0;
+      _pageController.animateToPage(
+        targetIndex,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );

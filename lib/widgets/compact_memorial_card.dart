@@ -80,8 +80,6 @@ class CompactMemorialCard extends StatelessWidget {
     return PlatformImage(
       imagePath: primaryImage,
       fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
     );
   }
 

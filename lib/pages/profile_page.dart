@@ -16,7 +16,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _bioController = TextEditingController();
   
   bool _isEditing = false;
   bool _isLoading = false;
@@ -34,7 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
       _nameController.text = user.name;
       _emailController.text = user.email;
       _phoneController.text = user.phone ?? '';
-      _bioController.text = user.bio ?? '';
     }
   }
 
@@ -212,14 +210,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 16),
           
-          _buildFormField(
-            label: '个人简介',
-            controller: _bioController,
-            enabled: _isEditing,
-            maxLines: 3,
-            prefixIcon: Icons.description_outlined,
-            hintText: '简单介绍一下自己...',
-          ),
         ],
       ),
     );
@@ -422,7 +412,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _bioController.dispose();
     super.dispose();
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../services/auth_service.dart';
-import 'email_verification_page.dart';
+import '../providers/auth_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -16,10 +16,13 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _verificationCodeController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
   bool _agreedToTerms = false;
+  bool _isCodeSent = false;
+  bool _isSendingCode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +104,8 @@ class _RegisterPageState extends State<RegisterPage> {
           _buildNameField(),
           const SizedBox(height: 20),
           _buildEmailField(),
+          const SizedBox(height: 20),
+          _buildVerificationCodeField(),
           const SizedBox(height: 20),
           _buildPasswordField(),
           const SizedBox(height: 20),
@@ -198,6 +203,88 @@ class _RegisterPageState extends State<RegisterPage> {
             }
             return null;
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerificationCodeField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '邮箱验证码',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: TextFormField(
+                controller: _verificationCodeController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: '请输入验证码',
+                  prefixIcon: const Icon(Icons.security_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.cardBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.cardBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.primary, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return '请输入验证码';
+                  }
+                  if (value.trim().length != 6) {
+                    return '验证码必须是6位数字';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 1,
+              child: ElevatedButton(
+                onPressed: _isSendingCode ? null : _handleSendVerificationCode,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+                child: _isSendingCode
+                    ? const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        _isCodeSent ? '重新发送' : '发送验证码',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -427,6 +514,64 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  Future<void> _handleSendVerificationCode() async {
+    if (_emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('请先输入邮箱地址'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSendingCode = true;
+    });
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.sendVerificationCode(_emailController.text.trim());
+
+      if (mounted) {
+        if (success) {
+          setState(() {
+            _isCodeSent = true;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('验证码已发送到您的邮箱'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        } else {
+          final errorMessage = authProvider.lastError ?? '验证码发送失败，请重试';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('验证码发送失败: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSendingCode = false;
+        });
+      }
+    }
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -447,35 +592,31 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     try {
-      final authService = await AuthService.getInstance();
-      final result = await authService.register(
-        email: _emailController.text.trim(),
-        name: _nameController.text.trim(),
-        password: _passwordController.text,
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.register(
+        _emailController.text.trim(),
+        _nameController.text.trim(),
+        _passwordController.text,
+        _verificationCodeController.text.trim(),
       );
 
       if (mounted) {
-        if (result.success) {
+        if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result.message),
+            const SnackBar(
+              content: Text('注册成功！欢迎加入永念'),
               backgroundColor: AppColors.success,
             ),
           );
 
-          // 跳转到邮箱验证页面
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => EmailVerificationPage(
-                email: _emailController.text.trim(),
-                userName: _nameController.text.trim(),
-              ),
-            ),
-          );
+          // 注册成功后清除所有导航栈，返回到主界面
+          // AuthProvider状态已更新，main.dart会显示已登录的主界面
+          Navigator.of(context).popUntil((route) => route.isFirst);
         } else {
+          final errorMessage = authProvider.lastError ?? '注册失败';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.message),
+              content: Text(errorMessage),
               backgroundColor: AppColors.error,
             ),
           );
@@ -505,6 +646,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _verificationCodeController.dispose();
     super.dispose();
   }
 }

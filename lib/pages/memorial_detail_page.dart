@@ -54,33 +54,8 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
     
     _animationController.forward();
     
-    // 模拟初始数据
-    _likeCount = (widget.memorial.id * 7) % 50 + 10; // 随机点赞数
-    _initializeComments();
-  }
-
-  void _initializeComments() {
-    // 模拟一些评论数据
-    _comments.addAll([
-      Comment(
-        id: 1,
-        authorName: '小明',
-        content: '愿${widget.memorial.name}在天堂安好，永远怀念。',
-        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      ),
-      Comment(
-        id: 2,
-        authorName: '小红',
-        content: '看到照片就想起了美好的回忆，感谢分享。',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      Comment(
-        id: 3,
-        authorName: '老李',
-        content: '真的很温馨的纪念，${widget.memorial.name}一定能感受到大家的思念。',
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      ),
-    ]);
+    // 使用真实数据
+    _likeCount = widget.memorial.likeCount ?? 0;
   }
 
   @override
@@ -132,17 +107,15 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
               // 背景图片轮播
               Hero(
                 tag: 'memorial_image_${widget.memorial.id}',
-                child: SizedBox.expand(
-                  child: PhotoCarousel(
-                    imagePaths: widget.memorial.imagePaths,
-                    imageUrls: widget.memorial.imageUrls,
-                    height: double.infinity, // 填满可用空间
-                    showDots: totalImages > 1,
-                    showCounter: totalImages > 1,
-                    autoPlay: totalImages > 1,
-                    autoPlayInterval: const Duration(seconds: 4),
-                    fullWidth: true, // 启用全屏模式
-                  ),
+                child: PhotoCarousel(
+                  imagePaths: widget.memorial.imagePaths,
+                  imageUrls: widget.memorial.imageUrls,
+                  height: 300, // 固定高度而不是无穷大
+                  showDots: totalImages > 1,
+                  showCounter: totalImages > 1,
+                  autoPlay: totalImages > 1,
+                  autoPlayInterval: const Duration(seconds: 4),
+                  fullWidth: true, // 启用全屏模式
                 ),
               ),
             ] else ...[
@@ -167,43 +140,18 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
                 ),
               ),
             ],
-            // 渐变蒙层
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.transparent,
-                    Color(0x88000000),
-                  ],
-                ),
-              ),
-            ),
-            // 类型标签
-            Positioned(
-              top: hasImages ? 100 : 50,
-              right: 20,
+            // 渐变蒙层 - 忽略点击事件以免阻挡导航按钮
+            IgnorePointer(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  widget.memorial.typeText,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.transparent,
+                      Color(0x88000000),
+                    ],
                   ),
                 ),
               ),
@@ -326,7 +274,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
               const SizedBox(width: 24),
               _buildStatItem(Icons.chat_bubble_outline, '${_comments.length}', '留言'),
               const SizedBox(width: 24),
-              _buildStatItem(Icons.visibility, '${widget.memorial.id * 23}', '浏览'),
+              _buildStatItem(Icons.visibility, '${widget.memorial.viewCount ?? 0}', '浏览'),
             ],
           ),
         ],

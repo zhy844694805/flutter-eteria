@@ -5,6 +5,7 @@ import 'dart:io';
 import '../models/memorial.dart';
 import '../theme/app_theme.dart';
 import '../providers/memorial_provider.dart';
+import '../services/file_service.dart';
 import '../utils/image_helper.dart';
 import '../utils/form_validators.dart';
 import '../utils/error_handler.dart';
@@ -29,7 +30,9 @@ class _CreatePageState extends State<CreatePage> {
   final List<File> _selectedImages = [];
   bool _isPublic = true;
   final ImagePicker _picker = ImagePicker();
+  final FileService _fileService = FileService();
   bool _isCompressing = false;
+  bool _isUploading = false;
 
   // 关系选项列表
   final List<String> _relationships = [
@@ -432,21 +435,46 @@ class _CreatePageState extends State<CreatePage> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _createMemorial,
+        onPressed: _isUploading ? null : _createMemorial,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
         ),
-        child: const Text(
-          '创建纪念',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.5,
-          ),
-        ),
+        child: _isUploading
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _selectedImages.isNotEmpty ? '上传图片中...' : '创建中...',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              )
+            : const Text(
+                '创建纪念',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
       ),
     );
   }
@@ -758,33 +786,71 @@ class _CreatePageState extends State<CreatePage> {
       return;
     }
 
-    // 使用Provider创建纪念
-    final provider = Provider.of<MemorialProvider>(context, listen: false);
+    setState(() {
+      _isUploading = true;
+    });
 
-    final memorial = provider.createMemorial(
-      type: _selectedType,
-      name: _nameController.text.trim(),
-      relationship: _selectedRelationship,
-      birthDate: _birthDate!,
-      deathDate: _deathDate!,
-      description: _descriptionController.text.trim(),
-      imagePaths: _selectedImages.map((file) => file.path).toList(),
-      isPublic: _isPublic,
-    );
+    try {
+      // 上传图片
+      List<String> imageUrls = [];
+      if (_selectedImages.isNotEmpty) {
+        try {
+          print('🔄 [CreatePage] Starting file upload...');
+          final uploadedFiles = await _fileService.uploadFiles(_selectedImages);
+          imageUrls = uploadedFiles.map((file) => file['url'] as String).toList();
+          print('✅ [CreatePage] Files uploaded successfully: $imageUrls');
+        } catch (e) {
+          print('❌ [CreatePage] File upload failed: $e');
+          // 暂时跳过文件上传错误，继续创建纪念
+          if (mounted) {
+            ErrorHandler.showWarning(context, '图片上传失败，但纪念已创建。您可以稍后编辑添加图片。');
+          }
+        }
+      }
 
-    final success = await provider.addMemorial(memorial);
+      // 创建纪念对象
+      final memorial = Memorial(
+        id: 0, // 后端会生成真实ID
+        type: _selectedType,
+        name: _nameController.text.trim(),
+        relationship: _selectedRelationship,
+        birthDate: _birthDate!,
+        deathDate: _deathDate!,
+        description: _descriptionController.text.trim(),
+        imagePaths: [],
+        imageUrls: imageUrls,
+        isPublic: _isPublic,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
 
-    if (mounted) {
-      if (success) {
-        ErrorHandler.showSuccess(context, '纪念创建成功！');
+      // 使用Provider创建纪念
+      if (!mounted) return;
+      final provider = Provider.of<MemorialProvider>(context, listen: false);
+      final success = await provider.addMemorial(memorial);
 
-        // 清空表单
-        _resetForm();
+      if (mounted) {
+        if (success) {
+          ErrorHandler.showSuccess(context, '纪念创建成功！');
 
-        // 返回首页
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      } else {
-        ErrorHandler.showError(context, provider.error ?? '创建失败');
+          // 清空表单
+          _resetForm();
+
+          // 返回首页
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } else {
+          ErrorHandler.showError(context, provider.error ?? '创建失败');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.showError(context, '图片上传失败: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
       }
     }
   }
@@ -800,6 +866,7 @@ class _CreatePageState extends State<CreatePage> {
       _selectedImages.clear();
       _isPublic = true;
       _isCompressing = false;
+      _isUploading = false;
     });
   }
 

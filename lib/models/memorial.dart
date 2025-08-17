@@ -10,16 +10,28 @@ enum MemorialType {
 @JsonSerializable()
 class Memorial {
   final int id;
+  @JsonKey(name: 'memorial_type')
   final MemorialType type;
   final String name;
   final String? relationship; // 新增：与逝者的关系
+  @JsonKey(name: 'birth_date')
   final DateTime birthDate;
+  @JsonKey(name: 'death_date')
   final DateTime deathDate;
   final String description;
+  @JsonKey(name: 'image_paths')
   final List<String> imagePaths;
+  @JsonKey(name: 'image_urls')
   final List<String> imageUrls;
+  @JsonKey(name: 'is_public')
   final bool isPublic;
+  @JsonKey(name: 'view_count')
+  final int? viewCount;
+  @JsonKey(name: 'like_count')
+  final int? likeCount;
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
+  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   Memorial({
@@ -33,12 +45,40 @@ class Memorial {
     this.imagePaths = const [],
     this.imageUrls = const [],
     required this.isPublic,
+    this.viewCount,
+    this.likeCount,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  factory Memorial.fromJson(Map<String, dynamic> json) => _$MemorialFromJson(json);
+  factory Memorial.fromJson(Map<String, dynamic> json) {
+    // 处理后端返回的 files 字段
+    List<String> imageUrls = [];
+    if (json['files'] != null && json['files'] is List) {
+      imageUrls = (json['files'] as List)
+          .where((file) => file['file_type'] == 'image')
+          .map((file) => file['file_url'] as String)
+          .toList();
+    }
+    
+    // 如果有直接的 image_urls 字段，也要处理
+    if (json['image_urls'] != null && json['image_urls'] is List) {
+      imageUrls.addAll((json['image_urls'] as List).cast<String>());
+    }
+    
+    // 创建一个新的 json 对象，包含处理后的 image_urls
+    final processedJson = Map<String, dynamic>.from(json);
+    processedJson['image_urls'] = imageUrls;
+    
+    return _$MemorialFromJson(processedJson);
+  }
   Map<String, dynamic> toJson() => _$MemorialToJson(this);
+  
+  Map<String, dynamic> toCreateJson() {
+    final json = toJson();
+    json.remove('id');
+    return json;
+  }
 
   Memorial copyWith({
     int? id,
@@ -51,6 +91,8 @@ class Memorial {
     List<String>? imagePaths,
     List<String>? imageUrls,
     bool? isPublic,
+    int? viewCount,
+    int? likeCount,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -65,6 +107,8 @@ class Memorial {
       imagePaths: imagePaths ?? this.imagePaths,
       imageUrls: imageUrls ?? this.imageUrls,
       isPublic: isPublic ?? this.isPublic,
+      viewCount: viewCount ?? this.viewCount,
+      likeCount: likeCount ?? this.likeCount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

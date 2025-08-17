@@ -6,6 +6,7 @@ import 'pages/home_page.dart';
 import 'pages/create_page.dart';
 import 'pages/digital_life_page.dart';
 import 'pages/my_page.dart';
+import 'pages/login_page.dart';
 import 'widgets/bottom_navigation_bar.dart';
 import 'providers/memorial_provider.dart';
 import 'providers/auth_provider.dart';
@@ -28,7 +29,7 @@ class EteriaApp extends StatelessWidget {
           create: (context) => AuthProvider()..initialize(),
         ),
         ChangeNotifierProvider(
-          create: (context) => MemorialProvider()..initialize(),
+          create: (context) => MemorialProvider(),
         ),
       ],
       child: MaterialApp(
@@ -78,19 +79,36 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: AppDecorations.backgroundDecoration,
-        child: _pages[_currentIndex],
-      ),
-      bottomNavigationBar: AppBottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        // 如果正在加载，显示加载页面
+        if (authProvider.isLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        
+        // 如果用户未登录，显示登录页面
+        if (!authProvider.isLoggedIn) {
+          return const LoginPage();
+        }
+        
+        // 用户已登录，显示主界面
+        return Scaffold(
+          body: Container(
+            decoration: AppDecorations.backgroundDecoration,
+            child: _pages[_currentIndex],
+          ),
+          bottomNavigationBar: AppBottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+          ),
+        );
+      },
     );
   }
 }

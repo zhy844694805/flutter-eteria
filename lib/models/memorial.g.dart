@@ -8,36 +8,44 @@ part of 'memorial.dart';
 
 Memorial _$MemorialFromJson(Map<String, dynamic> json) => Memorial(
   id: (json['id'] as num).toInt(),
-  type: $enumDecode(_$MemorialTypeEnumMap, json['type']),
+  type: $enumDecode(_$MemorialTypeEnumMap, json['memorial_type']),
   name: json['name'] as String,
-  birthDate: DateTime.parse(json['birthDate'] as String),
-  deathDate: DateTime.parse(json['deathDate'] as String),
+  relationship: json['relationship'] as String?,
+  birthDate: DateTime.parse(json['birth_date'] as String),
+  deathDate: DateTime.parse(json['death_date'] as String),
   description: json['description'] as String,
   imagePaths:
-      (json['imagePaths'] as List<dynamic>?)
+      (json['image_paths'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
       const [],
   imageUrls:
-      (json['imageUrls'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      (json['image_urls'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
       const [],
-  isPublic: json['isPublic'] as bool,
-  createdAt: DateTime.parse(json['createdAt'] as String),
-  updatedAt: DateTime.parse(json['updatedAt'] as String),
+  isPublic: json['is_public'] as bool,
+  viewCount: (json['view_count'] as num?)?.toInt(),
+  likeCount: (json['like_count'] as num?)?.toInt(),
+  createdAt: DateTime.parse(json['created_at'] as String),
+  updatedAt: DateTime.parse(json['updated_at'] as String),
 );
 
 Map<String, dynamic> _$MemorialToJson(Memorial instance) => <String, dynamic>{
   'id': instance.id,
-  'type': _$MemorialTypeEnumMap[instance.type]!,
+  'memorial_type': _$MemorialTypeEnumMap[instance.type]!,
   'name': instance.name,
-  'birthDate': instance.birthDate.toIso8601String(),
-  'deathDate': instance.deathDate.toIso8601String(),
+  'relationship': instance.relationship,
+  'birth_date': instance.birthDate.toIso8601String(),
+  'death_date': instance.deathDate.toIso8601String(),
   'description': instance.description,
-  'imagePaths': instance.imagePaths,
-  'imageUrls': instance.imageUrls,
-  'isPublic': instance.isPublic,
-  'createdAt': instance.createdAt.toIso8601String(),
-  'updatedAt': instance.updatedAt.toIso8601String(),
+  'image_paths': instance.imagePaths,
+  'image_urls': instance.imageUrls,
+  'is_public': instance.isPublic,
+  'view_count': instance.viewCount,
+  'like_count': instance.likeCount,
+  'created_at': instance.createdAt.toIso8601String(),
+  'updated_at': instance.updatedAt.toIso8601String(),
 };
 
 const _$MemorialTypeEnumMap = {MemorialType.person: 'person'};

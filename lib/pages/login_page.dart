@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../services/auth_service.dart';
 import '../providers/auth_provider.dart';
 import '../utils/form_validators.dart';
-import '../utils/error_handler.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -49,11 +47,9 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 24),
                     _buildLoginButton(),
                     const SizedBox(height: 16),
-                    _buildForgotPassword(),
-                    const SizedBox(height: 32),
-                    _buildDivider(),
-                    const SizedBox(height: 24),
                     _buildRegisterLink(),
+                    const SizedBox(height: 16),
+                    _buildForgotPassword(),
                   ],
                 ),
               ),
@@ -283,28 +279,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Divider(color: AppColors.cardBorder),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            '或',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Divider(color: AppColors.cardBorder),
-        ),
-      ],
-    );
-  }
 
   Widget _buildRegisterLink() {
     return Row(
@@ -348,31 +322,41 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      final authService = await AuthService.getInstance();
-      final result = await authService.login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.login(
+        _emailController.text.trim(),
+        _passwordController.text,
       );
 
       if (mounted) {
-        if (result.success) {
-          // 更新AuthProvider状态
-          if (mounted) {
-            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-            authProvider.setCurrentUser(result.user!);
-          }
-
-          ErrorHandler.showSuccess(context, result.message);
-
-          // 返回主页
-          Navigator.of(context).pop();
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('登录成功'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          // 不需要导航，AuthProvider状态变化会自动更新UI
         } else {
-          ErrorHandler.showError(context, result.message);
+          final errorMessage = authProvider.lastError ?? '登录失败';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: AppColors.error,
+            ),
+          );
         }
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.showError(context, '登录失败: $e');
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final errorMessage = authProvider.lastError ?? '登录失败';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     } finally {
       if (mounted) {

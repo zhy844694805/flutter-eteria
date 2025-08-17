@@ -7,11 +7,13 @@ import '../providers/auth_provider.dart';
 class EmailVerificationPage extends StatefulWidget {
   final String email;
   final String userName;
+  final bool isVerified;
 
   const EmailVerificationPage({
     super.key,
     required this.email,
     required this.userName,
+    this.isVerified = false,
   });
 
   @override
@@ -72,11 +74,15 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                     children: [
                       _buildHeader(),
                       const SizedBox(height: 40),
-                      _buildVerificationForm(),
-                      const SizedBox(height: 24),
-                      _buildVerifyButton(),
-                      const SizedBox(height: 24),
-                      _buildResendSection(),
+                      if (widget.isVerified) 
+                        _buildSuccessMessage()
+                      else ...[
+                        _buildVerificationForm(),
+                        const SizedBox(height: 24),
+                        _buildVerifyButton(),
+                        const SizedBox(height: 24),
+                        _buildResendSection(),
+                      ],
                     ],
                   ),
                 ),
@@ -134,6 +140,87 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSuccessMessage() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppColors.success,
+              borderRadius: BorderRadius.circular(40),
+            ),
+            child: const Icon(
+              Icons.check,
+              color: Colors.white,
+              size: 40,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            '注册成功！',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '欢迎加入永念，${widget.userName}！',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '您的邮箱 ${widget.email} 已通过验证',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text(
+                '开始使用永念',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -351,16 +438,13 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final result = await authProvider.verifyEmail(
-        email: widget.email,
-        verificationCode: code,
-      );
+      final success = await authProvider.verifyEmail(widget.email, code);
 
       if (mounted) {
-        if (result.success) {
+        if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.message),
+              content: Text('邮箱验证成功'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -370,7 +454,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.message),
+              content: Text('验证失败'),
               backgroundColor: AppColors.error,
             ),
           );
@@ -403,17 +487,17 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final result = await authProvider.resendVerificationCode(widget.email);
+      final success = await authProvider.resendVerificationCode(widget.email);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.message),
-            backgroundColor: result.success ? AppColors.success : AppColors.error,
+            content: Text(success ? '验证码已重新发送' : '发送失败'),
+            backgroundColor: success ? AppColors.success : AppColors.error,
           ),
         );
 
-        if (result.success) {
+        if (success) {
           _startCountdown();
         }
       }
