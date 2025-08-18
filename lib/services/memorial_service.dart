@@ -63,4 +63,25 @@ class MemorialService {
     });
     return response['data']['comment'];
   }
+  
+  Future<Map<String, dynamic>> toggleFavorite(int memorialId) async {
+    print('🌐 [MemorialService] 正在切换收藏状态: memorial_id=$memorialId');
+    final response = await _api.post('/memorials/$memorialId/favorite');
+    print('📦 [MemorialService] 收藏响应: $response');
+    return response['data'];
+  }
+  
+  Future<Map<String, dynamic>> getUserFavorites({int page = 1, int limit = 10}) async {
+    print('🌐 [MemorialService] 正在获取用户收藏: page=$page, limit=$limit');
+    final response = await _api.get('/memorials/user/favorites?page=$page&limit=$limit');
+    print('📦 [MemorialService] 收藏列表响应: $response');
+    return response['data'];
+  }
+  
+  Future<Map<String, dynamic>> getUserComments({int page = 1, int limit = 10}) async {
+    print('🌐 [MemorialService] 正在获取用户评论: page=$page, limit=$limit');
+    final response = await _api.get('/memorials/user/comments?page=$page&limit=$limit');
+    print('📦 [MemorialService] 评论列表响应: $response');
+    return response['data'];
+  }
 }

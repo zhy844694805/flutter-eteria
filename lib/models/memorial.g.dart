@@ -29,6 +29,7 @@ Memorial _$MemorialFromJson(Map<String, dynamic> json) => Memorial(
   likeCount: (json['like_count'] as num?)?.toInt(),
   createdAt: DateTime.parse(json['created_at'] as String),
   updatedAt: DateTime.parse(json['updated_at'] as String),
+  user: json['user'] as Map<String, dynamic>?,
 );
 
 Map<String, dynamic> _$MemorialToJson(Memorial instance) => <String, dynamic>{
@@ -46,6 +47,7 @@ Map<String, dynamic> _$MemorialToJson(Memorial instance) => <String, dynamic>{
   'like_count': instance.likeCount,
   'created_at': instance.createdAt.toIso8601String(),
   'updated_at': instance.updatedAt.toIso8601String(),
+  'user': instance.user,
 };
 
 const _$MemorialTypeEnumMap = {MemorialType.person: 'person'};

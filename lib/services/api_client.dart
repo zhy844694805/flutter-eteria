@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
   // iOS模拟器使用127.0.0.1而不是localhost
@@ -48,6 +49,16 @@ class ApiClient {
     final data = json.decode(response.body);
     if (response.statusCode >= 400) {
       print('❌ [ApiClient] Error: ${data['error']?['message']}');
+      
+      // 如果用户不存在或token无效，清除token
+      final errorCode = data['error']?['code'];
+      if (errorCode == 'USER_NOT_FOUND' || errorCode == 'INVALID_TOKEN') {
+        print('🔄 [ApiClient] 清除无效token');
+        token = null;
+        // 同时清除本地存储的token和用户数据
+        _clearLocalData();
+      }
+      
       throw Exception(data['error']?['message'] ?? 'Request failed');
     }
     return data;
@@ -57,4 +68,16 @@ class ApiClient {
   Future<Map<String, dynamic>> post(String endpoint, {Map<String, dynamic>? body}) => request('POST', endpoint, body: body);
   Future<Map<String, dynamic>> put(String endpoint, {Map<String, dynamic>? body}) => request('PUT', endpoint, body: body);
   Future<Map<String, dynamic>> delete(String endpoint) => request('DELETE', endpoint);
+
+  // 清除本地存储的认证数据
+  void _clearLocalData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('current_user');
+      await prefs.remove('auth_token');
+      print('🧹 [ApiClient] 已清除本地认证数据');
+    } catch (e) {
+      print('❌ [ApiClient] 清除本地数据失败: $e');
+    }
+  }
 }

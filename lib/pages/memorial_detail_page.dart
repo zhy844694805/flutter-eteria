@@ -28,6 +28,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
   final ScrollController _scrollController = ScrollController();
   bool _isLiked = false;
   int _likeCount = 0;
+  bool _isFavorited = false;
   final List<Comment> _comments = [];
   final TextEditingController _commentController = TextEditingController();
   final MemorialService _memorialService = MemorialService();
@@ -479,7 +480,16 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
               onPressed: _toggleLike,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildActionButton(
+              icon: _isFavorited ? Icons.bookmark : Icons.bookmark_outline,
+              label: '收藏',
+              color: _isFavorited ? AppColors.primary : AppColors.textSecondary,
+              onPressed: _toggleFavorite,
+            ),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: _buildActionButton(
               icon: Icons.chat_bubble_outline,
@@ -488,7 +498,7 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
               onPressed: _showCommentDialog,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: _buildActionButton(
               icon: Icons.share,
@@ -512,32 +522,37 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
           decoration: BoxDecoration(
             color: AppColors.surfaceVariant.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: AppColors.cardBorder,
               width: 1,
             ),
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
-                size: 18,
+                size: 20,
                 color: color,
               ),
-              const SizedBox(width: 6),
+              const SizedBox(height: 4),
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: color,
                   fontWeight: FontWeight.w500,
+                  fontSize: 10,
                 ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -739,6 +754,34 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
           content: const Text('操作失败，请重试'),
           duration: const Duration(seconds: 2),
           backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _toggleFavorite() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    try {
+      final result = await _memorialService.toggleFavorite(widget.memorial.id);
+      
+      setState(() {
+        _isFavorited = result['favorited'] ?? false;
+      });
+      
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(_isFavorited ? '已收藏' : '取消收藏'),
+          duration: const Duration(seconds: 1),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: const Text('操作失败，请重试'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.error,
         ),
       );
     }

@@ -121,6 +121,7 @@ class MemorialProvider extends ChangeNotifier {
           updatedAt: memorial.updatedAt,
           likeCount: newLikeCount,
           viewCount: memorial.viewCount,
+          user: memorial.user,
         );
         
         notifyListeners();
@@ -161,6 +162,7 @@ class MemorialProvider extends ChangeNotifier {
           updatedAt: memorial.updatedAt,
           likeCount: memorial.likeCount,
           viewCount: newViewCount,
+          user: memorial.user,
         );
         
         notifyListeners();

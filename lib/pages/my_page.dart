@@ -9,6 +9,10 @@ import 'privacy_policy_page.dart';
 import 'profile_page.dart';
 import 'privacy_settings_page.dart';
 import 'notification_settings_page.dart';
+import 'feedback_page.dart';
+import 'my_memorials_page.dart';
+import 'my_comments_page.dart';
+import 'my_favorites_page.dart';
 
 class MyPage extends StatelessWidget {
   const MyPage({super.key});
@@ -28,11 +32,6 @@ class MyPage extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        // 统计信息卡片
-                        if (authProvider.isLoggedIn) ...[
-                          _buildStatsCard(context, memorialProvider),
-                          const SizedBox(height: 24),
-                        ],
                         
                         // 我的纪念部分
                         _buildMemorialSection(context, authProvider),
@@ -180,61 +179,6 @@ class MyPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsCard(BuildContext context, MemorialProvider memorialProvider) {
-    // 模拟统计数据
-    final myMemorials = memorialProvider.memorials.length;
-    final totalLikes = myMemorials * 15; // 模拟数据
-    final totalComments = myMemorials * 8; // 模拟数据
-    final totalVisits = myMemorials * 120; // 模拟数据
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: AppDecorations.cardDecoration,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '我的数据',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(child: _buildStatItem(context, '$myMemorials', '纪念', Icons.create)),
-              Expanded(child: _buildStatItem(context, '$totalLikes', '献花', Icons.local_florist)),
-              Expanded(child: _buildStatItem(context, '$totalComments', '留言', Icons.chat_bubble)),
-              Expanded(child: _buildStatItem(context, '$totalVisits', '浏览', Icons.visibility)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(BuildContext context, String count, String label, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, size: 24, color: AppColors.primary),
-        const SizedBox(height: 8),
-        Text(
-          count,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildMemorialSection(BuildContext context, AuthProvider authProvider) {
     return _buildMenuSection(
@@ -246,19 +190,19 @@ class MyPage extends StatelessWidget {
           icon: Icons.create,
           title: '我创建的纪念',
           subtitle: '查看和管理您创建的纪念',
-          onTap: () => _showComingSoon(context, '我创建的纪念'),
+          onTap: () => _navigateToMyMemorials(context),
         ),
         MenuItem(
           icon: Icons.bookmark,
           title: '我收藏的纪念',
           subtitle: '查看收藏的纪念内容',
-          onTap: () => _showComingSoon(context, '我收藏的纪念'),
+          onTap: () => _navigateToMyFavorites(context),
         ),
         MenuItem(
           icon: Icons.chat_bubble,
           title: '我的留言',
           subtitle: '查看我发表的所有留言',
-          onTap: () => _showComingSoon(context, '我的留言'),
+          onTap: () => _navigateToMyComments(context),
         ),
       ],
     );
@@ -275,12 +219,6 @@ class MyPage extends StatelessWidget {
           title: '消息通知',
           subtitle: '查看系统消息和互动提醒',
           onTap: () => _showComingSoon(context, '消息通知'),
-        ),
-        MenuItem(
-          icon: Icons.history,
-          title: '浏览历史',
-          subtitle: '查看最近浏览的纪念',
-          onTap: () => _showComingSoon(context, '浏览历史'),
         ),
       ],
     );
@@ -324,7 +262,7 @@ class MyPage extends StatelessWidget {
           icon: Icons.feedback,
           title: '意见反馈',
           subtitle: '向我们提供宝贵建议',
-          onTap: () => _showComingSoon(context, '意见反馈'),
+          onTap: () => _navigateToFeedback(context),
         ),
         MenuItem(
           icon: Icons.policy,
@@ -495,6 +433,38 @@ class MyPage extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const NotificationSettingsPage(),
+      ),
+    );
+  }
+
+  void _navigateToFeedback(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const FeedbackPage(),
+      ),
+    );
+  }
+
+  void _navigateToMyMemorials(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const MyMemorialsPage(),
+      ),
+    );
+  }
+
+  void _navigateToMyFavorites(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const MyFavoritesPage(),
+      ),
+    );
+  }
+
+  void _navigateToMyComments(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const MyCommentsPage(),
       ),
     );
   }

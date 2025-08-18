@@ -15,8 +15,15 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     
-    await _service.initializeToken();
-    _currentUser = await _service.getCurrentUser();
+    try {
+      await _service.initializeToken();
+      _currentUser = await _service.getCurrentUser();
+    } catch (e) {
+      print('⚠️ [AuthProvider] 初始化失败，可能token已失效: $e');
+      // 如果获取用户信息失败，清除当前用户状态
+      _currentUser = null;
+      // 这里不需要调用logout，因为token已经在ApiClient中被清除了
+    }
     
     _isLoading = false;
     notifyListeners();

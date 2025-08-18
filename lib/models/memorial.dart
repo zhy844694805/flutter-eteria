@@ -33,6 +33,7 @@ class Memorial {
   final DateTime createdAt;
   @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
+  final Map<String, dynamic>? user;
 
   Memorial({
     required this.id,
@@ -49,6 +50,7 @@ class Memorial {
     this.likeCount,
     required this.createdAt,
     required this.updatedAt,
+    this.user,
   });
 
   factory Memorial.fromJson(Map<String, dynamic> json) {
@@ -95,6 +97,7 @@ class Memorial {
     int? likeCount,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Map<String, dynamic>? user,
   }) {
     return Memorial(
       id: id ?? this.id,
@@ -111,6 +114,7 @@ class Memorial {
       likeCount: likeCount ?? this.likeCount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      user: user ?? this.user,
     );
   }
 
@@ -140,5 +144,16 @@ class Memorial {
     if (imageUrls.isNotEmpty) return imageUrls.first;
     if (imagePaths.isNotEmpty) return imagePaths.first;
     return null;
+  }
+
+  // 获取创建者用户ID
+  int? get userId {
+    return user?['id'];
+  }
+
+  // 检查是否为当前用户创建的纪念
+  bool isOwnedBy(int? currentUserId) {
+    if (currentUserId == null || userId == null) return false;
+    return userId == currentUserId;
   }
 }
