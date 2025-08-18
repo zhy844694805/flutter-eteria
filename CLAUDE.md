@@ -105,6 +105,9 @@ The app uses a **two-step registration process**:
 - `GET /auth/me` - Get current user
 - `GET /memorials` - List memorials
 - `POST /memorials` - Create memorial
+- `POST /memorials/:id/like` - Toggle like/unlike for memorial
+- `POST /memorials/:id/view` - Increment view count for memorial
+- `GET /memorials/:id/stats` - Get memorial statistics (likes, views, comments)
 - `POST /files/upload` - Upload multiple files (supports `memorial_id` parameter)
 - `POST /files/upload-single` - Upload single file
 - `DELETE /files/:id` - Delete file
@@ -122,14 +125,18 @@ The app uses a **two-step registration process**:
 - Includes relationship field for connection to deceased
 - Date formatting utilities for birth/death dates
 - Public/private visibility settings
+- **Interactive features**: `likeCount` and `viewCount` fields for user engagement tracking
 - **Critical**: Uses `@JsonKey` annotations for field mapping between frontend (camelCase) and backend (snake_case)
-- **Field mappings**: `type` → `memorial_type`, `birthDate` → `birth_date`, `deathDate` → `death_date`, `isPublic` → `is_public`, etc.
+- **Field mappings**: `type` → `memorial_type`, `birthDate` → `birth_date`, `deathDate` → `death_date`, `isPublic` → `is_public`, `likeCount` → `like_count`, `viewCount` → `view_count`, etc.
 - Has `toCreateJson()` method that excludes ID field for creation requests
 
 ## State Management Architecture
 
 - **AuthProvider**: Manages user authentication state, login/logout, registration
-- **MemorialProvider**: Handles memorial CRUD operations and filtering
+- **MemorialProvider**: Handles memorial CRUD operations, filtering, and interactive features (likes/views)
+  - **Auto-loading**: Automatically loads memorial data after successful login
+  - **Interactive methods**: `toggleMemorialLike()` and `incrementMemorialViews()` update both backend and local state
+  - **Real-time updates**: Uses `notifyListeners()` to update UI immediately after API calls
 - **Provider Pattern**: Used throughout for reactive state updates
 
 ## Development Notes
@@ -209,8 +216,16 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **Hot Reload**: Press 'r' for hot reload, 'R' for hot restart during development
 - **Provider Updates**: Always use `notifyListeners()` in Provider classes after state changes
 
+### Interactive Features & User Engagement
+- **Like System**: Uses backend Like model with unique constraint on (memorial_id, user_id)
+- **View Tracking**: Automatically increments view count when opening memorial detail page
+- **Real-time Updates**: Provider methods immediately update local state and call backend APIs
+- **Error Handling**: Failed API calls show user-friendly error messages via SnackBar
+
 ### Development Workflow
 - **Code Generation**: Run `dart run build_runner build --delete-conflicting-outputs` after modifying `@JsonSerializable` models
 - **API Testing**: Backend runs on `127.0.0.1:3000` - use iOS simulator for best connectivity
 - **Image Handling**: Images are compressed automatically and support both local paths and network URLs
 - **State Management**: Use Provider.of<T>(context, listen: false) for actions, Consumer<T> for UI updates
+- **Data Loading**: App automatically loads memorial data after user authentication, no manual refresh needed
+- **BuildContext Safety**: Use local references for ScaffoldMessenger when crossing async gaps

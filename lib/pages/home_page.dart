@@ -18,6 +18,13 @@ class HomePage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.surface,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              final provider = Provider.of<MemorialProvider>(context, listen: false);
+              provider.loadMemorials();
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
               // TODO: 实现搜索功能
@@ -160,13 +167,28 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _likeMemorial(BuildContext context, Memorial memorial) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('向${memorial.name}献花'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  void _likeMemorial(BuildContext context, Memorial memorial) async {
+    final provider = Provider.of<MemorialProvider>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    final success = await provider.toggleMemorialLike(memorial.id);
+    
+    if (success) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('向${memorial.name}献花'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    } else {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: const Text('献花失败，请重试'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _commentMemorial(BuildContext context, Memorial memorial) {

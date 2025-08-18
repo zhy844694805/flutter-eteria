@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/memorial.dart';
+import '../providers/memorial_provider.dart';
+import '../services/memorial_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/photo_carousel.dart';
 
@@ -27,6 +30,8 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
   int _likeCount = 0;
   final List<Comment> _comments = [];
   final TextEditingController _commentController = TextEditingController();
+  final MemorialService _memorialService = MemorialService();
+  bool _isLoadingComments = true;
 
   @override
   void initState() {
@@ -56,6 +61,13 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
     
     // 使用真实数据
     _likeCount = widget.memorial.likeCount ?? 0;
+    
+    // 增加浏览次数
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<MemorialProvider>(context, listen: false);
+      provider.incrementMemorialViews(widget.memorial.id);
+      _loadComments();
+    });
   }
 
   @override
@@ -559,7 +571,12 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
             ],
           ),
           const SizedBox(height: 16),
-          if (_comments.isEmpty)
+          if (_isLoadingComments)
+            Container(
+              padding: const EdgeInsets.all(24),
+              child: const Center(child: CircularProgressIndicator()),
+            )
+          else if (_comments.isEmpty)
             Container(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -662,29 +679,69 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
       return DateFormat('MM月dd日').format(time);
     }
   }
-
-  void _toggleLike() {
-    setState(() {
-      if (_isLiked) {
-        _isLiked = false;
-        _likeCount--;
-      } else {
-        _isLiked = true;
-        _likeCount++;
+  
+  Future<void> _loadComments() async {
+    try {
+      if (mounted) {
+        setState(() {
+          _isLoadingComments = true;
+        });
       }
-    });
-    
-    // 触觉反馈
-    if (_isLiked) {
-      // 可以添加触觉反馈
+      
+      final commentsData = await _memorialService.getComments(widget.memorial.id);
+      final comments = commentsData.map((json) => Comment.fromJson(json)).toList();
+      
+      if (mounted) {
+        setState(() {
+          _comments.clear();
+          _comments.addAll(comments);
+          _isLoadingComments = false;
+        });
+      }
+    } catch (e) {
+      // 加载留言失败，保持静默
+      if (mounted) {
+        setState(() {
+          _isLoadingComments = false;
+        });
+      }
     }
+  }
+
+  void _toggleLike() async {
+    final provider = Provider.of<MemorialProvider>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_isLiked ? '已献花' : '取消献花'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    final success = await provider.toggleMemorialLike(widget.memorial.id);
+    
+    if (success) {
+      // 从Provider获取最新的纪念数据
+      final memorials = provider.memorials;
+      final updatedMemorial = memorials.firstWhere(
+        (m) => m.id == widget.memorial.id,
+        orElse: () => widget.memorial,
+      );
+      
+      setState(() {
+        _likeCount = updatedMemorial.likeCount ?? 0;
+        _isLiked = !_isLiked; // 切换本地状态
+      });
+      
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(_isLiked ? '已献花' : '取消献花'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    } else {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: const Text('操作失败，请重试'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showCommentDialog() {
@@ -761,27 +818,44 @@ class _MemorialDetailPageState extends State<MemorialDetailPage>
     );
   }
 
-  void _submitComment() {
+  void _submitComment() async {
     if (_commentController.text.trim().isEmpty) return;
     
-    setState(() {
-      _comments.insert(0, Comment(
-        id: DateTime.now().millisecondsSinceEpoch,
-        authorName: '我',
-        content: _commentController.text.trim(),
-        createdAt: DateTime.now(),
-      ));
-    });
+    final content = _commentController.text.trim();
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     
-    _commentController.clear();
-    Navigator.of(context).pop();
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('留言发表成功'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    try {
+      // 调用API添加留言
+      final commentData = await _memorialService.addComment(widget.memorial.id, content);
+      final newComment = Comment.fromJson(commentData);
+      
+      setState(() {
+        _comments.insert(0, newComment);
+      });
+      
+      _commentController.clear();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(
+          content: Text('留言发表成功'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('留言发表失败: $e'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _shareMemorial() {
@@ -853,4 +927,13 @@ class Comment {
     required this.content,
     required this.createdAt,
   });
+  
+  factory Comment.fromJson(Map<String, dynamic> json) {
+    return Comment(
+      id: json['id'],
+      authorName: json['user']?['name'] ?? '匿名用户',
+      content: json['content'],
+      createdAt: DateTime.parse(json['created_at']),
+    );
+  }
 }

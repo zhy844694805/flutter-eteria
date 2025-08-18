@@ -217,9 +217,9 @@ class CompactMemorialCard extends StatelessWidget {
   }
 
   Widget _buildActionSection() {
-    // 模拟数据
-    final likeCount = (memorial.id * 7) % 50 + 10;
-    final commentCount = (memorial.id * 3) % 20 + 2;
+    // 使用真实数据
+    final likeCount = memorial.likeCount ?? 0;
+    final viewCount = memorial.viewCount ?? 0;
     
     return Container(
       margin: const EdgeInsets.only(top: 12),
@@ -237,9 +237,9 @@ class CompactMemorialCard extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           _buildActionButton(
-            icon: Icons.chat_bubble_outline,
-            count: commentCount,
-            onPressed: onComment,
+            icon: Icons.visibility_outlined,
+            count: viewCount,
+            onPressed: null, // 浏览数不需要点击交互
           ),
           const Spacer(),
           Builder(

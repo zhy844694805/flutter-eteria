@@ -40,12 +40,15 @@ class MemorialProvider extends ChangeNotifier {
   }
 
   Future<void> loadMemorials() async {
+    print('🔄 [MemorialProvider] 开始加载纪念数据...');
     _isLoading = true;
     notifyListeners();
     
     try {
       _memorials = await _service.getMemorials();
+      print('✅ [MemorialProvider] 加载成功，共 ${_memorials.length} 条纪念数据');
     } catch (e) {
+      print('❌ [MemorialProvider] 加载失败: $e');
       // 静默处理错误，保持简单
       _memorials = [];
     }
@@ -87,6 +90,84 @@ class MemorialProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<bool> toggleMemorialLike(int memorialId) async {
+    try {
+      print('🔄 [MemorialProvider] 正在切换纪念点赞: $memorialId');
+      final result = await _service.toggleLike(memorialId);
+      
+      // 更新本地纪念数据
+      final index = _memorials.indexWhere((memorial) => memorial.id == memorialId);
+      if (index != -1) {
+        final memorial = _memorials[index];
+        final newLikeCount = result['like_count'] ?? memorial.likeCount ?? 0;
+        final isLiked = result['liked'] ?? false;
+        
+        // 创建新的Memorial实例并更新
+        _memorials[index] = Memorial(
+          id: memorial.id,
+          name: memorial.name,
+          description: memorial.description,
+          birthDate: memorial.birthDate,
+          deathDate: memorial.deathDate,
+          relationship: memorial.relationship,
+          type: memorial.type,
+          imagePaths: memorial.imagePaths,
+          imageUrls: memorial.imageUrls,
+          isPublic: memorial.isPublic,
+          createdAt: memorial.createdAt,
+          updatedAt: memorial.updatedAt,
+          likeCount: newLikeCount,
+          viewCount: memorial.viewCount,
+        );
+        
+        notifyListeners();
+        print('✅ [MemorialProvider] 点赞状态已更新: $isLiked, 数量: $newLikeCount');
+      }
+      
+      return true;
+    } catch (e) {
+      print('❌ [MemorialProvider] 点赞失败: $e');
+      return false;
+    }
+  }
+  
+  Future<void> incrementMemorialViews(int memorialId) async {
+    try {
+      print('🔄 [MemorialProvider] 正在增加浏览次数: $memorialId');
+      await _service.incrementViews(memorialId);
+      
+      // 更新本地浏览数据
+      final index = _memorials.indexWhere((memorial) => memorial.id == memorialId);
+      if (index != -1) {
+        final memorial = _memorials[index];
+        final newViewCount = (memorial.viewCount ?? 0) + 1;
+        
+        // 创建新的Memorial实例并更新
+        _memorials[index] = Memorial(
+          id: memorial.id,
+          name: memorial.name,
+          description: memorial.description,
+          birthDate: memorial.birthDate,
+          deathDate: memorial.deathDate,
+          relationship: memorial.relationship,
+          type: memorial.type,
+          imagePaths: memorial.imagePaths,
+          imageUrls: memorial.imageUrls,
+          isPublic: memorial.isPublic,
+          createdAt: memorial.createdAt,
+          updatedAt: memorial.updatedAt,
+          likeCount: memorial.likeCount,
+          viewCount: newViewCount,
+        );
+        
+        notifyListeners();
+        print('✅ [MemorialProvider] 浏览次数已更新: $newViewCount');
+      }
+    } catch (e) {
+      print('❌ [MemorialProvider] 浏览次数更新失败: $e');
     }
   }
 

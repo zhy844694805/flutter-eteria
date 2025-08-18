@@ -129,13 +129,19 @@ class _StaggeredGridViewWidgetState extends State<_StaggeredGridViewWidget> {
         return Expanded(
           child: Column(
             children: _columnItems[columnIndex].map((itemIndex) {
-              return Container(
-                margin: EdgeInsets.only(
-                  right: columnIndex < widget.crossAxisCount - 1 ? widget.crossAxisSpacing : 0,
-                  bottom: widget.mainAxisSpacing,
-                ),
-                child: widget.children[itemIndex],
-              );
+              // 安全检查：确保索引在有效范围内
+              if (itemIndex >= 0 && itemIndex < widget.children.length) {
+                return Container(
+                  margin: EdgeInsets.only(
+                    right: columnIndex < widget.crossAxisCount - 1 ? widget.crossAxisSpacing : 0,
+                    bottom: widget.mainAxisSpacing,
+                  ),
+                  child: widget.children[itemIndex],
+                );
+              } else {
+                // 如果索引无效，返回空容器
+                return const SizedBox.shrink();
+              }
             }).toList(),
           ),
         );
@@ -161,11 +167,22 @@ class _StaggeredGridViewWidgetState extends State<_StaggeredGridViewWidget> {
   @override
   void didUpdateWidget(_StaggeredGridViewWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.children.length != oldWidget.children.length) {
+    if (widget.children.length != oldWidget.children.length || 
+        !_childrenEqual(widget.children, oldWidget.children)) {
       _generateKeys();
+      _initializeColumns(); // 确保重新初始化列
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _measureAndArrange();
       });
     }
+  }
+
+  // 检查children列表是否相等（简单的引用比较）
+  bool _childrenEqual(List<Widget> newChildren, List<Widget> oldChildren) {
+    if (newChildren.length != oldChildren.length) return false;
+    for (int i = 0; i < newChildren.length; i++) {
+      if (newChildren[i] != oldChildren[i]) return false;
+    }
+    return true;
   }
 }

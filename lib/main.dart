@@ -69,6 +69,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  bool _hasLoadedData = false;
 
   final List<Widget> _pages = const [
     HomePage(),
@@ -90,7 +91,17 @@ class _MainScreenState extends State<MainScreen> {
         
         // 如果用户未登录，显示登录页面
         if (!authProvider.isLoggedIn) {
+          _hasLoadedData = false; // 重置加载状态
           return const LoginPage();
+        }
+        
+        // 用户已登录，自动加载纪念数据
+        if (!_hasLoadedData) {
+          _hasLoadedData = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final memorialProvider = Provider.of<MemorialProvider>(context, listen: false);
+            memorialProvider.loadMemorials();
+          });
         }
         
         // 用户已登录，显示主界面
