@@ -1,10 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
-  // iOS模拟器使用127.0.0.1而不是localhost
-  static const String baseUrl = 'http://127.0.0.1:3000/api/v1';
+  // 根据平台自动选择正确的地址
+  static String get baseUrl {
+    if (Platform.isAndroid) {
+      // Android模拟器使用10.0.2.2映射到主机的127.0.0.1
+      return 'http://10.0.2.2:3000/api/v1';
+    } else {
+      // iOS模拟器和其他平台使用127.0.0.1
+      return 'http://127.0.0.1:3000/api/v1';
+    }
+  }
   
   // 单例模式
   static final ApiClient _instance = ApiClient._internal();

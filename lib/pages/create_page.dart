@@ -139,7 +139,7 @@ class _CreatePageState extends State<CreatePage> {
         ),
         const SizedBox(height: 10),
         InkWell(
-          onTap: _showRelationshipPicker,
+          onTap: _handleRelationshipSelection,
           borderRadius: BorderRadius.circular(15),
           child: Container(
             width: double.infinity,
@@ -404,11 +404,7 @@ class _CreatePageState extends State<CreatePage> {
                 title: const Text('公开'),
                 value: true,
                 groupValue: _isPublic,
-                onChanged: (value) {
-                  setState(() {
-                    _isPublic = value ?? true;
-                  });
-                },
+                onChanged: (value) => _setPublicSetting(value ?? true),
                 contentPadding: EdgeInsets.zero,
               ),
             ),
@@ -417,11 +413,7 @@ class _CreatePageState extends State<CreatePage> {
                 title: const Text('仅自己可见'),
                 value: false,
                 groupValue: _isPublic,
-                onChanged: (value) {
-                  setState(() {
-                    _isPublic = value ?? true;
-                  });
-                },
+                onChanged: (value) => _setPublicSetting(value ?? false),
                 contentPadding: EdgeInsets.zero,
               ),
             ),
@@ -682,8 +674,8 @@ class _CreatePageState extends State<CreatePage> {
     });
   }
 
-  void _showRelationshipPicker() {
-    showModalBottomSheet(
+  Future<String?> _showRelationshipPicker() {
+    return showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
@@ -749,12 +741,7 @@ class _CreatePageState extends State<CreatePage> {
                             size: 20,
                           )
                         : null,
-                    onTap: () {
-                      setState(() {
-                        _selectedRelationship = relationship;
-                      });
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context, relationship),
                   );
                 },
               ),
@@ -765,6 +752,27 @@ class _CreatePageState extends State<CreatePage> {
         ),
       ),
     );
+  }
+
+  void _handleRelationshipSelection() async {
+    final selectedRelationship = await _showRelationshipPicker();
+    if (selectedRelationship != null && mounted) {
+      setState(() {
+        _selectedRelationship = selectedRelationship;
+      });
+    }
+  }
+
+
+  void _setPublicSetting(bool value) {
+    // 使用Future.microtask确保在下一个事件循环中执行
+    Future.microtask(() {
+      if (mounted) {
+        setState(() {
+          _isPublic = value;
+        });
+      }
+    });
   }
 
 

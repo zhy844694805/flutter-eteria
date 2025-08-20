@@ -6,19 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend that allows users to create digital memorial spaces for deceased loved ones. The app features user authentication with email verification, memorial management, photo uploads, and social interactions.
 
-**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, custom UI components, and integration with a Node.js backend. Key features implemented include waterfall grid layout, memorial creation/viewing, photo upload, authentication flow, and detailed memorial pages with interactive elements.
+**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, glassmorphism UI design, and integration with a Node.js backend. Key features implemented include waterfall grid layout with staggered grid view, memorial creation/viewing, photo upload with compression, authentication flow, detailed memorial pages with interactive elements, and a digital life section.
 
 ## Architecture
 
 ### Flutter Frontend (Main Repository)
-- **Framework**: Flutter 3.9.0+ with Material Design 3
+- **Framework**: Flutter 3.9.0+ with Dart SDK 3.0.0+
+- **UI Theme**: Custom glassmorphism theme with warm colors and paper texture backgrounds
 - **State Management**: Provider pattern with AuthProvider and MemorialProvider
 - **API Communication**: Singleton ApiClient with JWT token management at `http://127.0.0.1:3000/api/v1`
 - **Data Persistence**: SharedPreferences for user sessions and local storage
-- **Image Handling**: ImagePicker for selection, flutter_image_compress for optimization, platform_image widget for unified display
+- **Image Handling**: ImagePicker for selection, flutter_image_compress for optimization, cached_network_image for display
 - **Code Generation**: JSON serialization using build_runner and json_serializable
-- **UI Components**: Custom widgets including PhotoCarousel, StaggeredGridView, CompactMemorialCard
-- **Navigation**: Material app router with Hero animations for smooth transitions
+- **UI Components**: Glass-style widgets including GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView
+- **Navigation**: Bottom navigation with glassmorphism effects and Hero animations
 
 ### Backend API (Sibling Directory)
 - **Location**: `/Users/tuohai/Documents/后端/eteria-backend/`
@@ -177,11 +178,11 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 
 ### Critical Frontend Directories
 - `/lib/models/` - Data models with JSON serialization (Memorial, User, FilterType)
-- `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService)
+- `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService, FeedbackService)
 - `/lib/providers/` - State management (AuthProvider, MemorialProvider)
-- `/lib/pages/` - UI screens (LoginPage, RegisterPage, HomePage, CreatePage, MemorialDetailPage, ProfilePage, etc.)
-- `/lib/widgets/` - Reusable UI components (PhotoCarousel, CompactMemorialCard, StaggeredGridView, PlatformImage, etc.)
-- `/lib/theme/` - Design system and theming (AppTheme with Material Design 3)
+- `/lib/pages/` - UI screens including glass-style pages (GlassHomePage, GlassCreatePage, GlassPersonalPage, DigitalLifePage, LoginPage, RegisterPage, etc.)
+- `/lib/widgets/` - Reusable UI components with glass effects (GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView, PlatformImage, etc.)
+- `/lib/theme/` - Design system including glassmorphism_theme.dart and app_theme.dart
 - `/lib/utils/` - Utilities (ImageHelper, FormValidators, ErrorHandler, UIHelpers)
 - `/lib/config/` - Configuration files and constants
 
@@ -229,3 +230,38 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **State Management**: Use Provider.of<T>(context, listen: false) for actions, Consumer<T> for UI updates
 - **Data Loading**: App automatically loads memorial data after user authentication, no manual refresh needed
 - **BuildContext Safety**: Use local references for ScaffoldMessenger when crossing async gaps
+- **Glassmorphism UI**: The app uses a custom glassmorphism theme with warm colors, blur effects, and gradient backgrounds
+
+## Key Dependencies
+
+### Main Dependencies
+- **provider**: ^6.1.2 - State management
+- **image_picker**: ^1.1.2 - Photo selection from gallery/camera
+- **cached_network_image**: ^3.4.1 - Network image caching and display
+- **flutter_image_compress**: ^2.3.0 - Image compression before upload
+- **shared_preferences**: ^2.3.2 - Local data persistence
+- **http**: ^1.2.2 - HTTP client for API requests
+- **intl**: ^0.20.2 - Internationalization and date formatting
+- **google_fonts**: ^6.2.1 - Custom font support
+- **json_annotation**: ^4.9.0 - JSON serialization annotations
+- **mailer**: ^6.1.2 - Email functionality
+- **crypto**: ^3.0.5 - Cryptographic operations
+
+### Development Dependencies
+- **build_runner**: ^2.4.13 - Code generation runner
+- **json_serializable**: ^6.8.0 - JSON serialization code generator
+- **flutter_lints**: ^5.0.0 - Dart linting rules
+
+## Critical Implementation Details
+
+### setState() Error Prevention
+When working with widgets that trigger setState() during build phase (like BottomSheet selections), use these patterns:
+- Extract callback logic to separate methods
+- Use `mounted` checks before calling setState()
+- For RadioListTile and similar widgets in forms, avoid direct setState() calls in onChanged callbacks
+
+### Glassmorphism Theme Implementation
+- Uses custom `GlassmorphismTheme` with gradient backgrounds
+- Glass effect containers with blur and transparency
+- Warm color palette with paper texture backgrounds
+- Custom glass navigation components

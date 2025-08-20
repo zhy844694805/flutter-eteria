@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'theme/app_theme.dart';
-import 'pages/home_page.dart';
-import 'pages/create_page.dart';
+import 'theme/glassmorphism_theme.dart';
+import 'pages/glass_home_page.dart';
+import 'pages/glass_create_page.dart';
 import 'pages/digital_life_page.dart';
-import 'pages/my_page.dart';
+import 'pages/glass_personal_page.dart';
 import 'pages/login_page.dart';
-import 'widgets/bottom_navigation_bar.dart';
+import 'widgets/glass_bottom_navigation.dart';
 import 'providers/memorial_provider.dart';
 import 'providers/auth_provider.dart';
 
@@ -34,7 +34,7 @@ class EteriaApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: '永恒回忆 - 纪念APP',
-        theme: AppTheme.lightTheme,
+        theme: GlassmorphismTheme.theme,
         debugShowCheckedModeBanner: false,
         // 添加中文本地化支持
         locale: const Locale('zh', 'CN'),
@@ -71,11 +71,17 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _hasLoadedData = false;
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    CreatePage(),
-    DigitalLifePage(),
-    MyPage(),
+  List<Widget> get _pages => [
+    GlassHomePage(
+      onNavigateToCreate: () {
+        setState(() {
+          _currentIndex = 1; // 切换到创建页面
+        });
+      },
+    ),
+    const GlassCreatePage(),
+    const DigitalLifePage(),
+    const GlassPersonalPage(),
   ];
 
   @override
@@ -106,11 +112,14 @@ class _MainScreenState extends State<MainScreen> {
         
         // 用户已登录，显示主界面
         return Scaffold(
+          backgroundColor: Colors.transparent,
           body: Container(
-            decoration: AppDecorations.backgroundDecoration,
+            decoration: BoxDecoration(
+              gradient: GlassmorphismColors.backgroundGradient,
+            ),
             child: _pages[_currentIndex],
           ),
-          bottomNavigationBar: AppBottomNavigationBar(
+          bottomNavigationBar: GlassBottomNavigation(
             currentIndex: _currentIndex,
             onTap: (index) {
               setState(() {
