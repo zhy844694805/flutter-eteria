@@ -343,7 +343,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '我的数据',
+                        '纪念统计',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: GlassmorphismColors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -369,7 +369,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                         child: _buildStatCard(
                           GlassIcons.heart,
                           totalLikes.toString(),
-                          '获赞',
+                          '鲜花',
                           GlassmorphismColors.error,
                         ),
                       ),
@@ -378,7 +378,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                         child: _buildStatCard(
                           GlassIcons.view,
                           totalViews.toString(),
-                          '浏览',
+                          '瞻仰',
                           GlassmorphismColors.info,
                         ),
                       ),
@@ -439,36 +439,36 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
     final menuItems = [
       MenuItemData(
         icon: GlassIcons.memorial,
-        title: '我的纪念',
-        description: '管理纪念空间',
+        title: '纪念空间',
+        description: '管理永恒记忆',
         color: GlassmorphismColors.primary,
         onTap: () => _navigateToMyMemorials(),
       ),
       MenuItemData(
         icon: GlassIcons.heart,
-        title: '我的点赞',
-        description: '查看点赞历史',
+        title: '收到的鲜花',
+        description: '查看获得的缅怀',
         color: GlassmorphismColors.error,
         onTap: () => _navigateToMyLikes(),
       ),
       MenuItemData(
         icon: GlassIcons.photo,
-        title: '相册管理',
-        description: '整理珍贵照片',
+        title: '珍藏相册',
+        description: '保存珍贵回忆',
         color: GlassmorphismColors.info,
         onTap: () => _navigateToPhotoManager(),
       ),
       MenuItemData(
         icon: Icons.backup,
-        title: '数据备份',
-        description: '安全存储数据',
+        title: '纪念备份',
+        description: '永久保存记忆',
         color: GlassmorphismColors.success,
         onTap: () => _navigateToBackup(),
       ),
       MenuItemData(
         icon: Icons.privacy_tip,
         title: '隐私设置',
-        description: '保护个人信息',
+        description: '保护缅怀隐私',
         color: GlassmorphismColors.warning,
         onTap: () => _navigateToPrivacy(),
       ),
@@ -634,7 +634,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '开始创建纪念或互动来记录活动',
+                      '开始缅怀至亲或互动来记录活动',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: GlassmorphismColors.textTertiary,
                       ),
@@ -995,7 +995,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
   void _navigateToMyMemorials() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('我的纪念功能开发中'),
+        content: const Text('纪念空间功能开发中'),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -1005,7 +1005,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
   void _navigateToMyLikes() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('我的点赞功能开发中'),
+        content: const Text('鲜花纪录功能开发中'),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -1015,7 +1015,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
   void _navigateToPhotoManager() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('相册管理功能开发中'),
+        content: const Text('珍藏相册功能开发中'),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -1025,7 +1025,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
   void _navigateToBackup() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('数据备份功能开发中'),
+        content: const Text('纪念备份功能开发中'),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

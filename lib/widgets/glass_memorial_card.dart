@@ -467,7 +467,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
   Widget _buildInteractionRow() {
     return Row(
       children: [
-        // 点赞
+        // 献花
         _buildInteractionButton(
           icon: (widget.memorial.likeCount ?? 0) > 0 ? GlassIcons.heartFilled : GlassIcons.heart,
           count: widget.memorial.likeCount ?? 0,
@@ -487,7 +487,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
         
         const Spacer(),
         
-        // 浏览次数
+        // 瞻仰次数
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [

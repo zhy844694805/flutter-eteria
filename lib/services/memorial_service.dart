@@ -33,16 +33,16 @@ class MemorialService {
   }
   
   Future<Map<String, dynamic>> toggleLike(int memorialId) async {
-    print('🌐 [MemorialService] 正在切换点赞状态: memorial_id=$memorialId');
+    print('🌐 [MemorialService] 正在切换献花状态: memorial_id=$memorialId');
     final response = await _api.post('/memorials/$memorialId/like');
-    print('📦 [MemorialService] 点赞响应: $response');
+    print('📦 [MemorialService] 献花响应: $response');
     return response['data'];
   }
   
   Future<void> incrementViews(int memorialId) async {
-    print('🌐 [MemorialService] 正在增加浏览次数: memorial_id=$memorialId');
+    print('🌐 [MemorialService] 正在增加瞻仰次数: memorial_id=$memorialId');
     await _api.post('/memorials/$memorialId/view');
-    print('✅ [MemorialService] 浏览次数已增加');
+    print('✅ [MemorialService] 瞻仰次数已增加');
   }
   
   Future<Map<String, dynamic>> getMemorialStats(int memorialId) async {

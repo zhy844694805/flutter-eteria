@@ -201,7 +201,7 @@ class _GlassCreatePageState extends State<GlassCreatePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '创建纪念',
+                  '缅怀至亲',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: GlassmorphismColors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -861,7 +861,7 @@ class _GlassCreatePageState extends State<GlassCreatePage>
           Expanded(
             flex: _currentStep == 0 ? 1 : 2,
             child: GlassInteractiveButton(
-              text: _currentStep == _totalSteps - 1 ? '创建纪念' : '下一步',
+              text: _currentStep == _totalSteps - 1 ? '建立纪念' : '下一步',
               icon: _currentStep == _totalSteps - 1 
                   ? (_isUploading ? null : GlassIcons.create)
                   : Icons.arrow_forward,

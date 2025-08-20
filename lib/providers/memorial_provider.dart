@@ -95,7 +95,7 @@ class MemorialProvider extends ChangeNotifier {
 
   Future<bool> toggleMemorialLike(int memorialId) async {
     try {
-      print('🔄 [MemorialProvider] 正在切换纪念点赞: $memorialId');
+      print('🔄 [MemorialProvider] 正在切换纪念献花: $memorialId');
       final result = await _service.toggleLike(memorialId);
       
       // 更新本地纪念数据
@@ -125,19 +125,19 @@ class MemorialProvider extends ChangeNotifier {
         );
         
         notifyListeners();
-        print('✅ [MemorialProvider] 点赞状态已更新: $isLiked, 数量: $newLikeCount');
+        print('✅ [MemorialProvider] 献花状态已更新: $isLiked, 数量: $newLikeCount');
       }
       
       return true;
     } catch (e) {
-      print('❌ [MemorialProvider] 点赞失败: $e');
+      print('❌ [MemorialProvider] 献花失败: $e');
       return false;
     }
   }
   
   Future<void> incrementMemorialViews(int memorialId) async {
     try {
-      print('🔄 [MemorialProvider] 正在增加浏览次数: $memorialId');
+      print('🔄 [MemorialProvider] 正在增加瞻仰次数: $memorialId');
       await _service.incrementViews(memorialId);
       
       // 更新本地浏览数据
@@ -166,10 +166,10 @@ class MemorialProvider extends ChangeNotifier {
         );
         
         notifyListeners();
-        print('✅ [MemorialProvider] 浏览次数已更新: $newViewCount');
+        print('✅ [MemorialProvider] 瞻仰次数已更新: $newViewCount');
       }
     } catch (e) {
-      print('❌ [MemorialProvider] 浏览次数更新失败: $e');
+      print('❌ [MemorialProvider] 瞻仰次数更新失败: $e');
     }
   }
 

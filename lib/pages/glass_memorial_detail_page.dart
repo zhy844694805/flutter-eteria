@@ -79,13 +79,13 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
     _scrollController.addListener(_onScroll);
     _pageController.forward();
     
-    // 增加浏览次数
+    // 增加瞻仰次数
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<MemorialProvider>(context, listen: false);
       provider.incrementMemorialViews(widget.memorial.id);
     });
     
-    // 检查是否已点赞
+    // 检查是否已献花
     _isLiked = (widget.memorial.likeCount ?? 0) > 0;
   }
 
@@ -584,7 +584,7 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
           child: _buildStatItem(
             GlassIcons.view,
             '${widget.memorial.viewCount ?? 0}',
-            '浏览',
+            '瞻仰',
             GlassmorphismColors.info,
           ),
         ),
@@ -843,7 +843,7 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
               const SizedBox(height: 16),
               _buildTimelineItem(
                 Icons.add_circle,
-                '创建纪念',
+                '建立纪念',
                 _formatDateTime(widget.memorial.createdAt),
                 GlassmorphismColors.success,
               ),

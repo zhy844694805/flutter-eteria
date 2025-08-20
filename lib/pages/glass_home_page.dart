@@ -367,7 +367,7 @@ class _GlassHomePageState extends State<GlassHomePage>
   Widget _buildTrendingMemorials() {
     return Consumer<MemorialProvider>(
       builder: (context, provider, child) {
-        // 按点赞数排序
+        // 按鲜花数排序
         final trending = provider.memorials.toList()
           ..sort((a, b) => (b.likeCount ?? 0).compareTo(a.likeCount ?? 0));
         
@@ -450,7 +450,7 @@ class _GlassHomePageState extends State<GlassHomePage>
       onPressed: () {
         widget.onNavigateToCreate?.call();
       },
-      tooltip: '创建纪念',
+      tooltip: '缅怀至亲',
     );
   }
 
@@ -548,7 +548,7 @@ class _GlassHomePageState extends State<GlassHomePage>
             ),
             const SizedBox(height: 16),
             GlassInteractiveButton(
-              text: '创建纪念',
+              text: '缅怀至亲',
               icon: GlassIcons.create,
               onPressed: () => widget.onNavigateToCreate?.call(),
               width: 140,
