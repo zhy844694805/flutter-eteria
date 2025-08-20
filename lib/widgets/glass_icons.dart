@@ -32,6 +32,7 @@ class GlassIcons {
   static const IconData sort = Icons.sort;
   static const IconData more = Icons.more_horiz;
   static const IconData settings = Icons.settings_outlined;
+  static const IconData edit = Icons.edit_outlined;
   
   // 状态图标
   static const IconData success = Icons.check_circle_outline;

@@ -12,6 +12,7 @@ import '../widgets/platform_image.dart';
 import '../providers/auth_provider.dart';
 import '../providers/memorial_provider.dart';
 import '../utils/glass_effect_helper.dart';
+import 'my_memorials_space_page.dart';
 
 /// 玻璃拟态个人页面
 class GlassPersonalPage extends StatefulWidget {
@@ -993,11 +994,10 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
 
   // 导航方法
   void _navigateToMyMemorials() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('纪念空间功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MyMemorialsSpacePage(),
       ),
     );
   }
