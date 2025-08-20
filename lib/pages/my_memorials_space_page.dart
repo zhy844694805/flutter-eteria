@@ -5,11 +5,10 @@ import '../models/memorial.dart';
 import '../providers/memorial_provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/glassmorphism_theme.dart';
-import '../widgets/glass_hover_card.dart';
 import '../widgets/glass_memorial_card.dart';
-import '../widgets/glass_interactive_widgets.dart';
+import '../widgets/glass_interactive_widgets.dart' hide GlassHoverCard;
+import '../widgets/glass_hover_card.dart';
 import '../widgets/glass_icons.dart';
-import '../utils/ui_helpers.dart';
 import '../widgets/memorial_action_sheet.dart';
 import 'glass_create_page.dart';
 import 'glass_memorial_detail_page.dart';
@@ -49,6 +48,7 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
     // 确保加载用户的纪念数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshMemorials();
+      _showInitialTipIfNeeded();
     });
   }
 
@@ -402,8 +402,10 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
                     child: GlassMemorialCard(
                       memorial: memorial,
                       isCompact: true,
+                      showMoreButton: true,
                       onTap: () => _navigateToMemorialDetail(memorial),
                       onLike: () => _toggleMemorialLike(memorial.id),
+                      onMore: () => _showMemorialActions(memorial),
                     ),
                   );
                 },
@@ -423,8 +425,10 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
                     child: GlassMemorialCard(
                       memorial: memorial,
                       isCompact: false,
+                      showMoreButton: true,
                       onTap: () => _navigateToMemorialDetail(memorial),
                       onLike: () => _toggleMemorialLike(memorial.id),
+                      onMore: () => _showMemorialActions(memorial),
                     ),
                   ),
                 );
@@ -459,6 +463,14 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
             '开始为至亲创建温馨的纪念空间',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: GlassmorphismColors.textTertiary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '创建后点击“⋮”按钮即可管理纪念空间',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: GlassmorphismColors.textTertiary.withValues(alpha: 0.8),
             ),
             textAlign: TextAlign.center,
           ),
@@ -546,7 +558,14 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
     final success = await provider.toggleMemorialLike(memorialId);
     
     if (!success && mounted) {
-      UIHelpers.showErrorSnackBar(context, '献花操作失败，请稍后重试');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('献花操作失败，请稍后重试'),
+          backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.9),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
     }
   }
 
@@ -580,7 +599,14 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
 
   void _editMemorial(Memorial memorial) {
     // TODO: 导航到编辑页面
-    UIHelpers.showInfoSnackBar(context, '编辑功能开发中');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('编辑功能开发中'),
+        backgroundColor: GlassmorphismColors.info.withValues(alpha: 0.9),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   Future<void> _deleteMemorial(Memorial memorial) async {
@@ -589,17 +615,38 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
     
     if (mounted) {
       if (success) {
-        UIHelpers.showSuccessSnackBar(context, '纪念空间已删除');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('纪念空间已删除'),
+            backgroundColor: GlassmorphismColors.success.withValues(alpha: 0.9),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
         _refreshMemorials();
       } else {
-        UIHelpers.showErrorSnackBar(context, '删除失败，请稍后重试');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('删除失败，请稍后重试'),
+            backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.9),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
       }
     }
   }
 
   void _shareMemorial(Memorial memorial) {
     // TODO: 实现分享功能
-    UIHelpers.showInfoSnackBar(context, '分享功能开发中');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('分享功能开发中'),
+        backgroundColor: GlassmorphismColors.info.withValues(alpha: 0.9),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   Future<void> _toggleMemorialVisibility(Memorial memorial) async {
@@ -629,10 +676,61 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
     if (mounted) {
       if (success) {
         final statusText = updatedMemorial.isPublic ? '已设为公开' : '已设为私密';
-        UIHelpers.showSuccessSnackBar(context, statusText);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(statusText),
+            backgroundColor: GlassmorphismColors.success.withValues(alpha: 0.9),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
       } else {
-        UIHelpers.showErrorSnackBar(context, '设置失败，请稍后重试');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('设置失败，请稍后重试'),
+            backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.9),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
       }
     }
+  }
+
+  /// 显示初次使用提示
+  void _showInitialTipIfNeeded() {
+    // 可以使用 SharedPreferences 来检查是否已显示过提示
+    // 这里为了简化，暂时不存储状态
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        final provider = Provider.of<MemorialProvider>(context, listen: false);
+        if (provider.memorials.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '点击纪念卡片右上角“⋮”按钮即可管理纪念空间',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: GlassmorphismColors.info.withValues(alpha: 0.9),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    });
   }
 }

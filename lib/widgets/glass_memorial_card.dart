@@ -12,7 +12,9 @@ class GlassMemorialCard extends StatefulWidget {
   final VoidCallback? onLike;
   final VoidCallback? onComment;
   final VoidCallback? onShare;
+  final VoidCallback? onMore;
   final bool isCompact;
+  final bool showMoreButton;
 
   const GlassMemorialCard({
     super.key,
@@ -21,7 +23,9 @@ class GlassMemorialCard extends StatefulWidget {
     this.onLike,
     this.onComment,
     this.onShare,
+    this.onMore,
     this.isCompact = true,
+    this.showMoreButton = false,
   });
 
   @override
@@ -223,6 +227,9 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (widget.showMoreButton)
+                    _buildMoreButton(),
+                  const SizedBox(width: 4),
                   _buildMemorialBadge(),
                 ],
               ),
@@ -311,6 +318,9 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                   ],
                 ),
               ),
+              if (widget.showMoreButton)
+                _buildMoreButton(),
+              const SizedBox(width: 4),
               _buildMemorialBadge(),
             ],
           ),
@@ -552,6 +562,35 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建更多操作按钮
+  Widget _buildMoreButton() {
+    return GestureDetector(
+      onTap: widget.onMore,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              GlassmorphismColors.glassSurface.withValues(alpha: 0.8),
+              GlassmorphismColors.glassSurface.withValues(alpha: 0.6),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: GlassmorphismColors.glassBorder.withValues(alpha: 0.6),
+            width: 0.5,
+          ),
+        ),
+        child: Icon(
+          Icons.more_vert,
+          size: 16,
+          color: GlassmorphismColors.textSecondary,
         ),
       ),
     );
