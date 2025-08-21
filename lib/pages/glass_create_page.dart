@@ -10,6 +10,7 @@ import '../widgets/glass_icons.dart';
 import '../widgets/glass_interactive_widgets.dart';
 import '../providers/memorial_provider.dart';
 import '../providers/auth_provider.dart';
+import 'glass_login_page.dart';
 import '../services/file_service.dart';
 import '../utils/image_helper.dart';
 import '../utils/form_validators.dart';
@@ -1241,10 +1242,11 @@ class _GlassCreatePageState extends State<GlassCreatePage>
                                               width: double.infinity,
                                               child: GlassButton(
                                                 onPressed: () {
-                                                  // 导航到登录页面
-                                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                                    '/',
-                                                    (route) => false,
+                                                  // 直接推送到登录页面
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (context) => const GlassLoginPage(),
+                                                    ),
                                                   );
                                                 },
                                                 backgroundColor: GlassmorphismColors.primary,
@@ -1266,25 +1268,6 @@ class _GlassCreatePageState extends State<GlassCreatePage>
                                                       ),
                                                     ),
                                                   ],
-                                                ),
-                                              ),
-                                            ),
-                                            
-                                            const SizedBox(height: 12),
-                                            
-                                            SizedBox(
-                                              width: double.infinity,
-                                              child: GlassButton(
-                                                onPressed: () => Navigator.pop(context),
-                                                backgroundColor: Colors.transparent,
-                                                borderColor: GlassmorphismColors.glassBorder,
-                                                child: Text(
-                                                  '返回浏览',
-                                                  style: TextStyle(
-                                                    color: GlassmorphismColors.textOnGlass,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
                                                 ),
                                               ),
                                             ),

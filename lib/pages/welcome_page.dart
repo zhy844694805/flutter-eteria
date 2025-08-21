@@ -330,23 +330,23 @@ class _WelcomePageState extends State<WelcomePage>
           width: double.infinity,
           child: GlassButton(
             onPressed: widget.onGuestMode,
-            backgroundColor: Colors.transparent,
+            backgroundColor: GlassmorphismColors.glassSurface.withValues(alpha: 0.3),
             borderColor: GlassmorphismColors.glassBorder,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   GlassIcons.eyeOff,
-                  color: GlassmorphismColors.textOnGlass,
+                  color: GlassmorphismColors.textPrimary,
                   size: 22,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   '游客模式浏览',
                   style: TextStyle(
-                    color: GlassmorphismColors.textOnGlass,
+                    color: GlassmorphismColors.textPrimary,
                     fontSize: 18,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],

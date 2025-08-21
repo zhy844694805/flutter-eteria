@@ -11,6 +11,8 @@ import '../widgets/glass_interactive_widgets.dart' hide GlassHoverCard;
 import '../widgets/glass_icons.dart' hide GlassFloatingActionButton;
 import '../widgets/platform_image.dart';
 import '../providers/memorial_provider.dart';
+import '../providers/auth_provider.dart';
+import 'glass_login_page.dart';
 
 /// 玻璃拟态纪念详情页面
 class GlassMemorialDetailPage extends StatefulWidget {
@@ -1214,8 +1216,46 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
 
   // 交互方法
   void _toggleLike() async {
-    final provider = Provider.of<MemorialProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    // 检查是否为游客模式
+    if (!authProvider.isLoggedIn) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                GlassIcons.lock,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text('请登录后再献花'),
+            ],
+          ),
+          backgroundColor: GlassmorphismColors.warning.withValues(alpha: 0.9),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          action: SnackBarAction(
+            label: '登录',
+            textColor: Colors.white,
+            onPressed: () {
+              // 直接推送到登录页面
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const GlassLoginPage(),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+    
+    final provider = Provider.of<MemorialProvider>(context, listen: false);
     
     try {
       print('🔄 [DetailPage] 切换献花状态，当前状态: $_isLiked');

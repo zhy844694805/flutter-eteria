@@ -72,6 +72,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _hasLoadedData = false;
   bool _showWelcome = true; // 是否显示欢迎页面
+  bool _isGuestMode = false; // 是否选择了游客模式
 
   List<Widget> get _pages => [
     GlassHomePage(
@@ -113,13 +114,14 @@ class _MainScreenState extends State<MainScreen> {
             onGuestMode: () {
               setState(() {
                 _showWelcome = false;
+                _isGuestMode = true; // 标记为游客模式
               });
             },
           );
         }
         
-        // 如果用户选择了登录但未登录成功，显示登录页面
-        if (!_showWelcome && !authProvider.isLoggedIn) {
+        // 如果用户选择了登录但未登录成功，显示登录页面（排除游客模式）
+        if (!_showWelcome && !authProvider.isLoggedIn && !_isGuestMode) {
           _hasLoadedData = false; // 重置加载状态
           return const GlassLoginPage();
         }
@@ -131,6 +133,8 @@ class _MainScreenState extends State<MainScreen> {
             final memorialProvider = Provider.of<MemorialProvider>(context, listen: false);
             // 只有在登录状态下才加载用户的纪念数据，游客模式可以查看公开的纪念内容
             if (authProvider.isLoggedIn) {
+              // 用户登录成功，重置游客模式状态
+              _isGuestMode = false;
               memorialProvider.loadMemorials();
             } else {
               // 游客模式：加载公开的纪念内容

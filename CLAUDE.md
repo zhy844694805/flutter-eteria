@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend that allows users to create digital memorial spaces for deceased loved ones. The app features user authentication with email verification, memorial management, photo uploads, and social interactions.
 
-**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, glassmorphism UI design, and integration with a Node.js backend. Key features implemented include waterfall grid layout with staggered grid view, memorial creation/viewing, photo upload with compression, authentication flow, detailed memorial pages with interactive elements, and a digital life section.
+**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, complete glassmorphism UI design, and integration with a Node.js backend. Key features implemented include guest mode access, waterfall grid layout with staggered grid view, memorial creation/viewing, photo upload with compression, comprehensive authentication flow with email verification, detailed memorial pages with interactive elements, and a digital life section.
 
 ## Architecture
 
@@ -92,12 +92,27 @@ lsof -ti:3000 | xargs kill -9
 
 ## Authentication Flow
 
+The app supports **two access modes**:
+
+### Guest Mode Access
+- Users can browse public memorial content without registration
+- Welcome page allows choosing between guest mode and login/registration
+- Restricted features (creating memorials, liking, commenting) prompt for login
+- Uses `loadPublicMemorials()` method to fetch only public content
+
+### Authenticated Access
 The app uses a **two-step registration process**:
 
 1. **Send Verification Code**: `POST /auth/send-verification-code` with email
 2. **Register with Code**: `POST /auth/register` with email, password, name, and verification code
 
 **Important**: In development mode, verification codes are displayed in backend console logs. Email delivery uses Aruba SMTP configured in backend `.env`.
+
+### Complete Authentication Pages
+- `WelcomePage`: Initial choice between guest mode and login
+- `GlassLoginPage`: Glassmorphism-styled login with email/password
+- `GlassRegisterPage`: Multi-step registration with user agreement/privacy policy
+- `GlassForgotPasswordPage`: Two-step password reset with email verification
 
 ## API Integration
 
@@ -140,12 +155,14 @@ The app uses a **two-step registration process**:
 
 ## State Management Architecture
 
-- **AuthProvider**: Manages user authentication state, login/logout, registration
+- **AuthProvider**: Manages user authentication state, login/logout, registration, and guest mode detection
 - **MemorialProvider**: Handles memorial CRUD operations, filtering, and interactive features (likes/views)
-  - **Auto-loading**: Automatically loads memorial data after successful login
+  - **Auto-loading**: Automatically loads memorial data after successful login or guest mode selection
+  - **Guest Mode Support**: `loadPublicMemorials()` method for fetching public content without authentication
   - **Interactive methods**: `toggleMemorialLike()` and `incrementMemorialViews()` update both backend and local state
   - **Real-time updates**: Uses `notifyListeners()` to update UI immediately after API calls
-- **Provider Pattern**: Used throughout for reactive state updates
+  - **Guest Mode Restrictions**: Interactive features check authentication status before allowing actions
+- **Provider Pattern**: Used throughout for reactive state updates with Consumer<AuthProvider> wrapping for guest mode detection
 
 ## Development Notes
 
@@ -187,7 +204,7 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - `/lib/models/` - Data models with JSON serialization (Memorial, User, FilterType)
 - `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService, FeedbackService)
 - `/lib/providers/` - State management (AuthProvider, MemorialProvider)
-- `/lib/pages/` - UI screens including glass-style pages (GlassHomePage, GlassCreatePage, GlassPersonalPage, DigitalLifePage, LoginPage, RegisterPage, etc.)
+- `/lib/pages/` - UI screens including glass-style pages (WelcomePage, GlassHomePage, GlassCreatePage, GlassPersonalPage, GlassLoginPage, GlassRegisterPage, GlassForgotPasswordPage, DigitalLifePage, etc.)
 - `/lib/widgets/` - Reusable UI components with glass effects (GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView, PlatformImage, etc.)
 - `/lib/theme/` - Design system including glassmorphism_theme.dart and app_theme.dart
 - `/lib/utils/` - Utilities (ImageHelper, FormValidators, ErrorHandler, UIHelpers)
@@ -306,3 +323,58 @@ When working with widgets that trigger setState() during build phase (like Botto
 - Glass effect containers with blur and transparency
 - Warm color palette with paper texture backgrounds
 - Custom glass navigation components
+
+## Guest Mode Implementation
+
+### Architecture Overview
+The app supports both authenticated users and guest access through a dual-mode system:
+
+```dart
+// Main.dart state management
+bool _showWelcome = true;     // Show welcome page on first launch
+bool _isGuestMode = false;    // Track guest mode selection
+```
+
+### Guest Mode Flow
+1. **Welcome Screen**: Users choose between "登录/注册" or "游客模式浏览"
+2. **Guest Navigation**: Bottom navigation works normally, restricted features show login prompts
+3. **Feature Restrictions**: Creating memorials, liking, commenting require authentication
+4. **Data Loading**: `loadPublicMemorials()` fetches only public content without authentication
+
+### Implementation Patterns
+
+#### Page-Level Guest Mode Detection
+```dart
+Consumer<AuthProvider>(
+  builder: (context, authProvider, child) {
+    if (!authProvider.isLoggedIn) {
+      return _buildGuestModeView();
+    }
+    return _buildAuthenticatedView();
+  },
+);
+```
+
+#### Interactive Feature Restrictions
+```dart
+void _likeMemorial(Memorial memorial) async {
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  if (!authProvider.isLoggedIn) {
+    // Show login prompt with SnackBar
+    return;
+  }
+  // Proceed with like functionality
+}
+```
+
+### Guest Mode UI Components
+- **GlassCreatePage**: Shows login prompt with feature list
+- **GlassPersonalPage**: Shows login prompt with feature comparison
+- **Memorial interactions**: Like/comment buttons show authentication prompts
+- **Navigation**: Users rely on bottom navigation, no redundant "return" buttons
+
+### Critical Guest Mode Rules
+- Never reset app state with `pushNamedAndRemoveUntil('/', (route) => false)` in guest mode
+- Use direct page navigation: `Navigator.push(MaterialPageRoute(builder: (context) => GlassLoginPage()))`
+- Memorial statistics API uses `optionalAuth` middleware to support both modes
+- Guest mode persists until user explicitly logs in or restarts app

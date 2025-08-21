@@ -13,6 +13,7 @@ import '../providers/auth_provider.dart';
 import '../providers/memorial_provider.dart';
 import '../utils/glass_effect_helper.dart';
 import 'my_memorials_space_page.dart';
+import 'glass_login_page.dart';
 import 'personal_info_page.dart';
 import 'notification_settings_page.dart';
 import 'account_security_page.dart';
@@ -215,7 +216,12 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                           width: double.infinity,
                           child: GlassButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed('/login');
+                              // 直接推送到登录页面
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const GlassLoginPage(),
+                                ),
+                              );
                             },
                             backgroundColor: GlassmorphismColors.primary,
                             child: Row(
@@ -236,25 +242,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                                   ),
                                 ),
                               ],
-                            ),
-                          ),
-                        ),
-                        
-                        const SizedBox(height: 16),
-                        
-                        // 继续浏览
-                        GlassButton(
-                          onPressed: () {
-                            // 返回上一级
-                            Navigator.of(context).pop();
-                          },
-                          backgroundColor: Colors.transparent,
-                          borderColor: GlassmorphismColors.glassBorder,
-                          child: Text(
-                            '继续以游客模式浏览',
-                            style: TextStyle(
-                              color: GlassmorphismColors.textSecondary,
-                              fontSize: 14,
                             ),
                           ),
                         ),

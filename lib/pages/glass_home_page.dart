@@ -8,8 +8,10 @@ import '../widgets/glass_icons.dart';
 import '../widgets/glass_interactive_widgets.dart';
 import '../widgets/unsplash_image.dart';
 import '../providers/memorial_provider.dart';
+import '../providers/auth_provider.dart';
 import '../utils/network_tester.dart';
 import 'glass_memorial_detail_page.dart';
+import 'glass_login_page.dart';
 
 /// 玻璃拟态主页
 class GlassHomePage extends StatefulWidget {
@@ -675,9 +677,46 @@ class _GlassHomePageState extends State<GlassHomePage>
   }
 
   void _likeMemorial(Memorial memorial) async {
-    final provider = Provider.of<MemorialProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-
+    
+    // 检查是否为游客模式
+    if (!authProvider.isLoggedIn) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                GlassIcons.lock,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text('请登录后再献花'),
+            ],
+          ),
+          backgroundColor: GlassmorphismColors.warning.withValues(alpha: 0.9),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          action: SnackBarAction(
+            label: '登录',
+            textColor: Colors.white,
+            onPressed: () {
+              // 直接推送到登录页面
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const GlassLoginPage(),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+    
+    final provider = Provider.of<MemorialProvider>(context, listen: false);
     final success = await provider.toggleMemorialLike(memorial.id);
 
     if (success) {
@@ -704,6 +743,45 @@ class _GlassHomePageState extends State<GlassHomePage>
   }
 
   void _commentMemorial(Memorial memorial) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    // 检查是否为游客模式
+    if (!authProvider.isLoggedIn) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                GlassIcons.lock,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text('请登录后再留言'),
+            ],
+          ),
+          backgroundColor: GlassmorphismColors.warning.withValues(alpha: 0.9),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          action: SnackBarAction(
+            label: '登录',
+            textColor: Colors.white,
+            onPressed: () {
+              // 直接推送到登录页面
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const GlassLoginPage(),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+    
     // TODO: 实现评论功能
     showDialog(
       context: context,
