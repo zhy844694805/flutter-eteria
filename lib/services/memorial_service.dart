@@ -49,7 +49,7 @@ class MemorialService {
     print('🌐 [MemorialService] 正在获取统计数据: memorial_id=$memorialId');
     final response = await _api.get('/memorials/$memorialId/stats');
     print('📦 [MemorialService] 统计响应: $response');
-    return response['data'];
+    return response['data']['stats']; // 修复：返回实际的stats数据
   }
   
   Future<List<dynamic>> getComments(int memorialId, {int page = 1, int limit = 20}) async {

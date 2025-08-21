@@ -13,6 +13,10 @@ import '../providers/auth_provider.dart';
 import '../providers/memorial_provider.dart';
 import '../utils/glass_effect_helper.dart';
 import 'my_memorials_space_page.dart';
+import 'personal_info_page.dart';
+import 'notification_settings_page.dart';
+import 'account_security_page.dart';
+import 'about_page.dart';
 
 /// 玻璃拟态个人页面
 class GlassPersonalPage extends StatefulWidget {
@@ -822,13 +826,9 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
 
   void _editProfile() {
     HapticFeedback.lightImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('个人信息编辑功能开发中'),
-        backgroundColor: GlassmorphismColors.info.withValues(alpha: 0.9),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PersonalInfoPage()),
     );
   }
 
@@ -1053,32 +1053,23 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
   }
 
   void _navigateToNotifications() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('通知设置功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const NotificationSettingsPage()),
     );
   }
 
   void _navigateToSecurity() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('账户安全功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AccountSecurityPage()),
     );
   }
 
   void _navigateToAbout() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('关于应用功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AboutPage()),
     );
   }
 }

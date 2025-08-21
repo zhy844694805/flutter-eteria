@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 import '../models/memorial.dart';
 import '../theme/glassmorphism_theme.dart';
 import '../widgets/glass_memorial_card.dart';
@@ -160,8 +159,22 @@ class _GlassHomePageState extends State<GlassHomePage>
       decoration: GlassmorphismDecorations.glassCard,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                GlassmorphismColors.glassSurface.withValues(alpha: 0.9),
+                GlassmorphismColors.glassSurface.withValues(alpha: 0.7),
+              ],
+            ),
+            border: Border.all(
+              color: GlassmorphismColors.glassBorder,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: TabBar(
             controller: _tabController,
             indicator: BoxDecoration(

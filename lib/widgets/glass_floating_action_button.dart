@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import '../theme/glassmorphism_theme.dart';
 
 /// 玻璃拟态浮动操作按钮
@@ -128,10 +127,19 @@ class _GlassFloatingActionButtonState extends State<GlassFloatingActionButton>
                     decoration: _buildDecoration(),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(widget.size / 2),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 15 + (_hoverAnimation.value * 5),
-                          sigmaY: 15 + (_hoverAnimation.value * 5),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              GlassmorphismColors.glassSurface.withValues(alpha: 0.9),
+                              GlassmorphismColors.glassSurface.withValues(alpha: 0.7),
+                            ],
+                          ),
+                          border: Border.all(
+                            color: GlassmorphismColors.glassBorder,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(widget.size / 2),
                         ),
                         child: Center(
                           child: Icon(

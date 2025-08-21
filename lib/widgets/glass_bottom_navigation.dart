@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import '../theme/glassmorphism_theme.dart';
 import '../widgets/glass_icons.dart';
 
@@ -109,8 +108,19 @@ class _GlassBottomNavigationState extends State<GlassBottomNavigation>
         ),
       ),
       child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                GlassmorphismColors.glassSurface.withValues(alpha: 0.95),
+                GlassmorphismColors.glassSurface.withValues(alpha: 0.85),
+              ],
+            ),
+            border: Border.all(
+              color: GlassmorphismColors.glassBorder,
+              width: 1,
+            ),
+          ),
           child: Padding(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).padding.bottom,

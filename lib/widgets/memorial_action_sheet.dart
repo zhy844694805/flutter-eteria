@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import '../models/memorial.dart';
 import '../theme/glassmorphism_theme.dart';
 import '../widgets/glass_interactive_widgets.dart';
@@ -54,13 +53,22 @@ class MemorialActionSheet extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: GlassmorphismColors.glassSurface.withValues(alpha: 0.1),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                GlassmorphismColors.glassSurface.withValues(alpha: 0.9),
+                GlassmorphismColors.glassSurface.withValues(alpha: 0.7),
+              ],
             ),
-            padding: const EdgeInsets.all(20),
+            border: Border.all(
+              color: GlassmorphismColors.glassBorder,
+              width: 1,
+            ),
+          ),
+          padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -194,7 +202,6 @@ class MemorialActionSheet extends StatelessWidget {
               ],
             ),
           ),
-        ),
       ),
     );
   }
@@ -291,65 +298,73 @@ class MemorialActionSheet extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: GlassmorphismColors.glassSurface.withValues(alpha: 0.1),
-                ),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      size: 48,
-                      color: GlassmorphismColors.error,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      '确定要删除吗？',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: GlassmorphismColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '删除后将无法恢复，所有相关的回忆都将永久消失。',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: GlassmorphismColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GlassInteractiveButton(
-                            text: '取消',
-                            onPressed: () => Navigator.pop(context, false),
-                            height: 44,
-                            backgroundColor: GlassmorphismColors.glassSurface,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: GlassInteractiveButton(
-                            text: '删除',
-                            onPressed: () {
-                              Navigator.pop(context, true);
-                              onDelete?.call();
-                            },
-                            height: 44,
-                            backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.1),
-                            foregroundColor: GlassmorphismColors.error,
-                          ),
-                        ),
-                      ],
-                    ),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    GlassmorphismColors.glassSurface.withValues(alpha: 0.95),
+                    GlassmorphismColors.glassSurface.withValues(alpha: 0.85),
                   ],
                 ),
+                border: Border.all(
+                  color: GlassmorphismColors.glassBorder,
+                  width: 1,
+                ),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 48,
+                    color: GlassmorphismColors.error,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '确定要删除吗？',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: GlassmorphismColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '删除后将无法恢复，所有相关的回忆都将永久消失。',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: GlassmorphismColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GlassInteractiveButton(
+                          text: '取消',
+                          onPressed: () => Navigator.pop(context, false),
+                          height: 44,
+                          backgroundColor: GlassmorphismColors.glassSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GlassInteractiveButton(
+                          text: '删除',
+                          onPressed: () {
+                            Navigator.pop(context, true);
+                            onDelete?.call();
+                          },
+                          height: 44,
+                          backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.1),
+                          foregroundColor: GlassmorphismColors.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

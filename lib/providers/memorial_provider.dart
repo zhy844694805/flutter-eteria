@@ -105,6 +105,49 @@ class MemorialProvider extends ChangeNotifier {
         final newLikeCount = result['like_count'] ?? memorial.likeCount ?? 0;
         final isLiked = result['liked'] ?? false;
         
+        print('✅ [MemorialProvider] 献花状态已更新: $isLiked, 数量: $newLikeCount');
+        
+        // 创建新的Memorial实例并更新
+        _memorials[index] = Memorial(
+          id: memorial.id,
+          name: memorial.name,
+          description: memorial.description,
+          birthDate: memorial.birthDate,
+          deathDate: memorial.deathDate,
+          relationship: memorial.relationship,
+          type: memorial.type,
+          imagePaths: memorial.imagePaths,
+          imageUrls: memorial.imageUrls,
+          isPublic: memorial.isPublic,
+          createdAt: memorial.createdAt,
+          updatedAt: memorial.updatedAt,
+          likeCount: newLikeCount,
+          viewCount: memorial.viewCount,
+          user: memorial.user,
+        );
+        
+        notifyListeners();
+      }
+      
+      return true;
+    } catch (e) {
+      print('❌ [MemorialProvider] 献花切换失败: $e');
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> toggleMemorialLikeWithResult(int memorialId) async {
+    try {
+      print('🔄 [MemorialProvider] 正在切换纪念献花: $memorialId');
+      final result = await _service.toggleLike(memorialId);
+      
+      // 更新本地纪念数据
+      final index = _memorials.indexWhere((memorial) => memorial.id == memorialId);
+      if (index != -1) {
+        final memorial = _memorials[index];
+        final newLikeCount = result['like_count'] ?? memorial.likeCount ?? 0;
+        final isLiked = result['liked'] ?? false;
+        
         // 创建新的Memorial实例并更新
         _memorials[index] = Memorial(
           id: memorial.id,
@@ -128,10 +171,11 @@ class MemorialProvider extends ChangeNotifier {
         print('✅ [MemorialProvider] 献花状态已更新: $isLiked, 数量: $newLikeCount');
       }
       
-      return true;
+      // 返回API结果
+      return result;
     } catch (e) {
       print('❌ [MemorialProvider] 献花失败: $e');
-      return false;
+      return null;
     }
   }
   
@@ -170,6 +214,43 @@ class MemorialProvider extends ChangeNotifier {
       }
     } catch (e) {
       print('❌ [MemorialProvider] 瞻仰次数更新失败: $e');
+    }
+  }
+
+  // 留言相关方法
+  Future<List<dynamic>> getComments(int memorialId) async {
+    try {
+      print('🔄 [MemorialProvider] 正在获取留言: $memorialId');
+      final comments = await _service.getComments(memorialId);
+      print('✅ [MemorialProvider] 获取到 ${comments.length} 条留言');
+      return comments;
+    } catch (e) {
+      print('❌ [MemorialProvider] 获取留言失败: $e');
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> addComment(int memorialId, String content) async {
+    try {
+      print('🔄 [MemorialProvider] 正在发送留言: $memorialId');
+      final comment = await _service.addComment(memorialId, content);
+      print('✅ [MemorialProvider] 留言发送成功');
+      return comment;
+    } catch (e) {
+      print('❌ [MemorialProvider] 留言发送失败: $e');
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> getMemorialStats(int memorialId) async {
+    try {
+      print('🔄 [MemorialProvider] 正在获取统计数据: $memorialId');
+      final stats = await _service.getMemorialStats(memorialId);
+      print('✅ [MemorialProvider] 统计数据获取成功');
+      return stats;
+    } catch (e) {
+      print('❌ [MemorialProvider] 统计数据获取失败: $e');
+      throw e;
     }
   }
 

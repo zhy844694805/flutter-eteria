@@ -122,6 +122,7 @@ class CompactMemorialCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
+                          flex: 3, // 给名字分配更多空间
                           child: Hero(
                             tag: 'memorial_name_${memorial.id}',
                             child: Material(
@@ -140,19 +141,24 @@ class CompactMemorialCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Builder(
-                            builder: (context) => Text(
-                              memorial.typeText,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.primary,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
+                        const SizedBox(width: 6), // 增加间距
+                        Flexible( // 使用Flexible让标签可以收缩
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // 减小内边距
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8), // 减小圆角
+                            ),
+                            child: Builder(
+                              builder: (context) => Text(
+                                memorial.typeText,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.primary,
+                                  fontSize: 9, // 减小字体
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),

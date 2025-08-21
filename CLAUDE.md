@@ -79,8 +79,15 @@ npm run dev
 # Start production server
 npm start
 
-# Database setup
-./scripts/setup-db.sh
+# Database operations
+npm run db:migrate    # Run database migrations
+npm run db:seed      # Seed database with initial data
+
+# Run tests
+npm test
+
+# Kill processes on port 3000 (if needed)
+lsof -ti:3000 | xargs kill -9
 ```
 
 ## Authentication Flow
@@ -222,6 +229,7 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **View Tracking**: Automatically increments view count when opening memorial detail page
 - **Real-time Updates**: Provider methods immediately update local state and call backend APIs
 - **Error Handling**: Failed API calls show user-friendly error messages via SnackBar
+- **State Persistence Issues**: If like button state doesn't persist after page refresh, check that `/memorials/:id/stats` route uses `optionalAuth` middleware and frontend service returns `response['data']['stats']`
 
 ### Development Workflow
 - **Code Generation**: Run `dart run build_runner build --delete-conflicting-outputs` after modifying `@JsonSerializable` models
@@ -254,11 +262,44 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 
 ## Critical Implementation Details
 
+### API Response Handling & State Synchronization
+- **Statistics API Fix**: Memorial stats API (`GET /memorials/:id/stats`) now correctly uses `optionalAuth` middleware to pass user authentication for proper `user_liked` state
+- **Frontend Service Fix**: `getMemorialStats()` now correctly returns `response['data']['stats']` instead of `response['data']` to match backend response structure
+- **Like State Management**: `toggleMemorialLikeWithResult()` method provides detailed API response including actual like counts and user state
+- **NULL Value Handling**: Backend like/unlike operations handle NULL values in database by initializing counts before increment/decrement operations
+
+### Interactive Features Implementation
+- **Like System**: Memorial detail pages use `_checkLikeStatus()` on initialization to fetch user's current like state from backend
+- **Real-time Updates**: Like button state updates immediately via `setState()` and persists across page refreshes through backend API calls
+- **Statistics Tracking**: Memorial stats include `view_count`, `like_count`, `comment_count`, and `user_liked` fields for comprehensive user engagement tracking
+- **State Persistence**: User like status is stored in backend database with unique constraints on (memorial_id, user_id) pairs
+
+### Backend Authentication Architecture
+- **Optional Authentication**: Routes like stats and memorial details use `optionalAuth` middleware to support both authenticated and anonymous access
+- **JWT Token Management**: Tokens properly decoded with `userId` field for user identification in like/unlike operations
+- **User Context**: `req.user?.id` pattern ensures graceful handling of both authenticated and anonymous requests
+
+### Platform-Specific Network Configuration
+```dart
+static String get baseUrl {
+  if (Platform.isAndroid) {
+    return 'http://10.0.2.2:3000/api/v1';  // Android emulator
+  } else {
+    return 'http://127.0.0.1:3000/api/v1';  // iOS simulator
+  }
+}
+```
+
 ### setState() Error Prevention
 When working with widgets that trigger setState() during build phase (like BottomSheet selections), use these patterns:
 - Extract callback logic to separate methods
 - Use `mounted` checks before calling setState()
 - For RadioListTile and similar widgets in forms, avoid direct setState() calls in onChanged callbacks
+
+### Database Operations & Error Handling
+- **Like Toggle Logic**: Backend properly handles NULL values by updating to 0 before increment/decrement operations
+- **Sequelize Operations**: Uses `memorial.increment()`, `memorial.decrement()`, and `memorial.reload()` for atomic database updates
+- **Error Recovery**: Frontend falls back to default states (`_isLiked = false`) when API calls fail
 
 ### Glassmorphism Theme Implementation
 - Uses custom `GlassmorphismTheme` with gradient backgrounds

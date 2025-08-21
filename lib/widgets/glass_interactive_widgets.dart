@@ -161,12 +161,13 @@ class _GlassInteractiveButtonState extends State<GlassInteractiveButton>
               child: Container(
                 width: widget.width,
                 height: widget.height,
-                padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16), // 优化垂直内边距
                 decoration: _buildDecoration(),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Stack(
                     alignment: Alignment.center,
+                    clipBehavior: Clip.none, // 避免内容被裁剪
                     children: [
                       // 水波纹效果
                       if (_showRipple)
@@ -246,6 +247,7 @@ class _GlassInteractiveButtonState extends State<GlassInteractiveButton>
     
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center, // 确保垂直居中对齐
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.icon != null) ...[
@@ -256,11 +258,17 @@ class _GlassInteractiveButtonState extends State<GlassInteractiveButton>
           ),
           const SizedBox(width: 8),
         ],
-        Text(
-          widget.text,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: foregroundColor,
-            fontWeight: FontWeight.w500,
+        Flexible(
+          child: Text(
+            widget.text,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: foregroundColor,
+              fontWeight: FontWeight.w500,
+              height: 1.0, // 优化行高确保文字完整显示
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
