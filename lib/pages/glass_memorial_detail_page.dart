@@ -703,10 +703,10 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
           children: [
             Expanded(
               child: _buildStatItem(
-                GlassIcons.heart,
+                GlassIcons.flower,
                 '${memorial.likeCount ?? 0}',
                 '献花',
-                GlassmorphismColors.error,
+                GlassmorphismColors.primary,
               ),
             ),
             Expanded(
@@ -789,7 +789,7 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
                 Expanded(
                   child: GlassInteractiveButton(
                     text: _isLiked ? '已献花' : '献花',
-                    icon: _isLiked ? GlassIcons.heartFilled : GlassIcons.heart,
+                    icon: GlassIcons.flower,
                     onPressed: _toggleLike,
                     backgroundColor: _isLiked 
                         ? GlassmorphismColors.error.withValues(alpha: 0.1)
@@ -1253,7 +1253,7 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
                     return Transform.scale(
                       scale: 1.0 + (_heartAnimation.value * 0.5),
                       child: Icon(
-                        GlassIcons.heartFilled,
+                        GlassIcons.flower,
                         color: Colors.white,
                         size: 20,
                       ),

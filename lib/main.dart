@@ -6,7 +6,8 @@ import 'pages/glass_home_page.dart';
 import 'pages/glass_create_page.dart';
 import 'pages/digital_life_page.dart';
 import 'pages/glass_personal_page.dart';
-import 'pages/login_page.dart';
+import 'pages/glass_login_page.dart';
+import 'pages/welcome_page.dart';
 import 'widgets/glass_bottom_navigation.dart';
 import 'providers/memorial_provider.dart';
 import 'providers/auth_provider.dart';
@@ -70,6 +71,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _hasLoadedData = false;
+  bool _showWelcome = true; // 是否显示欢迎页面
 
   List<Widget> get _pages => [
     GlassHomePage(
@@ -95,22 +97,49 @@ class _MainScreenState extends State<MainScreen> {
           );
         }
         
-        // 如果用户未登录，显示登录页面
-        if (!authProvider.isLoggedIn) {
-          _hasLoadedData = false; // 重置加载状态
-          return const LoginPage();
+        // 首次进入应用，显示欢迎页面让用户选择
+        if (_showWelcome && !authProvider.isLoggedIn) {
+          return WelcomePage(
+            onLoginPressed: () {
+              setState(() {
+                _showWelcome = false;
+              });
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const GlassLoginPage(),
+                ),
+              );
+            },
+            onGuestMode: () {
+              setState(() {
+                _showWelcome = false;
+              });
+            },
+          );
         }
         
-        // 用户已登录，自动加载纪念数据
+        // 如果用户选择了登录但未登录成功，显示登录页面
+        if (!_showWelcome && !authProvider.isLoggedIn) {
+          _hasLoadedData = false; // 重置加载状态
+          return const GlassLoginPage();
+        }
+        
+        // 用户已登录或处于游客模式，自动加载纪念数据
         if (!_hasLoadedData) {
           _hasLoadedData = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             final memorialProvider = Provider.of<MemorialProvider>(context, listen: false);
-            memorialProvider.loadMemorials();
+            // 只有在登录状态下才加载用户的纪念数据，游客模式可以查看公开的纪念内容
+            if (authProvider.isLoggedIn) {
+              memorialProvider.loadMemorials();
+            } else {
+              // 游客模式：加载公开的纪念内容
+              memorialProvider.loadPublicMemorials();
+            }
           });
         }
         
-        // 用户已登录，显示主界面
+        // 用户已登录或处于游客模式，显示主界面
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: Container(

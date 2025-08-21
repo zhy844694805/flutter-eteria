@@ -9,6 +9,7 @@ import '../widgets/glass_form_field.dart';
 import '../widgets/glass_icons.dart';
 import '../widgets/glass_interactive_widgets.dart';
 import '../providers/memorial_provider.dart';
+import '../providers/auth_provider.dart';
 import '../services/file_service.dart';
 import '../utils/image_helper.dart';
 import '../utils/form_validators.dart';
@@ -135,53 +136,61 @@ class _GlassCreatePageState extends State<GlassCreatePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: GlassmorphismColors.backgroundGradient,
-        ),
-        child: SafeArea(
-          child: AnimatedBuilder(
-            animation: _pageAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: 0.8 + (0.2 * _pageAnimation.value),
-                child: Opacity(
-                  opacity: _pageAnimation.value,
-                  child: Column(
-                    children: [
-                      _buildAppBar(),
-                      _buildProgressBar(),
-                      Expanded(
-                        child: Form(
-                          key: _formKey,
-                          child: PageView(
-                            controller: _pageController,
-                            onPageChanged: (page) {
-                              setState(() {
-                                _currentStep = page;
-                              });
-                              _updateProgress();
-                            },
-                            children: [
-                              _buildBasicInfoStep(),
-                              _buildDatesStep(),
-                              _buildPhotosStep(),
-                              _buildDescriptionStep(),
-                            ],
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (!authProvider.isLoggedIn) {
+          return _buildGuestModeView();
+        }
+        
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: GlassmorphismColors.backgroundGradient,
+            ),
+            child: SafeArea(
+              child: AnimatedBuilder(
+                animation: _pageAnimation,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: 0.8 + (0.2 * _pageAnimation.value),
+                    child: Opacity(
+                      opacity: _pageAnimation.value,
+                      child: Column(
+                        children: [
+                          _buildAppBar(),
+                          _buildProgressBar(),
+                          Expanded(
+                            child: Form(
+                              key: _formKey,
+                              child: PageView(
+                                controller: _pageController,
+                                onPageChanged: (page) {
+                                  setState(() {
+                                    _currentStep = page;
+                                  });
+                                  _updateProgress();
+                                },
+                                children: [
+                                  _buildBasicInfoStep(),
+                                  _buildDatesStep(),
+                                  _buildPhotosStep(),
+                                  _buildDescriptionStep(),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                          _buildBottomControls(),
+                        ],
                       ),
-                      _buildBottomControls(),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1092,6 +1101,234 @@ class _GlassCreatePageState extends State<GlassCreatePage>
         backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// 游客模式视图
+  Widget _buildGuestModeView() {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: GlassmorphismColors.backgroundGradient,
+        ),
+        child: SafeArea(
+          child: AnimatedBuilder(
+            animation: _pageAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: 0.8 + (0.2 * _pageAnimation.value),
+                child: Opacity(
+                  opacity: _pageAnimation.value,
+                  child: Column(
+                    children: [
+                      // 简化的导航栏
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            GlassIconButton(
+                              icon: Icons.arrow_back,
+                              onPressed: () => Navigator.pop(context),
+                              size: 44,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                '创建纪念',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: GlassmorphismColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // 主要内容区域
+                      Expanded(
+                        child: Center(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(32),
+                              decoration: GlassmorphismDecorations.glassCard,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Colors.white.withValues(alpha: 0.1),
+                                          Colors.white.withValues(alpha: 0.05),
+                                        ],
+                                      ),
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // 锁定图标
+                                        Container(
+                                          width: 80,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                GlassmorphismColors.primary.withValues(alpha: 0.3),
+                                                GlassmorphismColors.primary.withValues(alpha: 0.1),
+                                              ],
+                                            ),
+                                            borderRadius: BorderRadius.circular(40),
+                                            border: Border.all(
+                                              color: GlassmorphismColors.primary.withValues(alpha: 0.5),
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            GlassIcons.lock,
+                                            size: 40,
+                                            color: GlassmorphismColors.primary,
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 24),
+                                        
+                                        // 标题
+                                        Text(
+                                          '需要登录账户',
+                                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                            color: GlassmorphismColors.textOnGlass,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 16),
+                                        
+                                        // 说明文字
+                                        Text(
+                                          '创建纪念内容需要登录账户。\n登录后您可以：',
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                            color: GlassmorphismColors.textSecondary,
+                                            height: 1.5,
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 20),
+                                        
+                                        // 功能列表
+                                        Column(
+                                          children: [
+                                            _buildFeatureTile('创建纪念内容', GlassIcons.create),
+                                            _buildFeatureTile('上传照片视频', GlassIcons.photo),
+                                            _buildFeatureTile('个人纪念管理', GlassIcons.profile),
+                                            _buildFeatureTile('收藏点赞互动', GlassIcons.like),
+                                          ],
+                                        ),
+                                        
+                                        const SizedBox(height: 32),
+                                        
+                                        // 操作按钮
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              width: double.infinity,
+                                              child: GlassButton(
+                                                onPressed: () {
+                                                  // 导航到登录页面
+                                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                                    '/',
+                                                    (route) => false,
+                                                  );
+                                                },
+                                                backgroundColor: GlassmorphismColors.primary,
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    const Icon(
+                                                      GlassIcons.login,
+                                                      color: Colors.white,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    const Text(
+                                                      '登录 / 注册',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            
+                                            const SizedBox(height: 12),
+                                            
+                                            SizedBox(
+                                              width: double.infinity,
+                                              child: GlassButton(
+                                                onPressed: () => Navigator.pop(context),
+                                                backgroundColor: Colors.transparent,
+                                                borderColor: GlassmorphismColors.glassBorder,
+                                                child: Text(
+                                                  '返回浏览',
+                                                  style: TextStyle(
+                                                    color: GlassmorphismColors.textOnGlass,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureTile(String feature, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: GlassmorphismColors.success,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            feature,
+            style: TextStyle(
+              color: GlassmorphismColors.textSecondary,
+              fontSize: 14,
+            ),
+          ),
+        ],
       ),
     );
   }

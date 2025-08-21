@@ -34,6 +34,17 @@ class GlassIcons {
   static const IconData settings = Icons.settings_outlined;
   static const IconData edit = Icons.edit_outlined;
   
+  // 认证图标
+  static const IconData email = Icons.email_outlined;
+  static const IconData lock = Icons.lock_outline;
+  static const IconData person = Icons.person_outline;
+  static const IconData eye = Icons.visibility;
+  static const IconData eyeOff = Icons.visibility_off;
+  static const IconData login = Icons.login;
+  static const IconData logout = Icons.logout;
+  static const IconData userPlus = Icons.person_add_outlined;
+  static const IconData security = Icons.security;
+  
   // 状态图标
   static const IconData success = Icons.check_circle_outline;
   static const IconData warning = Icons.warning_outlined;

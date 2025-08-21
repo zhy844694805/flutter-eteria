@@ -203,7 +203,7 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildStatItem(
-                          GlassIcons.heart,
+                          GlassIcons.flower,
                           totalFlowers.toString(),
                           '鲜花',
                           GlassmorphismColors.error,

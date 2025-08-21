@@ -302,6 +302,145 @@ class RipplePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
+/// 简化版玻璃拟态按钮
+class GlassButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final EdgeInsetsGeometry? padding;
+  final double? width;
+  final double? height;
+
+  const GlassButton({
+    super.key,
+    required this.child,
+    this.onPressed,
+    this.isLoading = false,
+    this.backgroundColor,
+    this.borderColor,
+    this.padding,
+    this.width,
+    this.height,
+  });
+
+  @override
+  State<GlassButton> createState() => _GlassButtonState();
+}
+
+class _GlassButtonState extends State<GlassButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.onPressed != null && !widget.isLoading) {
+      setState(() => _isPressed = true);
+      _controller.forward();
+      HapticFeedback.lightImpact();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    if (_isPressed) {
+      setState(() => _isPressed = false);
+      _controller.reverse();
+      widget.onPressed?.call();
+    }
+  }
+
+  void _handleTapCancel() {
+    if (_isPressed) {
+      setState(() => _isPressed = false);
+      _controller.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = widget.onPressed != null && !widget.isLoading;
+    
+    return AnimatedBuilder(
+      animation: _scaleAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: GestureDetector(
+            onTapDown: isEnabled ? _handleTapDown : null,
+            onTapUp: isEnabled ? _handleTapUp : null,
+            onTapCancel: isEnabled ? _handleTapCancel : null,
+            child: Container(
+              width: widget.width,
+              height: widget.height ?? 56,
+              padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    (widget.backgroundColor ?? GlassmorphismColors.primary)
+                        .withValues(alpha: isEnabled ? 1.0 : 0.5),
+                    (widget.backgroundColor ?? GlassmorphismColors.primary)
+                        .withValues(alpha: isEnabled ? 0.8 : 0.3),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: widget.borderColor ?? GlassmorphismColors.glassBorder.withValues(alpha: 0.5),
+                  width: 1,
+                ),
+                boxShadow: isEnabled ? [
+                  BoxShadow(
+                    color: GlassmorphismColors.shadowLight,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ] : null,
+              ),
+              child: widget.isLoading
+                  ? const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    )
+                  : widget.child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// 悬浮卡片容器
 class GlassHoverCard extends StatefulWidget {
   final Widget child;

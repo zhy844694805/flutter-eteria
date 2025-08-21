@@ -87,39 +87,186 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: GlassmorphismColors.backgroundGradient,
-        ),
-        child: AnimatedBuilder(
-          animation: _pageAnimation,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 0.95 + (0.05 * _pageAnimation.value),
-              child: Opacity(
-                opacity: _pageAnimation.value.clamp(0.0, 1.0),
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    _buildAppBar(),
-                    _buildUserProfile(),
-                    _buildStatisticsCard(),
-                    _buildMenuGrid(),
-                    _buildRecentActivity(),
-                    _buildSettings(),
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: MediaQuery.of(context).padding.bottom + 80),
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (!authProvider.isLoggedIn) {
+          return _buildGuestModeView();
+        }
+        
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: GlassmorphismColors.backgroundGradient,
+            ),
+            child: AnimatedBuilder(
+              animation: _pageAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: 0.95 + (0.05 * _pageAnimation.value),
+                  child: Opacity(
+                    opacity: _pageAnimation.value.clamp(0.0, 1.0),
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        _buildAppBar(),
+                        _buildUserProfile(),
+                        _buildStatisticsCard(),
+                        _buildMenuGrid(),
+                        _buildRecentActivity(),
+                        _buildSettings(),
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: MediaQuery.of(context).padding.bottom + 80),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                );
+              },
+            ),
+          ),
+          floatingActionButton: _buildFloatingActionButton(),
+        );
+      },
+    );
+  }
+
+  /// 游客模式视图
+  Widget _buildGuestModeView() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 100),
+            
+            // 登录提示卡片
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: GlassmorphismDecorations.glassCard,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.white.withValues(alpha: 0.05),
+                        ],
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        // 登录图标
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                GlassmorphismColors.primary.withValues(alpha: 0.3),
+                                GlassmorphismColors.primary.withValues(alpha: 0.1),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(40),
+                            border: Border.all(
+                              color: GlassmorphismColors.primary.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: Icon(
+                            GlassIcons.person,
+                            color: GlassmorphismColors.primary,
+                            size: 40,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // 标题
+                        Text(
+                          '登录后享受完整功能',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: GlassmorphismColors.textOnGlass,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        
+                        // 说明文字
+                        Text(
+                          '登录或注册账号后，您可以：\n• 创建专属的纪念空间\n• 上传珍贵的照片和视频\n• 管理个人信息和设置\n• 查看和管理你的纪念内容',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: GlassmorphismColors.textSecondary,
+                            height: 1.6,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        // 登录按钮
+                        SizedBox(
+                          width: double.infinity,
+                          child: GlassButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed('/login');
+                            },
+                            backgroundColor: GlassmorphismColors.primary,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  GlassIcons.login,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  '登录 / 注册',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        
+                        // 继续浏览
+                        GlassButton(
+                          onPressed: () {
+                            // 返回上一级
+                            Navigator.of(context).pop();
+                          },
+                          backgroundColor: Colors.transparent,
+                          borderColor: GlassmorphismColors.glassBorder,
+                          child: Text(
+                            '继续以游客模式浏览',
+                            style: TextStyle(
+                              color: GlassmorphismColors.textSecondary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
-      floatingActionButton: _buildFloatingActionButton(),
     );
   }
 
@@ -372,7 +519,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildStatCard(
-                          GlassIcons.heart,
+                          GlassIcons.flower,
                           totalLikes.toString(),
                           '鲜花',
                           GlassmorphismColors.error,
@@ -450,7 +597,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
         onTap: () => _navigateToMyMemorials(),
       ),
       MenuItemData(
-        icon: GlassIcons.heart,
+        icon: GlassIcons.flower,
         title: '收到的鲜花',
         description: '查看获得的缅怀',
         color: GlassmorphismColors.error,

@@ -57,6 +57,25 @@ class MemorialProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 游客模式：加载公开的纪念内容
+  Future<void> loadPublicMemorials() async {
+    print('🌍 [MemorialProvider] 游客模式 - 开始加载公开纪念数据...');
+    _isLoading = true;
+    notifyListeners();
+    
+    try {
+      _memorials = await _service.getPublicMemorials();
+      print('✅ [MemorialProvider] 公开数据加载成功，共 ${_memorials.length} 条纪念数据');
+    } catch (e) {
+      print('❌ [MemorialProvider] 公开数据加载失败: $e');
+      // 静默处理错误，保持简单
+      _memorials = [];
+    }
+    
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<bool> addMemorial(Memorial memorial) async {
     try {
       final saved = await _service.saveMemorial(memorial);

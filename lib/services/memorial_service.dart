@@ -13,6 +13,29 @@ class MemorialService {
     return data.map((json) => Memorial.fromJson(json)).toList();
   }
   
+  /// 获取公开的纪念内容（游客模式）
+  Future<List<Memorial>> getPublicMemorials() async {
+    print('🌐 [MemorialService] 正在调用 GET /memorials/public');
+    try {
+      final response = await _api.get('/memorials/public');
+      print('📦 [MemorialService] 公开数据服务器响应: $response');
+      final List<dynamic> data = response['data']['memorials'];
+      print('📊 [MemorialService] 解析到 ${data.length} 条公开纪念数据');
+      return data.map((json) => Memorial.fromJson(json)).toList();
+    } catch (e) {
+      print('⚠️ [MemorialService] 公开纪念数据接口不存在，使用普通接口: $e');
+      // 如果后端没有专门的公开接口，使用普通接口获取所有数据
+      // 这里可以在前端过滤出公开的纪念内容
+      final response = await _api.get('/memorials');
+      final List<dynamic> data = response['data']['memorials'];
+      final allMemorials = data.map((json) => Memorial.fromJson(json)).toList();
+      // 过滤出公开的纪念内容
+      final publicMemorials = allMemorials.where((memorial) => memorial.isPublic).toList();
+      print('📊 [MemorialService] 过滤后的公开纪念数据: ${publicMemorials.length} 条');
+      return publicMemorials;
+    }
+  }
+  
   Future<Memorial> saveMemorial(Memorial memorial) async {
     final response = await _api.post('/memorials', body: memorial.toCreateJson());
     return Memorial.fromJson(response['data']['memorial']);
