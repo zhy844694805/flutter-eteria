@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 import '../theme/app_theme.dart';
+import '../utils/image_url_helper.dart';
 
 class PlatformImage extends StatelessWidget {
   final String imagePath;
@@ -28,13 +29,26 @@ class PlatformImage extends StatelessWidget {
     Widget imageWidget;
 
     if (_isNetworkImage(imagePath)) {
+      final rewrittenUrl = ImageUrlHelper.rewriteImageUrl(imagePath);
+      debugPrint('🔄 [PlatformImage] 准备加载图片: $rewrittenUrl');
       imageWidget = CachedNetworkImage(
-        imageUrl: imagePath,
+        imageUrl: rewrittenUrl,
         fit: fit,
         width: width,
         height: height,
         placeholder: (context, url) => placeholder ?? _buildDefaultPlaceholder(),
-        errorWidget: (context, url, error) => errorWidget ?? _buildDefaultError(),
+        errorWidget: (context, url, error) {
+          debugPrint('🚫 [PlatformImage] 网络图片加载失败');
+          debugPrint('🔗 [PlatformImage] URL: $url');
+          debugPrint('❌ [PlatformImage] 错误: $error');
+          debugPrint('📱 [PlatformImage] 平台: ${Platform.operatingSystem}');
+          return errorWidget ?? _buildNetworkError(url, error);
+        },
+        httpHeaders: const {
+          'Connection': 'keep-alive',
+        },
+        fadeInDuration: const Duration(milliseconds: 300),
+        fadeOutDuration: const Duration(milliseconds: 100),
       );
     } else {
       imageWidget = FutureBuilder<bool>(
@@ -73,7 +87,11 @@ class PlatformImage extends StatelessWidget {
   }
 
   bool _isNetworkImage(String path) {
-    return path.startsWith('http') || path.startsWith('https');
+    final isNetwork = path.startsWith('http') || path.startsWith('https');
+    if (isNetwork) {
+      debugPrint('🖼️ [PlatformImage] 加载网络图片: $path');
+    }
+    return isNetwork;
   }
 
   Future<bool> _checkFileExists(String path) async {
@@ -107,6 +125,43 @@ class PlatformImage extends StatelessWidget {
           Icons.person,
           color: AppColors.textSecondary,
           size: 32,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNetworkError(String? url, dynamic error) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.surfaceVariant.withOpacity(0.3),
+            AppColors.surfaceVariant.withOpacity(0.1),
+          ],
+        ),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.wifi_off,
+              color: AppColors.textSecondary,
+              size: 32,
+            ),
+            SizedBox(height: 4),
+            Text(
+              '加载失败',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 10,
+              ),
+            ),
+          ],
         ),
       ),
     );

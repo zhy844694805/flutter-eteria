@@ -208,7 +208,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
         // 内容区域
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(12), // 减少内边距从15到12
+            padding: const EdgeInsets.all(10), // 进一步减小内边距
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -217,7 +217,6 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
               Row(
                 children: [
                   Expanded(
-                    flex: 3, // 给名字分配更多空间
                     child: Text(
                       widget.memorial.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -228,24 +227,16 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 8), // 增加间距
+                  const SizedBox(width: 4), // 减小间距
                   if (widget.showMoreButton) ...[
                     _buildMoreButton(),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                   ],
-                  _buildMemorialBadge(),
+                  Flexible(
+                    child: _buildMemorialBadge(),
+                  ),
                 ],
               ),
-              
-              if (widget.memorial.relationship?.isNotEmpty == true) ...[
-                const SizedBox(height: 2), // 减少间距
-                Text(
-                  widget.memorial.relationship!,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: GlassmorphismColors.textSecondary,
-                  ),
-                ),
-              ],
               
               const SizedBox(height: 4), // 减少间距
               
@@ -261,7 +252,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                   overflow: TextOverflow.ellipsis,
                 ),
               
-              const SizedBox(height: 6), // 减少间距
+              const SizedBox(height: 4), // 进一步减少间距
               
               // 互动区域
               _buildInteractionRow(),
@@ -412,7 +403,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
 
   Widget _buildMemorialBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // 减小内边距
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2), // 进一步减小内边距
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -420,7 +411,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
             GlassmorphismColors.primary.withValues(alpha: 0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(6), // 减小圆角
+        borderRadius: BorderRadius.circular(4), // 进一步减小圆角
         border: Border.all(
           color: GlassmorphismColors.primary.withValues(alpha: 0.3),
           width: 0.8, // 减小边框宽度
@@ -431,16 +422,18 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
         children: [
           Icon(
             GlassIcons.candle,
-            size: 10, // 减小图标尺寸
+            size: 8, // 进一步减小图标尺寸
             color: GlassmorphismColors.primary,
           ),
-          const SizedBox(width: 3), // 减小间距
+          const SizedBox(width: 2), // 进一步减小间距
           Text(
-            '纪念',
+            widget.memorial.relationship?.isNotEmpty == true 
+                ? widget.memorial.relationship! 
+                : widget.memorial.typeText,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: GlassmorphismColors.primary,
               fontWeight: FontWeight.w500,
-              fontSize: 10, // 减小字体大小
+              fontSize: 9, // 进一步减小字体大小
             ),
           ),
         ],
@@ -489,42 +482,38 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
     return Row(
       children: [
         // 献花
-        _buildInteractionButton(
-          icon: (widget.memorial.likeCount ?? 0) > 0 ? GlassIcons.heartFilled : GlassIcons.heart,
-          count: widget.memorial.likeCount ?? 0,
-          isActive: (widget.memorial.likeCount ?? 0) > 0,
-          onTap: widget.onLike,
-          color: GlassmorphismColors.error,
+        Flexible(
+          child: _buildInteractionButton(
+            icon: GlassIcons.flower,
+            count: widget.memorial.likeCount ?? 0,
+            isActive: (widget.memorial.likeCount ?? 0) > 0,
+            onTap: widget.onLike,
+            color: GlassmorphismColors.primary,
+          ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 8), // 进一步减小间距
         
         // 评论
-        _buildInteractionButton(
-          icon: GlassIcons.comment,
-          count: 0, // TODO: 添加评论计数
-          onTap: widget.onComment,
-          color: GlassmorphismColors.info,
+        Flexible(
+          child: _buildInteractionButton(
+            icon: GlassIcons.comment,
+            count: 0, // TODO: 添加评论计数
+            onTap: widget.onComment,
+            color: GlassmorphismColors.info,
+          ),
         ),
         
         const Spacer(),
         
         // 瞻仰次数
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              GlassIcons.view,
-              size: 16,
-              color: GlassmorphismColors.textTertiary,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '${widget.memorial.viewCount ?? 0}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: GlassmorphismColors.textTertiary,
-              ),
-            ),
-          ],
+        Flexible(
+          child: _buildInteractionButton(
+            icon: GlassIcons.view,
+            count: widget.memorial.viewCount ?? 0,
+            onTap: null, // 瞻仰次数不可点击
+            color: GlassmorphismColors.textTertiary,
+            isActive: false,
+          ),
         ),
       ],
     );
@@ -540,7 +529,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // 减小内边距
         decoration: isActive ? BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -559,19 +548,22 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
           children: [
             Icon(
               icon,
-              size: 16,
+              size: 14, // 减小图标尺寸
               color: isActive ? color : GlassmorphismColors.textSecondary,
             ),
-            if (count > 0) ...[
-              const SizedBox(width: 4),
-              Text(
+            const SizedBox(width: 1), // 进一步减小间距
+            Flexible(
+              child: Text(
                 count.toString(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: isActive ? color : GlassmorphismColors.textSecondary,
                   fontWeight: FontWeight.w500,
+                  fontSize: 10, // 减小字体大小
                 ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
-            ],
+            ),
           ],
         ),
       ),

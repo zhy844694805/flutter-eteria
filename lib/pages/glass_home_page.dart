@@ -8,6 +8,7 @@ import '../widgets/glass_icons.dart';
 import '../widgets/glass_interactive_widgets.dart';
 import '../widgets/unsplash_image.dart';
 import '../providers/memorial_provider.dart';
+import '../utils/network_tester.dart';
 import 'glass_memorial_detail_page.dart';
 
 /// 玻璃拟态主页
@@ -33,6 +34,34 @@ class _GlassHomePageState extends State<GlassHomePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // 测试网络连接
+    _testNetworkConnection();
+  }
+  
+  /// 测试网络连接
+  void _testNetworkConnection() async {
+    final isConnected = await NetworkTester.testLocalConnection();
+    print('🌐 [GlassHomePage] 网络连接状态: ${isConnected ? '正常' : '异常'}');
+    
+    // 延迟一段时间等待纪念数据加载完成
+    await Future.delayed(const Duration(seconds: 2));
+    
+    // 如果有纪念数据，测试第一张图片
+    if (mounted) {
+      final memorialProvider = context.read<MemorialProvider>();
+      if (memorialProvider.memorials.isNotEmpty) {
+        final firstMemorial = memorialProvider.memorials.first;
+        if (firstMemorial.primaryImage != null) {
+          print('🧪 [GlassHomePage] 准备测试图片: ${firstMemorial.primaryImage!}');
+          final canLoadImage = await NetworkTester.testImageUrl(firstMemorial.primaryImage!);
+          print('🖼️ [GlassHomePage] 图片加载测试: ${canLoadImage ? '成功' : '失败'}');
+        } else {
+          print('⚠️ [GlassHomePage] 第一个纪念没有图片');
+        }
+      } else {
+        print('⚠️ [GlassHomePage] 没有纪念数据可测试');
+      }
+    }
   }
 
   @override
@@ -334,7 +363,7 @@ class _GlassHomePageState extends State<GlassHomePage>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              GlassIcons.heart,
+                              GlassIcons.flower,
                               size: 14,
                               color: GlassmorphismColors.textTertiary,
                             ),
@@ -657,7 +686,7 @@ class _GlassHomePageState extends State<GlassHomePage>
           content: Row(
             children: [
               Icon(
-                GlassIcons.heart,
+                GlassIcons.flower,
                 color: Colors.white,
                 size: 20,
               ),
