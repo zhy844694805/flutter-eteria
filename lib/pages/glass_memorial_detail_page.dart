@@ -10,6 +10,7 @@ import '../widgets/glass_floating_action_button.dart';
 import '../widgets/glass_interactive_widgets.dart' hide GlassHoverCard;
 import '../widgets/glass_icons.dart' hide GlassFloatingActionButton;
 import '../widgets/platform_image.dart';
+import '../widgets/share_dialog.dart';
 import '../providers/memorial_provider.dart';
 import '../providers/auth_provider.dart';
 import 'glass_login_page.dart';
@@ -1426,91 +1427,11 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
   }
 
   void _showShareSheet() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          gradient: GlassmorphismColors.backgroundGradient,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  GlassmorphismColors.glassSurface.withValues(alpha: 0.9),
-                  GlassmorphismColors.glassSurface.withValues(alpha: 0.7),
-                ],
-              ),
-              border: Border.all(
-                color: GlassmorphismColors.glassBorder,
-                width: 1,
-              ),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '分享纪念',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: GlassmorphismColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildShareOption(Icons.link, '复制链接'),
-                      _buildShareOption(Icons.image, '生成图片'),
-                      _buildShareOption(Icons.qr_code, '二维码'),
-                    ],
-                  ),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShareOption(IconData icon, String label) {
-    return GlassHoverCard(
-      onTap: () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$label功能开发中'),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        );
-      },
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: GlassmorphismColors.primary,
-            size: 24,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: GlassmorphismColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (context) => ShareDialog(memorial: widget.memorial),
     );
   }
 
@@ -1520,8 +1441,9 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
       PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) =>
-            PhotoCarousel(
-              imageUrls: images,
+            FullScreenImageViewer(
+              images: images,
+              initialIndex: initialIndex,
             ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);

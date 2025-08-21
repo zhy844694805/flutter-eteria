@@ -131,25 +131,14 @@ class _GlassHomePageState extends State<GlassHomePage>
               ],
             ),
           ),
-          Row(
-            children: [
-              GlassIconButton(
-                icon: GlassIcons.search,
-                onPressed: () {
-                  setState(() {
-                    _showSearch = !_showSearch;
-                  });
-                },
-                isActive: _showSearch,
-              ),
-              const SizedBox(width: 8),
-              GlassIconButton(
-                icon: GlassIcons.settings,
-                onPressed: () {
-                  // TODO: 跳转设置页面
-                },
-              ),
-            ],
+          GlassIconButton(
+            icon: GlassIcons.search,
+            onPressed: () {
+              setState(() {
+                _showSearch = !_showSearch;
+              });
+            },
+            isActive: _showSearch,
           ),
         ],
       ),
