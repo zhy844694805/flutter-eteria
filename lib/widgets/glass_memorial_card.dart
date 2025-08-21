@@ -208,7 +208,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
         // 内容区域
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(12), // 减少内边距从15到12
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -238,7 +238,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
               ),
               
               if (widget.memorial.relationship?.isNotEmpty == true) ...[
-                const SizedBox(height: 4),
+                const SizedBox(height: 2), // 减少间距
                 Text(
                   widget.memorial.relationship!,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -247,7 +247,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                 ),
               ],
               
-              const SizedBox(height: 6),
+              const SizedBox(height: 4), // 减少间距
               
               // 描述
               if (widget.memorial.description?.isNotEmpty == true)
@@ -261,7 +261,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                   overflow: TextOverflow.ellipsis,
                 ),
               
-              const SizedBox(height: 10),
+              const SizedBox(height: 6), // 减少间距
               
               // 互动区域
               _buildInteractionRow(),

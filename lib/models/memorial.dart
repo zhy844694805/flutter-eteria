@@ -68,6 +68,9 @@ class Memorial {
       imageUrls.addAll((json['image_urls'] as List).cast<String>());
     }
     
+    print('🔄 [Memorial] fromJson处理完成，ID: ${json['id']}, 图片URL数量: ${imageUrls.length}');
+    print('🔄 [Memorial] 图片URL列表: $imageUrls');
+    
     // 创建一个新的 json 对象，包含处理后的 image_urls
     final processedJson = Map<String, dynamic>.from(json);
     processedJson['image_urls'] = imageUrls;

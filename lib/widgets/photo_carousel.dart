@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../theme/app_theme.dart';
+import '../theme/glassmorphism_theme.dart';
 import 'platform_image.dart';
 
 class PhotoCarousel extends StatefulWidget {
@@ -12,6 +13,7 @@ class PhotoCarousel extends StatefulWidget {
   final bool autoPlay;
   final Duration autoPlayInterval;
   final bool fullWidth; // 新增参数：是否完全填满宽度
+  final bool glassStyle; // 新增参数：是否使用玻璃拟态样式
 
   const PhotoCarousel({
     super.key,
@@ -23,6 +25,7 @@ class PhotoCarousel extends StatefulWidget {
     this.autoPlay = false,
     this.autoPlayInterval = const Duration(seconds: 3),
     this.fullWidth = false,
+    this.glassStyle = false,
   });
 
   @override
@@ -46,6 +49,8 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
   @override
   void initState() {
     super.initState();
+    print('📱 [PhotoCarousel] 初始化，图片数量: ${allImages.length}, autoPlay: ${widget.autoPlay}');
+    print('📱 [PhotoCarousel] 图片列表: $allImages');
     _startAutoPlay();
   }
 
@@ -162,12 +167,27 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: _currentIndex > 0 ? 0.5 : 0.2),
+                    gradient: widget.glassStyle
+                        ? GlassmorphismColors.glassGradient
+                        : null,
+                    color: widget.glassStyle
+                        ? null
+                        : Colors.black.withValues(alpha: _currentIndex > 0 ? 0.5 : 0.2),
                     borderRadius: BorderRadius.circular(20),
+                    border: widget.glassStyle
+                        ? Border.all(
+                            color: GlassmorphismColors.glassBorder,
+                            width: 1,
+                          )
+                        : null,
                   ),
                   child: Icon(
                     Icons.chevron_left,
-                    color: Colors.white.withValues(alpha: _currentIndex > 0 ? 1.0 : 0.5),
+                    color: widget.glassStyle
+                        ? (_currentIndex > 0
+                            ? GlassmorphismColors.textPrimary
+                            : GlassmorphismColors.textSecondary)
+                        : Colors.white.withValues(alpha: _currentIndex > 0 ? 1.0 : 0.5),
                     size: 24,
                   ),
                 ),
@@ -187,12 +207,27 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: _currentIndex < allImages.length - 1 ? 0.5 : 0.2),
+                    gradient: widget.glassStyle
+                        ? GlassmorphismColors.glassGradient
+                        : null,
+                    color: widget.glassStyle
+                        ? null
+                        : Colors.black.withValues(alpha: _currentIndex < allImages.length - 1 ? 0.5 : 0.2),
                     borderRadius: BorderRadius.circular(20),
+                    border: widget.glassStyle
+                        ? Border.all(
+                            color: GlassmorphismColors.glassBorder,
+                            width: 1,
+                          )
+                        : null,
                   ),
                   child: Icon(
                     Icons.chevron_right,
-                    color: Colors.white.withValues(alpha: _currentIndex < allImages.length - 1 ? 1.0 : 0.5),
+                    color: widget.glassStyle
+                        ? (_currentIndex < allImages.length - 1
+                            ? GlassmorphismColors.textPrimary
+                            : GlassmorphismColors.textSecondary)
+                        : Colors.white.withValues(alpha: _currentIndex < allImages.length - 1 ? 1.0 : 0.5),
                     size: 24,
                   ),
                 ),
@@ -250,15 +285,29 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
   }
 
   Widget _buildDot(int index) {
+    final isActive = _currentIndex == index;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: _currentIndex == index ? 12 : 8,
+      width: isActive ? 12 : 8,
       height: 8,
       decoration: BoxDecoration(
-        color: _currentIndex == index
-            ? Colors.white
-            : Colors.white.withValues(alpha: 0.5),
+        gradient: widget.glassStyle && isActive
+            ? GlassmorphismColors.glassGradient
+            : null,
+        color: widget.glassStyle
+            ? (isActive
+                ? null
+                : GlassmorphismColors.textSecondary.withValues(alpha: 0.5))
+            : (isActive
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(4),
+        border: widget.glassStyle && isActive
+            ? Border.all(
+                color: GlassmorphismColors.glassBorder,
+                width: 0.5,
+              )
+            : null,
       ),
     );
   }
@@ -266,26 +315,34 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
 
 
   void _previousImage() {
+    print('⬅️ [PhotoCarousel] 点击左箭头，当前索引: $_currentIndex');
     if (_pageController.hasClients && allImages.length > 1) {
       _resetAutoPlay();
       final targetIndex = _currentIndex > 0 ? _currentIndex - 1 : allImages.length - 1;
+      print('⬅️ [PhotoCarousel] 目标索引: $targetIndex');
       _pageController.animateToPage(
         targetIndex,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    } else {
+      print('⬅️ [PhotoCarousel] 无法切换：hasClients=${_pageController.hasClients}, 图片数量=${allImages.length}');
     }
   }
 
   void _nextImage() {
+    print('➡️ [PhotoCarousel] 点击右箭头，当前索引: $_currentIndex');
     if (_pageController.hasClients && allImages.length > 1) {
       _resetAutoPlay();
       final targetIndex = _currentIndex < allImages.length - 1 ? _currentIndex + 1 : 0;
+      print('➡️ [PhotoCarousel] 目标索引: $targetIndex');
       _pageController.animateToPage(
         targetIndex,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    } else {
+      print('➡️ [PhotoCarousel] 无法切换：hasClients=${_pageController.hasClients}, 图片数量=${allImages.length}');
     }
   }
 

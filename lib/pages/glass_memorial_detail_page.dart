@@ -328,7 +328,10 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
   }
 
   Widget _buildHeroImage() {
-    final hasImage = widget.memorial.primaryImage != null;
+    final hasImages = widget.memorial.imageUrls.isNotEmpty;
+    
+    print('🖼️ [DetailPage] 构建Hero图片，hasImages: $hasImages, 图片数量: ${widget.memorial.imageUrls.length}');
+    print('🖼️ [DetailPage] 图片URL列表: ${widget.memorial.imageUrls}');
     
     return SliverToBoxAdapter(
       child: Container(
@@ -341,64 +344,74 @@ class _GlassMemorialDetailPageState extends State<GlassMemorialDetailPage>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // 背景图片
-                if (hasImage)
-                  PlatformImage(
-                    imagePath: widget.memorial.primaryImage!,
-                    fit: BoxFit.cover,
-                    placeholder: _buildImagePlaceholder(),
-                    errorWidget: _buildImagePlaceholder(),
+                // 多图轮播或占位图
+                if (hasImages)
+                  PhotoCarousel(
+                    imageUrls: widget.memorial.imageUrls,
+                    height: 300,
+                    showDots: widget.memorial.imageUrls.length > 1,
+                    showCounter: widget.memorial.imageUrls.length > 1,
+                    autoPlay: widget.memorial.imageUrls.length > 1, // 有多张图片时才自动播放
+                    fullWidth: true, // 完全填满容器
+                    glassStyle: true, // 启用玻璃拟态样式
                   )
                 else
                   _buildImagePlaceholder(),
                 
-                // 渐变遮罩
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.3),
-                        Colors.black.withValues(alpha: 0.7),
-                      ],
-                      stops: const [0.0, 0.6, 1.0],
+                // 渐变遮罩（仅在有图片时显示，并且使用IgnorePointer避免阻挡事件）
+                if (hasImages)
+                  IgnorePointer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.1),
+                            Colors.black.withValues(alpha: 0.3),
+                          ],
+                          stops: const [0.0, 0.7, 1.0],
+                        ),
+                      ),
                     ),
                   ),
-                ),
                 
-                // 纪念标识
+                // 纪念标识（使用IgnorePointer避免阻挡轮播控件）
                 Positioned(
                   top: 20,
                   left: 20,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      gradient: GlassmorphismColors.glassGradient,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: GlassmorphismColors.glassBorder,
-                        width: 1,
+                  child: IgnorePointer(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        gradient: GlassmorphismColors.glassGradient,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: GlassmorphismColors.glassBorder,
+                          width: 1,
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          GlassIcons.candle,
-                          size: 14,
-                          color: GlassmorphismColors.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '纪念',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            GlassIcons.candle,
+                            size: 14,
                             color: GlassmorphismColors.primary,
-                            fontWeight: FontWeight.w500,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            widget.memorial.relationship?.isNotEmpty == true 
+                                ? widget.memorial.relationship! 
+                                : widget.memorial.typeText,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: GlassmorphismColors.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
