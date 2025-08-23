@@ -844,8 +844,12 @@ class _CreatePageState extends State<CreatePage> {
           // 清空表单
           _resetForm();
 
-          // 返回首页
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          // 延迟1.5秒后自动跳转到首页
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            }
+          });
         } else {
           ErrorHandler.showError(context, provider.error ?? '创建失败');
         }

@@ -82,7 +82,13 @@ class _MainScreenState extends State<MainScreen> {
         });
       },
     ),
-    const GlassCreatePage(),
+    GlassCreatePage(
+      onNavigateToHome: () {
+        setState(() {
+          _currentIndex = 0; // 切换到首页
+        });
+      },
+    ),
     const DigitalLifePage(),
     const GlassPersonalPage(),
   ];

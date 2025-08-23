@@ -18,7 +18,12 @@ import '../utils/error_handler.dart';
 
 /// 玻璃拟态创建纪念页面
 class GlassCreatePage extends StatefulWidget {
-  const GlassCreatePage({super.key});
+  final VoidCallback? onNavigateToHome;
+  
+  const GlassCreatePage({
+    super.key,
+    this.onNavigateToHome,
+  });
 
   @override
   State<GlassCreatePage> createState() => _GlassCreatePageState();
@@ -1036,9 +1041,24 @@ class _GlassCreatePageState extends State<GlassCreatePage>
 
       if (mounted) {
         if (success) {
+          print('🎉 [GlassCreatePage] 纪念创建成功，准备跳转到首页');
           _showSuccessSnackBar('纪念创建成功！');
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          
+          // 延迟1.5秒后自动跳转到首页
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) {
+              print('🏠 [GlassCreatePage] 开始跳转到首页');
+              if (widget.onNavigateToHome != null) {
+                widget.onNavigateToHome!();
+              } else {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
+            } else {
+              print('❌ [GlassCreatePage] 组件已销毁，取消跳转');
+            }
+          });
         } else {
+          print('❌ [GlassCreatePage] 纪念创建失败: ${provider.error}');
           _showErrorSnackBar(provider.error ?? '创建失败');
         }
       }

@@ -290,21 +290,25 @@ class _GlassLoginPageState extends State<GlassLoginPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 表单标题
-                Text(
-                  '欢迎回来',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: GlassmorphismColors.textOnGlass,
-                    fontWeight: FontWeight.w600,
+                // 表单标题 - 居中对齐
+                Center(
+                  child: Text(
+                    '欢迎回来',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: GlassmorphismColors.textOnGlass,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 
                 const SizedBox(height: 8),
                 
-                Text(
-                  '请登录您的账户',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: GlassmorphismColors.textSecondary,
+                Center(
+                  child: Text(
+                    '请登录您的账户',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: GlassmorphismColors.textSecondary,
+                    ),
                   ),
                 ),
                 
@@ -506,9 +510,16 @@ class _GlassLoginPageState extends State<GlassLoginPage>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              duration: const Duration(seconds: 1),
             ),
           );
-          // AuthProvider状态变化会自动更新UI
+          
+          // 延迟1.5秒后自动跳转到首页
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            }
+          });
         } else {
           final errorMessage = authProvider.lastError ?? '登录失败';
           final scaffoldMessenger = ScaffoldMessenger.of(context);

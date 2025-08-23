@@ -78,11 +78,14 @@ class MemorialProvider extends ChangeNotifier {
 
   Future<bool> addMemorial(Memorial memorial) async {
     try {
+      print('🔄 [MemorialProvider] 开始保存纪念: ${memorial.name}');
       final saved = await _service.saveMemorial(memorial);
       _memorials.add(saved);
       notifyListeners();
+      print('✅ [MemorialProvider] 纪念保存成功，ID: ${saved.id}');
       return true;
     } catch (e) {
+      print('❌ [MemorialProvider] 纪念保存失败: $e');
       return false;
     }
   }
