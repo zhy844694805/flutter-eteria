@@ -4,29 +4,31 @@ import 'api_client.dart';
 class MemorialService {
   final ApiClient _api = ApiClient();
   
-  Future<List<Memorial>> getMemorials() async {
-    print('🌐 [MemorialService] 正在调用 GET /memorials');
-    final response = await _api.get('/memorials');
+  Future<List<Memorial>> getMemorials({int page = 1, int limit = 50}) async {
+    print('🌐 [MemorialService] 正在调用 GET /memorials (page=$page, limit=$limit)');
+    final response = await _api.get('/memorials?page=$page&limit=$limit');
     print('📦 [MemorialService] 服务器响应: $response');
     final List<dynamic> data = response['data']['memorials'];
-    print('📊 [MemorialService] 解析到 ${data.length} 条纪念数据');
+    final pagination = response['data']['pagination'];
+    print('📊 [MemorialService] 解析到 ${data.length} 条纪念数据，总计 ${pagination['total']} 条');
     return data.map((json) => Memorial.fromJson(json)).toList();
   }
   
   /// 获取公开的纪念内容（游客模式）
-  Future<List<Memorial>> getPublicMemorials() async {
-    print('🌐 [MemorialService] 正在调用 GET /memorials/public');
+  Future<List<Memorial>> getPublicMemorials({int page = 1, int limit = 50}) async {
+    print('🌐 [MemorialService] 正在调用 GET /memorials/public (page=$page, limit=$limit)');
     try {
-      final response = await _api.get('/memorials/public');
+      final response = await _api.get('/memorials/public?page=$page&limit=$limit');
       print('📦 [MemorialService] 公开数据服务器响应: $response');
       final List<dynamic> data = response['data']['memorials'];
-      print('📊 [MemorialService] 解析到 ${data.length} 条公开纪念数据');
+      final pagination = response['data']['pagination'];
+      print('📊 [MemorialService] 解析到 ${data.length} 条公开纪念数据，总计 ${pagination['total']} 条');
       return data.map((json) => Memorial.fromJson(json)).toList();
     } catch (e) {
       print('⚠️ [MemorialService] 公开纪念数据接口不存在，使用普通接口: $e');
       // 如果后端没有专门的公开接口，使用普通接口获取所有数据
       // 这里可以在前端过滤出公开的纪念内容
-      final response = await _api.get('/memorials');
+      final response = await _api.get('/memorials?page=$page&limit=$limit');
       final List<dynamic> data = response['data']['memorials'];
       final allMemorials = data.map((json) => Memorial.fromJson(json)).toList();
       // 过滤出公开的纪念内容
