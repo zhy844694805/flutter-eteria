@@ -4,7 +4,7 @@ import 'api_client.dart';
 class MemorialService {
   final ApiClient _api = ApiClient();
   
-  Future<List<Memorial>> getMemorials({int page = 1, int limit = 50}) async {
+  Future<List<Memorial>> getMemorials({int page = 1, int limit = 10}) async {
     print('🌐 [MemorialService] 正在调用 GET /memorials (page=$page, limit=$limit)');
     final response = await _api.get('/memorials?page=$page&limit=$limit');
     print('📦 [MemorialService] 服务器响应: $response');
@@ -15,7 +15,7 @@ class MemorialService {
   }
   
   /// 获取公开的纪念内容（游客模式）
-  Future<List<Memorial>> getPublicMemorials({int page = 1, int limit = 50}) async {
+  Future<List<Memorial>> getPublicMemorials({int page = 1, int limit = 10}) async {
     print('🌐 [MemorialService] 正在调用 GET /memorials/public (page=$page, limit=$limit)');
     try {
       final response = await _api.get('/memorials/public?page=$page&limit=$limit');

@@ -9,11 +9,20 @@ class MemorialProvider extends ChangeNotifier {
   FilterType _currentFilter = FilterType.all;
   String _searchQuery = '';
   bool _isLoading = false;
+  bool _isLoadingMore = false;
+  
+  // 分页状态
+  int _currentPage = 1;
+  bool _hasMoreData = true;
+  int _totalCount = 0;
 
   List<Memorial> get memorials => _memorials;
   FilterType get currentFilter => _currentFilter;
   String get searchQuery => _searchQuery;
   bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMoreData => _hasMoreData;
+  int get totalCount => _totalCount;
   String? get error => null; // 简化：不使用error状态
 
   List<Memorial> get filteredMemorials {
@@ -42,18 +51,54 @@ class MemorialProvider extends ChangeNotifier {
   Future<void> loadMemorials() async {
     print('🔄 [MemorialProvider] 开始加载纪念数据...');
     _isLoading = true;
+    _currentPage = 1;
+    _hasMoreData = true;
     notifyListeners();
     
     try {
-      _memorials = await _service.getMemorials();
-      print('✅ [MemorialProvider] 加载成功，共 ${_memorials.length} 条纪念数据');
+      final response = await _service.getMemorials(page: _currentPage);
+      _memorials = response;
+      // 这里简化处理，假设如果返回的数据少于10条，就没有更多数据了
+      _hasMoreData = response.length >= 10;
+      print('✅ [MemorialProvider] 加载成功，第${_currentPage}页共 ${response.length} 条纪念数据');
     } catch (e) {
       print('❌ [MemorialProvider] 加载失败: $e');
       // 静默处理错误，保持简单
       _memorials = [];
+      _hasMoreData = false;
     }
     
     _isLoading = false;
+    notifyListeners();
+  }
+
+  /// 加载更多纪念数据
+  Future<void> loadMoreMemorials() async {
+    if (_isLoadingMore || !_hasMoreData) return;
+
+    print('🔄 [MemorialProvider] 开始加载更多纪念数据，页码: ${_currentPage + 1}');
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final nextPage = _currentPage + 1;
+      final response = await _service.getMemorials(page: nextPage);
+      
+      if (response.isNotEmpty) {
+        _memorials.addAll(response);
+        _currentPage = nextPage;
+        _hasMoreData = response.length >= 10;
+        print('✅ [MemorialProvider] 加载更多成功，第${nextPage}页共 ${response.length} 条，总计 ${_memorials.length} 条');
+      } else {
+        _hasMoreData = false;
+        print('📄 [MemorialProvider] 没有更多数据了');
+      }
+    } catch (e) {
+      print('❌ [MemorialProvider] 加载更多失败: $e');
+      _hasMoreData = false;
+    }
+
+    _isLoadingMore = false;
     notifyListeners();
   }
 
@@ -61,18 +106,52 @@ class MemorialProvider extends ChangeNotifier {
   Future<void> loadPublicMemorials() async {
     print('🌍 [MemorialProvider] 游客模式 - 开始加载公开纪念数据...');
     _isLoading = true;
+    _currentPage = 1;
+    _hasMoreData = true;
     notifyListeners();
     
     try {
-      _memorials = await _service.getPublicMemorials();
-      print('✅ [MemorialProvider] 公开数据加载成功，共 ${_memorials.length} 条纪念数据');
+      final response = await _service.getPublicMemorials(page: _currentPage);
+      _memorials = response;
+      _hasMoreData = response.length >= 10;
+      print('✅ [MemorialProvider] 游客模式加载成功，第${_currentPage}页共 ${response.length} 条公开纪念数据');
     } catch (e) {
-      print('❌ [MemorialProvider] 公开数据加载失败: $e');
-      // 静默处理错误，保持简单
+      print('❌ [MemorialProvider] 游客模式加载失败: $e');
       _memorials = [];
+      _hasMoreData = false;
     }
     
     _isLoading = false;
+    notifyListeners();
+  }
+
+  /// 游客模式：加载更多公开纪念数据
+  Future<void> loadMorePublicMemorials() async {
+    if (_isLoadingMore || !_hasMoreData) return;
+
+    print('🌍 [MemorialProvider] 游客模式 - 开始加载更多公开纪念数据，页码: ${_currentPage + 1}');
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final nextPage = _currentPage + 1;
+      final response = await _service.getPublicMemorials(page: nextPage);
+      
+      if (response.isNotEmpty) {
+        _memorials.addAll(response);
+        _currentPage = nextPage;
+        _hasMoreData = response.length >= 10;
+        print('✅ [MemorialProvider] 游客模式加载更多成功，第${nextPage}页共 ${response.length} 条，总计 ${_memorials.length} 条');
+      } else {
+        _hasMoreData = false;
+        print('📄 [MemorialProvider] 游客模式 - 没有更多数据了');
+      }
+    } catch (e) {
+      print('❌ [MemorialProvider] 游客模式加载更多失败: $e');
+      _hasMoreData = false;
+    }
+
+    _isLoadingMore = false;
     notifyListeners();
   }
 

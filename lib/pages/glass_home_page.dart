@@ -30,12 +30,17 @@ class _GlassHomePageState extends State<GlassHomePage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool _showSearch = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    
+    // 添加滚动监听器
+    _scrollController.addListener(_onScroll);
+    
     // 测试网络连接
     _testNetworkConnection();
   }
@@ -66,10 +71,31 @@ class _GlassHomePageState extends State<GlassHomePage>
     }
   }
 
+  /// 滚动监听器 - 检测是否滚动到底部
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      // 滚动到底部，加载更多数据
+      _loadMoreData();
+    }
+  }
+
+  /// 加载更多数据
+  void _loadMoreData() {
+    final provider = Provider.of<MemorialProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
+    if (authProvider.isLoggedIn) {
+      provider.loadMoreMemorials();
+    } else {
+      provider.loadMorePublicMemorials();
+    }
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -243,6 +269,7 @@ class _GlassHomePageState extends State<GlassHomePage>
           backgroundColor: GlassmorphismColors.glassSurface,
           color: GlassmorphismColors.primary,
           child: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: 20)),
               SliverPadding(
@@ -269,6 +296,57 @@ class _GlassHomePageState extends State<GlassHomePage>
                   ),
                 ),
               ),
+              
+              // 加载更多指示器
+              if (provider.isLoadingMore)
+                SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                GlassmorphismColors.primary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '加载更多...',
+                            style: TextStyle(
+                              color: GlassmorphismColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              
+              // 没有更多数据提示
+              if (!provider.hasMoreData && provider.filteredMemorials.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Text(
+                        '已显示全部内容',
+                        style: TextStyle(
+                          color: GlassmorphismColors.textTertiary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
           ),
