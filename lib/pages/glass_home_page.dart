@@ -241,8 +241,8 @@ class _GlassHomePageState extends State<GlassHomePage>
             unselectedLabelStyle: Theme.of(context).textTheme.labelMedium,
             tabs: const [
               Tab(text: '全部'),
-              Tab(text: '动态'),
-              Tab(text: '热门'),
+              Tab(text: '近期'),
+              Tab(text: '怀念'),
             ],
           ),
         ),
@@ -694,7 +694,7 @@ class _GlassHomePageState extends State<GlassHomePage>
             ),
             const SizedBox(height: 16),
             Text(
-              '暂无热门纪念',
+              '暂无怀念纪念',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: GlassmorphismColors.textSecondary,
               ),
