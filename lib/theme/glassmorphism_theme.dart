@@ -5,37 +5,41 @@ import 'dart:ui';
 /// 玻璃拟态主题系统 - 专为纪念应用设计
 /// 采用低饱和度配色和柔和的玻璃效果
 class GlassmorphismColors {
-  // 主色调 - 低饱和度紫蓝色系
-  static const Color primary = Color(0xFF8B94A8);     // 柔和蓝灰
-  static const Color primaryLight = Color(0xFFB8C1D1); // 淡蓝灰
-  static const Color primaryDark = Color(0xFF6A7490);   // 深蓝灰
+  // 主色调 - 雾霾蓝系（突出核心元素）
+  static const Color primary = Color(0xFF5C9EAD);       // 雾霾蓝
+  static const Color primaryLight = Color(0xFF8BBCC9);  // 淡雾霾蓝
+  static const Color primaryDark = Color(0xFF4A7F8A);   // 深雾霾蓝
   
-  // 次要色调 - 温暖中性色
-  static const Color secondary = Color(0xFFA8998B);     // 温暖米色
-  static const Color secondaryLight = Color(0xFFD1C8B8); // 淡米色
-  static const Color secondaryDark = Color(0xFF8A7B6A);  // 深米色
+  // 次要色调 - 莫兰迪绿系（点缀营造氛围）
+  static const Color secondary = Color(0xFFA3B18A);     // 莫兰迪绿
+  static const Color secondaryLight = Color(0xFFC3D0A4); // 淡莫兰迪绿
+  static const Color secondaryDark = Color(0xFF8A9B71);  // 深莫兰迪绿
   
-  // 背景色系 - 极简渐变
-  static const Color backgroundPrimary = Color(0xFFF8F9FB);   // 纯净白
-  static const Color backgroundSecondary = Color(0xFFF2F4F7); // 浅灰白
-  static const Color backgroundTertiary = Color(0xFFEBEDF2);  // 中灰白
+  // 背景色系 - 清新自然
+  static const Color backgroundPrimary = Color(0xFFF8F9FA);   // 主背景（接近白的浅灰）
+  static const Color backgroundSecondary = Color(0xFFF2F2F2); // 导航栏背景（比主背景稍深）
+  static const Color backgroundTertiary = Color(0xFFFFFFFF);  // 卡片底色（保持干净）
   
   // 玻璃拟态表面色
-  static const Color glassSurface = Color(0x30FFFFFF);    // 30% 白色透明
-  static const Color glassSecondary = Color(0x20F8F9FB);  // 20% 背景透明
-  static const Color glassBorder = Color(0x40FFFFFF);     // 40% 白色边框
+  static const Color glassSurface = Color(0x40FFFFFF);    // 40% 白色透明
+  static const Color glassSecondary = Color(0x25F8F9FA);  // 25% 背景透明
+  static const Color glassBorder = Color(0x50FFFFFF);     // 50% 白色边框
   
-  // 文字颜色 - 柔和层级
-  static const Color textPrimary = Color(0xFF2C3542);     // 深灰蓝
-  static const Color textSecondary = Color(0xFF6B7583);   // 中灰蓝
-  static const Color textTertiary = Color(0xFF9BA3B0);    // 浅灰蓝
-  static const Color textOnGlass = Color(0xFF1A1F2B);     // 玻璃上文字
+  // 文字颜色 - 清晰层级
+  static const Color textPrimary = Color(0xFF333333);     // 标题文字
+  static const Color textSecondary = Color(0xFF666666);   // 副标题/主要内容
+  static const Color textTertiary = Color(0xFF999999);    // 次要信息/说明文字
+  static const Color textDisabled = Color(0xFFCCCCCC);    // 禁用/不活跃
+  static const Color textOnGlass = Color(0xFF333333);     // 玻璃上文字
   
   // 状态色 - 低饱和度版本
   static const Color success = Color(0xFF7FB069);         // 柔和绿
   static const Color warning = Color(0xFFE6A84F);         // 柔和橙
   static const Color error = Color(0xFFD97C7C);           // 柔和红
   static const Color info = Color(0xFF7BAAD9);            // 柔和蓝
+  
+  // 分割线和边框
+  static const Color divider = Color(0xFFE5E5E5);        // 分割线/边框
   
   // 阴影和边框
   static const Color shadowLight = Color(0x08000000);     // 极淡阴影
@@ -168,7 +172,7 @@ class GlassmorphismDecorations {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
-          color: GlassmorphismColors.primary,
+          color: GlassmorphismColors.primary,  // 雾霾蓝边框
           width: 2.0,
         ),
       ),
@@ -318,13 +322,14 @@ class GlassmorphismTheme {
         ),
       ),
       
-      // 卡片主题 - 玻璃拟态
+      // 卡片主题 - 清新自然
       cardTheme: CardThemeData(
-        color: Colors.transparent,
+        color: GlassmorphismColors.backgroundTertiary,  // 纯白色卡片
         surfaceTintColor: Colors.transparent,
-        elevation: 0,
+        elevation: 2,  // 轻微投影
+        shadowColor: GlassmorphismColors.shadowLight,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),  // 稍微减小圆角
         ),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
@@ -354,9 +359,9 @@ class GlassmorphismTheme {
       
       // 底部导航栏主题
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.transparent,
-        selectedItemColor: GlassmorphismColors.primary,
-        unselectedItemColor: GlassmorphismColors.textSecondary,
+        backgroundColor: GlassmorphismColors.backgroundSecondary,
+        selectedItemColor: GlassmorphismColors.primary,     // 雾霾蓝
+        unselectedItemColor: GlassmorphismColors.textTertiary,  // #999999
         selectedLabelStyle: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w500,
@@ -376,7 +381,7 @@ class GlassmorphismTheme {
       
       // 分割线主题
       dividerTheme: const DividerThemeData(
-        color: GlassmorphismColors.glassBorder,
+        color: GlassmorphismColors.divider,  // #E5E5E5
         thickness: 0.5,
         space: 1,
       ),
