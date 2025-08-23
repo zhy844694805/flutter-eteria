@@ -24,7 +24,7 @@ class CompactMemorialCard extends StatelessWidget {
     final hasImage = memorial.primaryImage != null;
     
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8), // 减少卡片间距
       child: Card(
         elevation: 0,
         margin: EdgeInsets.zero,
@@ -85,7 +85,7 @@ class CompactMemorialCard extends StatelessWidget {
 
   Widget _buildContentSection(bool hasLongDescription) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8), // 减少水平和底部内边距
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -95,11 +95,11 @@ class CompactMemorialCard extends StatelessWidget {
               // 头像（如果没有大图的话）
               if (memorial.primaryImage == null) ...[
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 36, // 减小头像尺寸
+                  height: 36,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.5),
                       width: 1,
@@ -107,11 +107,11 @@ class CompactMemorialCard extends StatelessWidget {
                   ),
                   child: const Icon(
                     Icons.person,
-                    size: 20,
+                    size: 18,
                     color: AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10), // 减少间距
               ],
               
               // 名字和类型
@@ -122,7 +122,7 @@ class CompactMemorialCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          flex: 3, // 给名字分配更多空间
+                          flex: 3,
                           child: Hero(
                             tag: 'memorial_name_${memorial.id}',
                             child: Material(
@@ -132,7 +132,8 @@ class CompactMemorialCard extends StatelessWidget {
                                   memorial.name,
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.3,
+                                    letterSpacing: 0.2, // 减少字符间距
+                                    fontSize: 15, // 稍微减小字体
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -141,20 +142,20 @@ class CompactMemorialCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6), // 增加间距
-                        Flexible( // 使用Flexible让标签可以收缩
+                        const SizedBox(width: 4), // 减少间距
+                        Flexible(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // 减小内边距
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1), // 进一步减小内边距
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8), // 减小圆角
+                              borderRadius: BorderRadius.circular(6), // 减小圆角
                             ),
                             child: Builder(
                               builder: (context) => Text(
                                 memorial.typeText,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: AppColors.primary,
-                                  fontSize: 9, // 减小字体
+                                  fontSize: 8, // 进一步减小字体
                                   fontWeight: FontWeight.w500,
                                 ),
                                 maxLines: 1,
@@ -165,13 +166,13 @@ class CompactMemorialCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1), // 减少间距
                     Builder(
                       builder: (context) => Text(
                         memorial.formattedDates,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
-                          fontSize: 11,
+                          fontSize: 10, // 减小字体
                         ),
                       ),
                     ),
@@ -181,37 +182,37 @@ class CompactMemorialCard extends StatelessWidget {
             ],
           ),
           
-          const SizedBox(height: 12),
+          const SizedBox(height: 8), // 减少间距
           
           // 描述文字
           Builder(
             builder: (context) => Text(
               memorial.description,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                height: 1.4,
+                height: 1.3, // 减少行高
                 color: AppColors.textPrimary,
-                fontSize: 13,
+                fontSize: 12, // 减小字体
               ),
-              maxLines: hasLongDescription ? 4 : 3,
+              maxLines: hasLongDescription ? 3 : 2, // 减少最大行数
               overflow: TextOverflow.ellipsis,
             ),
           ),
           
-          const SizedBox(height: 12),
+          const SizedBox(height: 6), // 减少间距
           
           // 年龄标签
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), // 减少内边距
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.surfaceVariant.withValues(alpha: 0.6), // 更淡的背景
+              borderRadius: BorderRadius.circular(10), // 减小圆角
             ),
             child: Builder(
               builder: (context) => Text(
                 '享年 ${memorial.ageAtDeath} 岁',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 11,
+                  fontSize: 10, // 减小字体
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -228,10 +229,10 @@ class CompactMemorialCard extends StatelessWidget {
     final viewCount = memorial.viewCount ?? 0;
     
     return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.only(top: 4), // 大幅减少顶部间距
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // 减少垂直内边距
       decoration: const BoxDecoration(
-        color: Color(0x0D8B7D6B), // 非常淡的背景色
+        color: Color(0x08000000), // 更淡的背景色
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
       ),
       child: Row(
@@ -241,11 +242,11 @@ class CompactMemorialCard extends StatelessWidget {
             count: likeCount,
             onPressed: onLike,
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12), // 减少间距
           _buildActionButton(
             icon: Icons.visibility_outlined,
             count: viewCount,
-            onPressed: null, // 浏览数不需要点击交互
+            onPressed: null,
           ),
           const Spacer(),
           Builder(
@@ -253,7 +254,7 @@ class CompactMemorialCard extends StatelessWidget {
               _formatCreateTime(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppColors.textSecondary,
-                fontSize: 10,
+                fontSize: 9, // 进一步减小字体
               ),
             ),
           ),
@@ -269,22 +270,22 @@ class CompactMemorialCard extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1), // 减少内边距
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 14,
+              size: 12, // 减小图标尺寸
               color: AppColors.textSecondary,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 2), // 减少间距
             Text(
               count.toString(),
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 10, // 减小字体
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),

@@ -7,6 +7,7 @@ import '../widgets/glass_form_field.dart';
 import '../widgets/glass_icons.dart';
 import '../widgets/glass_interactive_widgets.dart';
 import '../widgets/unsplash_image.dart';
+import '../widgets/staggered_grid_view.dart';
 import '../providers/memorial_provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/network_tester.dart';
@@ -272,28 +273,10 @@ class _GlassHomePageState extends State<GlassHomePage>
             controller: _scrollController,
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: 20)),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final memorial = provider.filteredMemorials[index];
-                      return GlassMemorialCard(
-                        memorial: memorial,
-                        isCompact: true,
-                        onTap: () => _showMemorialDetail(memorial),
-                        onLike: () => _likeMemorial(memorial),
-                        onComment: () => _commentMemorial(memorial),
-                      );
-                    },
-                    childCount: provider.filteredMemorials.length,
-                  ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12), // 减少水平内边距
+                  child: _buildStaggeredGrid(provider.filteredMemorials),
                 ),
               ),
               
@@ -719,6 +702,24 @@ class _GlassHomePageState extends State<GlassHomePage>
           ],
         ),
       ),
+    );
+  }
+
+  // 构建瀑布流网格
+  Widget _buildStaggeredGrid(List<Memorial> memorials) {
+    return StaggeredGridView(
+      crossAxisCount: 2,
+      mainAxisSpacing: 8, // 减少垂直间距
+      crossAxisSpacing: 10, // 减少水平间距
+      children: memorials.map((memorial) {
+        return GlassMemorialCard(
+          memorial: memorial,
+          isCompact: true,
+          onTap: () => _showMemorialDetail(memorial),
+          onLike: () => _likeMemorial(memorial),
+          onComment: () => _commentMemorial(memorial),
+        );
+      }).toList(),
     );
   }
 

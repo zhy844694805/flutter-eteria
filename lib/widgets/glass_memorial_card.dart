@@ -120,7 +120,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                 onTapUp: _handleTapUp,
                 onTapCancel: _handleTapCancel,
                 child: Container(
-                  margin: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(4), // 减少外边距
                   decoration: _buildDecoration(),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
@@ -204,12 +204,11 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
         _buildImageSection(),
         
         // 内容区域
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(10), // 进一步减小内边距
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 8), // 更紧凑的内边距
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // 标题行
               Row(
@@ -220,12 +219,13 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: GlassmorphismColors.textOnGlass,
                         fontWeight: FontWeight.w600,
+                        fontSize: 14, // 减小字体
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 4), // 减小间距
+                  const SizedBox(width: 3), // 减小间距
                   if (widget.showMoreButton) ...[
                     _buildMoreButton(),
                     const SizedBox(width: 2),
@@ -236,7 +236,7 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                 ],
               ),
               
-              const SizedBox(height: 4), // 减少间距
+              const SizedBox(height: 3), // 减少间距
               
               // 描述
               if (widget.memorial.description?.isNotEmpty == true)
@@ -244,18 +244,18 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                   widget.memorial.description!,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: GlassmorphismColors.textSecondary,
-                    height: 1.4,
+                    height: 1.3,
+                    fontSize: 12, // 减小字体
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               
-              const SizedBox(height: 4), // 进一步减少间距
+              const SizedBox(height: 6), // 减少间距
               
               // 互动区域
               _buildInteractionRow(),
             ],
-            ),
           ),
         ),
       ],

@@ -119,11 +119,11 @@ class HomePage extends StatelessWidget {
                     : RefreshIndicator(
                         onRefresh: () => provider.refresh(),
                         child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 12), // 减少水平内边距
                           child: StaggeredGridView(
                             crossAxisCount: 2,
-                            mainAxisSpacing: 8,
-                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 6, // 减少垂直间距
+                            crossAxisSpacing: 8,  // 减少水平间距
                             children: provider.filteredMemorials.map((memorial) {
                               return CompactMemorialCard(
                                 memorial: memorial,
