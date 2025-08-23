@@ -197,13 +197,11 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
   }
 
   Widget _buildCompactContent() {
-    final hasImage = widget.memorial.primaryImage != null;
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 图片区域
-        if (hasImage) _buildImageSection(),
+        // 图片区域 - 总是显示
+        _buildImageSection(),
         
         // 内容区域
         Expanded(
@@ -328,11 +326,9 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
           
           const SizedBox(height: 16),
           
-          // 图片区域
-          if (widget.memorial.primaryImage != null) ...[
-            _buildImageSection(),
-            const SizedBox(height: 16),
-          ],
+          // 图片区域 - 总是显示
+          _buildImageSection(),
+          const SizedBox(height: 16),
           
           // 描述
           if (widget.memorial.description?.isNotEmpty == true) ...[
@@ -361,42 +357,117 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
   }
 
   Widget _buildImageSection() {
+    final hasImage = widget.memorial.primaryImage != null;
+    
     return AspectRatio(
       aspectRatio: widget.isCompact ? 16 / 9 : 4 / 3,
       child: ClipRRect(
         borderRadius: widget.isCompact 
             ? const BorderRadius.vertical(top: Radius.circular(20))
             : BorderRadius.circular(12),
-        child: PlatformImage(
-          imagePath: widget.memorial.primaryImage ?? '',
+        child: hasImage ? PlatformImage(
+          imagePath: widget.memorial.primaryImage!,
           fit: BoxFit.cover,
-          placeholder: Container(
-            decoration: BoxDecoration(
-              gradient: GlassmorphismColors.glassGradient,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(
-                GlassIcons.photo,
-                size: 32,
-                color: GlassmorphismColors.textTertiary,
-              ),
-            ),
-          ),
-          errorWidget: Container(
-            decoration: BoxDecoration(
-              gradient: GlassmorphismColors.glassGradient,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(
-                GlassIcons.photo,
-                size: 32,
-                color: GlassmorphismColors.textTertiary,
-              ),
-            ),
-          ),
+          placeholder: _buildPlaceholderImage(),
+          errorWidget: _buildPlaceholderImage(),
+        ) : _buildPlaceholderImage(),
+      ),
+    );
+  }
+  
+  Widget _buildPlaceholderImage() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            GlassmorphismColors.primary.withValues(alpha: 0.08),
+            GlassmorphismColors.primary.withValues(alpha: 0.04),
+            GlassmorphismColors.secondary.withValues(alpha: 0.06),
+          ],
         ),
+      ),
+      child: Stack(
+        children: [
+          // 背景装饰图案
+          Positioned.fill(
+            child: CustomPaint(
+              painter: MemorialPatternPainter(),
+            ),
+          ),
+          
+          // 主要内容
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        GlassmorphismColors.glassSurface.withValues(alpha: 0.6),
+                        GlassmorphismColors.glassSurface.withValues(alpha: 0.3),
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: GlassmorphismColors.glassBorder.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    GlassIcons.candle,
+                    size: widget.isCompact ? 24 : 32,
+                    color: GlassmorphismColors.primary.withValues(alpha: 0.7),
+                  ),
+                ),
+                
+                if (!widget.isCompact) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    '纪念',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: GlassmorphismColors.textSecondary.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          
+          // 右上角装饰
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    GlassmorphismColors.glassSurface.withValues(alpha: 0.4),
+                    GlassmorphismColors.glassSurface.withValues(alpha: 0.2),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: GlassmorphismColors.glassBorder.withValues(alpha: 0.2),
+                  width: 0.5,
+                ),
+              ),
+              child: Text(
+                widget.memorial.typeText,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: GlassmorphismColors.textSecondary.withValues(alpha: 0.8),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -598,4 +669,45 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
       ),
     );
   }
+}
+
+/// 纪念背景图案画笔
+class MemorialPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = GlassmorphismColors.primary.withValues(alpha: 0.03)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5;
+    
+    // 绘制优雅的几何图案
+    final path = Path();
+    
+    // 左上角装饰弧线
+    path.moveTo(0, size.height * 0.3);
+    path.quadraticBezierTo(
+      size.width * 0.2, size.height * 0.1,
+      size.width * 0.4, size.height * 0.2,
+    );
+    
+    // 右下角装饰弧线
+    path.moveTo(size.width * 0.6, size.height * 0.8);
+    path.quadraticBezierTo(
+      size.width * 0.8, size.height * 0.9,
+      size.width, size.height * 0.7,
+    );
+    
+    // 中心点装饰圆圈
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius1 = size.width * 0.15;
+    final radius2 = size.width * 0.25;
+    
+    path.addOval(Rect.fromCircle(center: center, radius: radius1));
+    path.addOval(Rect.fromCircle(center: center, radius: radius2));
+    
+    canvas.drawPath(path, paint);
+  }
+  
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

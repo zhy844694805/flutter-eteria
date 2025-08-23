@@ -64,6 +64,15 @@ flutter analyze
 
 # Format code
 dart format .
+
+# Clean build artifacts
+flutter clean
+
+# Upgrade dependencies to latest compatible versions
+flutter pub upgrade
+
+# Check for outdated dependencies
+flutter pub outdated
 ```
 
 ### Backend (if needed)
@@ -170,12 +179,19 @@ The app uses a **two-step registration process**:
 - Backend must run on `127.0.0.1:3000` for iOS simulator connectivity
 - Flutter ApiClient is pre-configured for this address
 - Android emulator may require `10.0.2.2` instead
+- The app uses platform-specific base URLs configured in ApiClient for optimal connectivity
 
 ### Code Generation
 After modifying any model classes with `@JsonSerializable()`, regenerate code:
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
+
+### Localization
+- The app is configured for Chinese (zh_CN) as the primary locale
+- English (en_US) is available as a fallback
+- Uses flutter_localizations for proper Chinese text rendering and input support
+- Text scaling is locked to 1.0 to maintain consistent UI across devices
 
 ### Backend Dependencies
 The backend requires PostgreSQL and Redis services running locally. Use the provided setup scripts for initialization.
@@ -271,11 +287,21 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **json_annotation**: ^4.9.0 - JSON serialization annotations
 - **mailer**: ^6.1.2 - Email functionality
 - **crypto**: ^3.0.5 - Cryptographic operations
+- **cupertino_icons**: ^1.0.8 - iOS-style icons
+- **package_info_plus**: ^8.0.2 - App package information
+- **path_provider**: ^2.1.4 - File system paths
+- **qr_flutter**: ^4.1.0 - QR code generation
+- **share_plus**: ^10.1.2 - Native sharing functionality
+- **url_launcher**: ^6.3.1 - URL launching
+- **screenshot**: ^3.0.0 - Screenshot capture
+- **path**: ^1.9.0 - File path manipulation
 
 ### Development Dependencies
 - **build_runner**: ^2.4.13 - Code generation runner
 - **json_serializable**: ^6.8.0 - JSON serialization code generator
 - **flutter_lints**: ^5.0.0 - Dart linting rules
+- **flutter_test**: SDK - Flutter testing framework
+- **flutter_localizations**: SDK - Localization support for Chinese
 
 ## Critical Implementation Details
 
