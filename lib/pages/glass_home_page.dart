@@ -263,7 +263,7 @@ class _GlassHomePageState extends State<GlassHomePage>
         }
 
         if (provider.filteredMemorials.isEmpty) {
-          return _buildEmptyState();
+          return _buildEmptyStateWithFilters();
         }
 
         return RefreshIndicator(
@@ -620,6 +620,64 @@ class _GlassHomePageState extends State<GlassHomePage>
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEmptyStateWithFilters() {
+    return Consumer<MemorialProvider>(
+      builder: (context, provider, child) {
+        return CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            
+            // 关系筛选标签 - 保持显示
+            SliverToBoxAdapter(
+              child: FilterTabs(
+                currentFilter: provider.currentFilter,
+                onFilterChanged: (filter) => provider.setFilter(filter),
+              ),
+            ),
+            
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            
+            // 空状态内容
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 64,
+                      color: GlassmorphismColors.textTertiary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '暂无相关纪念',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: GlassmorphismColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '换个筛选条件试试，或创建新的纪念',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: GlassmorphismColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    // 确保FAB不被遮挡的底部间距
+                    const SizedBox(height: 100),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
