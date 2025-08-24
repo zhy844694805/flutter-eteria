@@ -12,7 +12,7 @@ Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend th
 
 ### Flutter Frontend (Main Repository)
 - **Framework**: Flutter 3.9.0+ with Dart SDK 3.0.0+
-- **UI Theme**: Custom glassmorphism theme with warm colors and paper texture backgrounds
+- **UI Theme**: Custom glassmorphism theme with clean fog blue/Morandi green color scheme
 - **State Management**: Provider pattern with AuthProvider and MemorialProvider
 - **API Communication**: Singleton ApiClient with JWT token management at `http://127.0.0.1:3000/api/v1`
 - **Data Persistence**: SharedPreferences for user sessions and local storage
@@ -346,9 +346,11 @@ When working with widgets that trigger setState() during build phase (like Botto
 
 ### Glassmorphism Theme Implementation
 - Uses custom `GlassmorphismTheme` with gradient backgrounds
+- **Current Color Scheme**: Fog blue (#5C9EAD) primary with Morandi green (#A3B18A) secondary
 - Glass effect containers with blur and transparency
-- Warm color palette with paper texture backgrounds
-- Custom glass navigation components
+- Clean, natural color palette replacing previous warm tones
+- Custom glass navigation components and filter tabs
+- **Filter System**: Relationship-based filtering (父亲, 母亲, 配偶, 子女, etc.) with FilterType enum
 
 ## Guest Mode Implementation
 
@@ -404,3 +406,23 @@ void _likeMemorial(Memorial memorial) async {
 - Use direct page navigation: `Navigator.push(MaterialPageRoute(builder: (context) => GlassLoginPage()))`
 - Memorial statistics API uses `optionalAuth` middleware to support both modes
 - Guest mode persists until user explicitly logs in or restarts app
+
+## Recent UI Improvements & Fixes
+
+### Filter System Implementation
+- **Relationship Filtering**: Added FilterTabs component with comprehensive relationship categories
+- **FilterType Enum**: Maps Chinese relationships (父亲, 母亲, 配偶, etc.) to filter categories
+- **Empty State Handling**: Maintains UI structure (tabs + filters) even when no results found
+- **Filter Persistence**: Filter state maintains across navigation and empty results
+
+### Image Loading Optimization
+- **Recent Tab Simplification**: "近期" tab uses only default memorial images to prevent loading failures
+- **Error Handling**: Network images have proper errorBuilder fallbacks to UnsplashImage.memorial()
+- **Performance**: Eliminates network requests and loading delays in recent activity view
+- **Consistency**: All recent tab items display with consistent, unique default images
+
+### Layout & Spacing Fixes
+- **Waterfall Grid**: Converted from fixed-ratio SliverGrid to StaggeredGridView for adaptive heights
+- **Compact Cards**: Reduced margins, padding, and font sizes in GlassMemorialCard for better space utilization
+- **FAB Positioning**: Added bottom spacing to prevent floating action button being cut off
+- **Tab Navigation**: Fixed tab bar disappearance in empty filter states
