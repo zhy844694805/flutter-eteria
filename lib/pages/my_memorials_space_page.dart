@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/memorial.dart';
 import '../providers/memorial_provider.dart';
-import '../providers/auth_provider.dart';
 import '../theme/glassmorphism_theme.dart';
 import '../widgets/glass_memorial_card.dart';
 import '../widgets/glass_interactive_widgets.dart' hide GlassHoverCard;
@@ -26,7 +25,6 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
   late AnimationController _pageController;
   late Animation<double> _pageAnimation;
   
-  String _selectedFilter = 'all';
   bool _isGridView = true;
 
   @override
@@ -82,7 +80,6 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
                   slivers: [
                     _buildAppBar(),
                     _buildStatsSection(),
-                    _buildFilterSection(),
                     _buildMemorialsList(),
                   ],
                 ),
@@ -271,85 +268,6 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
     );
   }
 
-  Widget _buildFilterSection() {
-    return SliverToBoxAdapter(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        child: GlassHoverCard(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '筛选类别',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: GlassmorphismColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('all', '全部'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('family', '家人'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('friend', '朋友'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('pet', '宠物'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String value, String label) {
-    final isSelected = _selectedFilter == value;
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = value;
-        });
-        HapticFeedback.lightImpact();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [
-                    GlassmorphismColors.primary.withValues(alpha: 0.2),
-                    GlassmorphismColors.primary.withValues(alpha: 0.1),
-                  ],
-                )
-              : GlassmorphismColors.glassGradient,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected
-                ? GlassmorphismColors.primary.withValues(alpha: 0.4)
-                : GlassmorphismColors.glassBorder,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: isSelected
-                ? GlassmorphismColors.primary
-                : GlassmorphismColors.textSecondary,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildMemorialsList() {
     return Consumer<MemorialProvider>(
@@ -376,7 +294,7 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
           );
         }
 
-        final memorials = _getFilteredMemorials(provider.memorials);
+        final memorials = provider.memorials;
 
         if (memorials.isEmpty) {
           return SliverFillRemaining(
@@ -518,33 +436,6 @@ class _MyMemorialsSpacePageState extends State<MyMemorialsSpacePage>
     );
   }
 
-  List<Memorial> _getFilteredMemorials(List<Memorial> memorials) {
-    if (_selectedFilter == 'all') {
-      return memorials;
-    }
-    
-    return memorials.where((memorial) {
-      switch (_selectedFilter) {
-        case 'family':
-          return _isFamilyRelation(memorial.relationship);
-        case 'friend':
-          return memorial.relationship == '朋友' || memorial.relationship == '同事';
-        case 'pet':
-          return memorial.relationship == '宠物';
-        default:
-          return true;
-      }
-    }).toList();
-  }
-
-  bool _isFamilyRelation(String? relationship) {
-    if (relationship == null) return false;
-    final familyRelations = [
-      '父亲', '母亲', '祖父', '祖母', '外祖父', '外祖母',
-      '配偶', '兄弟', '姐妹', '子女', '孙子女'
-    ];
-    return familyRelations.contains(relationship);
-  }
 
   void _toggleViewMode() {
     setState(() {

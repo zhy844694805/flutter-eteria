@@ -18,6 +18,8 @@ import 'personal_info_page.dart';
 import 'notification_settings_page.dart';
 import 'account_security_page.dart';
 import 'about_page.dart';
+import 'glass_privacy_settings_page.dart';
+import 'help_center_page.dart';
 
 /// 玻璃拟态个人页面
 class GlassPersonalPage extends StatefulWidget {
@@ -1167,21 +1169,19 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
   }
 
   void _navigateToPrivacy() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('隐私设置功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const GlassPrivacySettingsPage(),
       ),
     );
   }
 
   void _navigateToHelp() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('帮助中心功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HelpCenterPage(),
       ),
     );
   }
