@@ -8,6 +8,7 @@ import '../widgets/glass_icons.dart';
 import '../widgets/glass_interactive_widgets.dart';
 import '../widgets/unsplash_image.dart';
 import '../widgets/staggered_grid_view.dart';
+import '../widgets/filter_tabs.dart';
 import '../providers/memorial_provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/network_tester.dart';
@@ -272,7 +273,17 @@ class _GlassHomePageState extends State<GlassHomePage>
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
+              
+              // 关系筛选标签
+              SliverToBoxAdapter(
+                child: FilterTabs(
+                  currentFilter: provider.currentFilter,
+                  onFilterChanged: (filter) => provider.setFilter(filter),
+                ),
+              ),
+              
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12), // 减少水平内边距

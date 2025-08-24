@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/filter_type.dart';
+import '../theme/glassmorphism_theme.dart';
 
 class FilterTabs extends StatelessWidget {
   final FilterType currentFilter;
@@ -28,23 +29,23 @@ class FilterTabs extends StatelessWidget {
                 label: Text(filter.displayName),
                 selected: isSelected,
                 onSelected: (_) => onFilterChanged(filter),
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                checkmarkColor: Theme.of(context).colorScheme.primary,
+                backgroundColor: GlassmorphismColors.backgroundTertiary,
+                selectedColor: GlassmorphismColors.primary.withValues(alpha: 0.1),
+                checkmarkColor: GlassmorphismColors.primary,
                 labelStyle: TextStyle(
                   color: isSelected 
-                      ? Theme.of(context).colorScheme.primary 
-                      : Theme.of(context).colorScheme.onSurface,
-                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                  fontSize: 13,
+                      ? GlassmorphismColors.primary 
+                      : GlassmorphismColors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontSize: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
                     color: isSelected 
-                        ? Theme.of(context).colorScheme.primary 
-                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-                    width: 1,
+                        ? GlassmorphismColors.primary 
+                        : GlassmorphismColors.divider,
+                    width: isSelected ? 1.5 : 1,
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
