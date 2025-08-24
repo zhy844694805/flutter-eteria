@@ -168,18 +168,27 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
     
     if (_isHovered || _elevationAnimation.value > 0) {
       return GlassmorphismDecorations.glassCardHover.copyWith(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            GlassmorphismColors.warmAccent.withValues(alpha: 0.05 * _elevationAnimation.value),
+            GlassmorphismColors.glassSurface.withValues(alpha: 0.8),
+            GlassmorphismColors.glassSurface.withValues(alpha: 0.6),
+          ],
+        ),
         boxShadow: [
           BoxShadow(
-            color: GlassmorphismColors.shadowMedium,
+            color: GlassmorphismColors.warmAccent.withValues(alpha: 0.1),
             blurRadius: 20 + (_elevationAnimation.value * 20),
             offset: Offset(0, 8 + (_elevationAnimation.value * 8)),
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: GlassmorphismColors.shadowLight,
-            blurRadius: 40 + (_elevationAnimation.value * 20),
-            offset: Offset(0, 4 + (_elevationAnimation.value * 4)),
-            spreadRadius: -8,
+            color: GlassmorphismColors.shadowMedium,
+            blurRadius: 30 + (_elevationAnimation.value * 15),
+            offset: Offset(0, 6 + (_elevationAnimation.value * 6)),
+            spreadRadius: -6,
           ),
         ],
       );
@@ -417,10 +426,13 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
                       width: 1,
                     ),
                   ),
-                  child: Icon(
-                    GlassIcons.candle,
-                    size: widget.isCompact ? 24 : 32,
-                    color: GlassmorphismColors.primary.withValues(alpha: 0.7),
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => GlassmorphismColors.cardIconGradient.createShader(bounds),
+                    child: Icon(
+                      GlassIcons.candle,
+                      size: widget.isCompact ? 24 : 32,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 
@@ -491,10 +503,13 @@ class _GlassMemorialCardState extends State<GlassMemorialCard>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            GlassIcons.candle,
-            size: 8, // 进一步减小图标尺寸
-            color: GlassmorphismColors.primary,
+          ShaderMask(
+            shaderCallback: (bounds) => GlassmorphismColors.cardIconGradient.createShader(bounds),
+            child: Icon(
+              GlassIcons.candle,
+              size: 8, // 进一步减小图标尺寸
+              color: Colors.white,
+            ),
           ),
           const SizedBox(width: 2), // 进一步减小间距
           Text(

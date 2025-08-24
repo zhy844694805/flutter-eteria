@@ -144,7 +144,7 @@ class _GlassFloatingActionButtonState extends State<GlassFloatingActionButton>
                         child: Center(
                           child: Icon(
                             widget.icon,
-                            color: widget.foregroundColor ?? GlassmorphismColors.primary,
+                            color: widget.foregroundColor ?? GlassmorphismColors.warmAccent,
                             size: widget.size * 0.4,
                           ),
                         ),
@@ -178,10 +178,15 @@ class _GlassFloatingActionButtonState extends State<GlassFloatingActionButton>
                 widget.backgroundColor!.withValues(alpha: 0.1),
               ],
             )
-          : GlassmorphismColors.glassGradient,
+          : RadialGradient(
+              colors: [
+                GlassmorphismColors.warmAccent.withValues(alpha: 0.3),
+                GlassmorphismColors.warmAccent.withValues(alpha: 0.1),
+              ],
+            ),
       borderRadius: BorderRadius.circular(widget.size / 2),
       border: Border.all(
-        color: GlassmorphismColors.glassBorder,
+        color: GlassmorphismColors.warmAccent.withValues(alpha: 0.4),
         width: 1,
       ),
       boxShadow: [

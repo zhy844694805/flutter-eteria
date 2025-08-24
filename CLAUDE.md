@@ -345,12 +345,13 @@ When working with widgets that trigger setState() during build phase (like Botto
 - **Error Recovery**: Frontend falls back to default states (`_isLiked = false`) when API calls fail
 
 ### Glassmorphism Theme Implementation
-- Uses custom `GlassmorphismTheme` with gradient backgrounds
-- **Current Color Scheme**: Fog blue (#5C9EAD) primary with Morandi green (#A3B18A) secondary
-- Glass effect containers with blur and transparency
-- Clean, natural color palette replacing previous warm tones
-- Custom glass navigation components and filter tabs
-- **Filter System**: Relationship-based filtering (父亲, 母亲, 配偶, 子女, etc.) with FilterType enum
+- Uses custom `GlassmorphismTheme` with gradient backgrounds and warm accent integration
+- **Primary Color Scheme**: Fog blue (#5C9EAD) primary with Morandi green (#A3B18A) secondary
+- **Warm Accent System**: Orange accent (#E6A57E) for interactive elements and emphasis
+- **Relationship-Specific Colors**: Morandi palette with `getFilterTagColor()` method for tag differentiation
+- Glass effect containers with blur, transparency, and enhanced hover states
+- Custom glass navigation components with improved readability
+- **Interactive Enhancements**: ShaderMask gradients for icons, warm hover effects, and enhanced shadows
 
 ## Guest Mode Implementation
 
@@ -426,3 +427,17 @@ void _likeMemorial(Memorial memorial) async {
 - **Compact Cards**: Reduced margins, padding, and font sizes in GlassMemorialCard for better space utilization
 - **FAB Positioning**: Added bottom spacing to prevent floating action button being cut off
 - **Tab Navigation**: Fixed tab bar disappearance in empty filter states
+
+### Warm Color Scheme Enhancement
+- **Accent Color Integration**: Added warm orange (#E6A57E) for buttons, special states, and hover effects
+- **Relationship Tag Colors**: Implemented Morandi color palette for filter tags:
+  - Father: Fog blue (#5C9EAD)
+  - Mother: Morandi pink (#D4A5A5) 
+  - Spouse: Morandi purple (#B8A2C8)
+  - Child: Morandi green (#A3B18A)
+  - Siblings: Light blue-gray (#B5C7D3)
+  - Friends: Light coffee (#D2B5A0)
+  - Others: Light gray (#C5C5C5)
+- **Enhanced Interactions**: Improved hover states with warm gradients and enhanced shadows
+- **Icon Gradients**: Card icons use blue-to-orange gradients via ShaderMask for warmth and vitality
+- **Navigation Optimization**: Deeper gray (#777777) for inactive navigation items to improve readability

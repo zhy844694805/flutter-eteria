@@ -30,11 +30,11 @@ class FilterTabs extends StatelessWidget {
                 selected: isSelected,
                 onSelected: (_) => onFilterChanged(filter),
                 backgroundColor: GlassmorphismColors.backgroundTertiary,
-                selectedColor: GlassmorphismColors.primary.withValues(alpha: 0.1),
-                checkmarkColor: GlassmorphismColors.primary,
+                selectedColor: GlassmorphismColors.getFilterTagColor(filter).withValues(alpha: 0.1),
+                checkmarkColor: GlassmorphismColors.getFilterTagColor(filter),
                 labelStyle: TextStyle(
                   color: isSelected 
-                      ? GlassmorphismColors.primary 
+                      ? GlassmorphismColors.getFilterTagColor(filter)
                       : GlassmorphismColors.textSecondary,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   fontSize: 12,
@@ -43,7 +43,7 @@ class FilterTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
                     color: isSelected 
-                        ? GlassmorphismColors.primary 
+                        ? GlassmorphismColors.getFilterTagColor(filter)
                         : GlassmorphismColors.divider,
                     width: isSelected ? 1.5 : 1,
                   ),

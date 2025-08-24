@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
+import '../models/filter_type.dart';
 
 /// 玻璃拟态主题系统 - 专为纪念应用设计
 /// 采用低饱和度配色和柔和的玻璃效果
@@ -41,6 +42,21 @@ class GlassmorphismColors {
   // 分割线和边框
   static const Color divider = Color(0xFFE5E5E5);        // 分割线/边框
   
+  // 温暖点缀色
+  static const Color warmAccent = Color(0xFFE6A57E);     // 柔和暖橙
+  
+  // 关系标签专用颜色 - 莫兰迪色系
+  static const Color tagFather = Color(0xFF5C9EAD);      // 父亲 - 主色蓝绿
+  static const Color tagMother = Color(0xFFD4A5A5);      // 母亲 - 莫兰迪粉  
+  static const Color tagSpouse = Color(0xFFB8A2C8);      // 配偶 - 莫兰迪紫
+  static const Color tagChild = Color(0xFFA3B18A);       // 子女 - 莫兰迪绿
+  static const Color tagSibling = Color(0xFFB5C7D3);     // 兄弟姐妹 - 浅蓝灰
+  static const Color tagFriend = Color(0xFFD2B5A0);      // 朋友 - 浅咖啡色
+  static const Color tagOther = Color(0xFFC5C5C5);       // 其他 - 浅灰色
+  
+  // 导航优化颜色
+  static const Color navigationInactive = Color(0xFF777777); // 非选中导航图标
+  
   // 阴影和边框
   static const Color shadowLight = Color(0x08000000);     // 极淡阴影
   static const Color shadowMedium = Color(0x12000000);    // 中等阴影
@@ -68,6 +84,37 @@ class GlassmorphismColors {
     ],
     stops: [0.0, 0.5, 1.0],
   );
+  
+  // 卡片图标温暖渐变
+  static const LinearGradient cardIconGradient = LinearGradient(
+    colors: [
+      Color(0xFF8BBCC9),  // 浅蓝
+      Color(0xFFE6A57E),  // 浅橙
+    ],
+  );
+  
+  /// 根据FilterType获取对应的标签颜色
+  static Color getFilterTagColor(FilterType filterType) {
+    switch (filterType) {
+      case FilterType.father:
+        return tagFather;    // 蓝绿
+      case FilterType.mother:
+        return tagMother;    // 莫兰迪粉
+      case FilterType.spouse:
+        return tagSpouse;    // 莫兰迪紫
+      case FilterType.child:
+        return tagChild;     // 莫兰迪绿
+      case FilterType.sibling:
+        return tagSibling;   // 浅蓝灰
+      case FilterType.friend:
+        return tagFriend;    // 浅咖啡色
+      case FilterType.other:
+        return tagOther;     // 浅灰色
+      case FilterType.all:
+      default:
+        return primary;      // 默认主色
+    }
+  }
 }
 
 /// 玻璃拟态装饰样式集合
@@ -361,7 +408,7 @@ class GlassmorphismTheme {
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: GlassmorphismColors.backgroundSecondary,
         selectedItemColor: GlassmorphismColors.primary,     // 雾霾蓝
-        unselectedItemColor: GlassmorphismColors.textTertiary,  // #999999
+        unselectedItemColor: GlassmorphismColors.navigationInactive,  // #777777 更深的灰色
         selectedLabelStyle: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w500,
