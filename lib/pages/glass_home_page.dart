@@ -370,22 +370,28 @@ class _GlassHomePageState extends State<GlassHomePage>
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    // 头像或图片
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: memorial.primaryImage != null
-                          ? Image.network(
-                              memorial.primaryImage!,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            )
-                          : UnsplashImage.memorial(
-                              width: 50,
-                              height: 50,
-                              borderRadius: BorderRadius.circular(8),
-                              seed: memorial.id,
-                            ),
+                    // 默认纪念图标
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            GlassmorphismColors.primary.withValues(alpha: 0.1),
+                            GlassmorphismColors.secondary.withValues(alpha: 0.1),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: GlassmorphismColors.glassBorder,
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.account_circle_outlined,
+                        size: 30,
+                        color: GlassmorphismColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     
@@ -491,48 +497,12 @@ class _GlassHomePageState extends State<GlassHomePage>
           itemCount: trending.length,
           itemBuilder: (context, index) {
             final memorial = trending[index];
-            return Stack(
-              children: [
-                GlassMemorialCard(
-                  memorial: memorial,
-                  isCompact: true,
-                  onTap: () => _showMemorialDetail(memorial),
-                  onLike: () => _likeMemorial(memorial),
-                  onComment: () => _commentMemorial(memorial),
-                ),
-                // 排名标识
-                if (index < 3)
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            _getRankingColor(index).withValues(alpha: 0.9),
-                            _getRankingColor(index).withValues(alpha: 0.7),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _getRankingColor(index).withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        '#${index + 1}',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+            return GlassMemorialCard(
+              memorial: memorial,
+              isCompact: true,
+              onTap: () => _showMemorialDetail(memorial),
+              onLike: () => _likeMemorial(memorial),
+              onComment: () => _commentMemorial(memorial),
             );
           },
         );
@@ -540,14 +510,6 @@ class _GlassHomePageState extends State<GlassHomePage>
     );
   }
 
-  Color _getRankingColor(int rank) {
-    switch (rank) {
-      case 0: return const Color(0xFFFFD700); // 金色
-      case 1: return const Color(0xFFC0C0C0); // 银色
-      case 2: return const Color(0xFFCD7F32); // 铜色
-      default: return GlassmorphismColors.primary;
-    }
-  }
 
   Widget _buildFloatingActionButton() {
     return GlassFloatingActionButton(
