@@ -20,6 +20,7 @@ import 'account_security_page.dart';
 import 'about_page.dart';
 import 'glass_privacy_settings_page.dart';
 import 'help_center_page.dart';
+import 'recent_activities_page.dart';
 
 /// 玻璃拟态个人页面
 class GlassPersonalPage extends StatefulWidget {
@@ -733,6 +734,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
       child: Container(
         margin: const EdgeInsets.all(20),
         child: GlassHoverCard(
+          onTap: _navigateToRecentActivities,
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,36 +754,65 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const Spacer(),
+                  Icon(
+                    Icons.chevron_right,
+                    color: GlassmorphismColors.textSecondary,
+                    size: 16,
+                  ),
                 ],
               ),
               
               const SizedBox(height: 20),
               
-              // 暂无活动状态
-              Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.timeline,
-                      size: 48,
-                      color: GlassmorphismColors.textTertiary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      '暂无最近活动',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: GlassmorphismColors.textTertiary,
+              // 活动预览
+              Column(
+                children: [
+                  _buildActivityPreviewItem(
+                    icon: GlassIcons.create,
+                    iconColor: GlassmorphismColors.primary,
+                    title: '创建了纪念"慈祥的奶奶"',
+                    timeAgo: '2小时前',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActivityPreviewItem(
+                    icon: GlassIcons.flower,
+                    iconColor: GlassmorphismColors.error,
+                    title: '收到了一朵鲜花',
+                    timeAgo: '5小时前',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActivityPreviewItem(
+                    icon: Icons.comment_outlined,
+                    iconColor: GlassmorphismColors.secondary,
+                    title: '收到了新留言',
+                    timeAgo: '1天前',
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          GlassmorphismColors.primary.withValues(alpha: 0.1),
+                          GlassmorphismColors.primary.withValues(alpha: 0.05),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: GlassmorphismColors.primary.withValues(alpha: 0.2),
+                        width: 1,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '开始缅怀至亲或互动来记录活动',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: GlassmorphismColors.textTertiary,
+                    child: Text(
+                      '查看全部活动',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: GlassmorphismColors.primary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -1183,6 +1214,73 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
       MaterialPageRoute(
         builder: (context) => const HelpCenterPage(),
       ),
+    );
+  }
+
+  void _navigateToRecentActivities() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RecentActivitiesPage(),
+      ),
+    );
+  }
+
+  Widget _buildActivityPreviewItem({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String timeAgo,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                iconColor.withValues(alpha: 0.15),
+                iconColor.withValues(alpha: 0.05),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: iconColor.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: iconColor,
+            size: 16,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: GlassmorphismColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                timeAgo,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: GlassmorphismColors.textTertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
