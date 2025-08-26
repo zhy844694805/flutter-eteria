@@ -902,10 +902,11 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
     String description,
     VoidCallback onTap,
   ) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         child: Row(
           children: [
             Container(

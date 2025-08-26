@@ -30,6 +30,14 @@ Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend th
 - **Email Service**: Aruba SMTP for verification codes
 - **File Storage**: Local file system with multer and sharp for image processing
 
+## Version Compatibility
+
+- **Flutter SDK**: 3.9.0+ (required for latest features)
+- **Dart SDK**: 3.0.0+ (required for null safety and language features)
+- **Node.js**: 16.x+ (for backend development)
+- **PostgreSQL**: 12.x+ (backend database)
+- **Redis**: 6.x+ (session management and caching)
+
 ## Key Development Commands
 
 ### Flutter Frontend
@@ -439,6 +447,22 @@ void _likeMemorial(Memorial memorial) async {
   - Friends: Light coffee (#D2B5A0)
   - Others: Light gray (#C5C5C5)
 - **Enhanced Interactions**: Improved hover states with warm gradients and enhanced shadows
+
+## Performance Guidelines
+
+- **Image Optimization**: All images automatically compressed to JPEG format during upload
+- **Network Efficiency**: Cached image loading with proper fallbacks to prevent loading failures
+- **State Management**: Minimal rebuilds using targeted Consumer widgets and listen: false patterns
+- **Memory Management**: Proper disposal of controllers, animations, and streams in dispose() methods
+- **Platform Optimization**: Platform-specific network configuration for optimal simulator connectivity
+
+## Security Implementation
+
+- **JWT Token Management**: Automatic token refresh, expiration handling, and secure cleanup
+- **Data Validation**: Dual-layer validation (frontend + backend) with proper error handling
+- **File Upload Security**: Extension-based validation with MIME type handling and size limits
+- **Guest Mode Restrictions**: Feature-level access control with graceful login prompts
+- **API Security**: optionalAuth middleware pattern for public/private content access
 - **Icon Gradients**: Card icons use blue-to-orange gradients via ShaderMask for warmth and vitality
 - **Navigation Optimization**: Deeper gray (#777777) for inactive navigation items to improve readability
 
