@@ -118,7 +118,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                         _buildStatisticsCard(),
                         _buildMenuGrid(),
                         _buildRecentActivity(),
-                        _buildSettings(),
                         SliverToBoxAdapter(
                           child: SizedBox(height: MediaQuery.of(context).padding.bottom + 80),
                         ),
@@ -587,11 +586,11 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
         onTap: () => _navigateToMyMemorials(),
       ),
       MenuItemData(
-        icon: GlassIcons.flower,
-        title: '收到的鲜花',
-        description: '查看获得的缅怀',
+        icon: Icons.settings,
+        title: '设置',
+        description: '个人设置和偏好',
         color: GlassmorphismColors.error,
-        onTap: () => _navigateToMyLikes(),
+        onTap: () => _showSettingsOptions(),
       ),
       MenuItemData(
         icon: GlassIcons.photo,
@@ -821,145 +820,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
     );
   }
 
-  Widget _buildSettings() {
-    return SliverToBoxAdapter(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        child: GlassHoverCard(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.settings,
-                    color: GlassmorphismColors.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '设置',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: GlassmorphismColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 20),
-              
-              _buildSettingItem(
-                Icons.person,
-                '个人信息',
-                '修改个人资料和头像',
-                () => _editProfile(),
-              ),
-              
-              _buildSettingItem(
-                Icons.notifications,
-                '通知设置',
-                '管理推送和提醒',
-                () => _navigateToNotifications(),
-              ),
-              
-              _buildSettingItem(
-                Icons.security,
-                '账户安全',
-                '密码和安全设置',
-                () => _navigateToSecurity(),
-              ),
-              
-              _buildSettingItem(
-                Icons.info,
-                '关于应用',
-                '版本信息和法律条款',
-                () => _navigateToAbout(),
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // 退出登录按钮
-              GlassInteractiveButton(
-                text: '退出登录',
-                icon: Icons.logout,
-                onPressed: _logout,
-                backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.1),
-                foregroundColor: GlassmorphismColors.error,
-                height: 48,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingItem(
-    IconData icon,
-    String title,
-    String description,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: GlassmorphismColors.glassGradient,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: GlassmorphismColors.glassBorder,
-                  width: 0.5,
-                ),
-              ),
-              child: Icon(
-                icon,
-                size: 20,
-                color: GlassmorphismColors.primary,
-              ),
-            ),
-            
-            const SizedBox(width: 16),
-            
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: GlassmorphismColors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: GlassmorphismColors.textTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            Icon(
-              Icons.chevron_right,
-              color: GlassmorphismColors.textTertiary,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildFloatingActionButton() {
     return AnimatedScale(
@@ -1170,12 +1030,222 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
     );
   }
 
-  void _navigateToMyLikes() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('鲜花纪录功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  void _showSettingsOptions() {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          gradient: GlassmorphismColors.backgroundGradient,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withValues(alpha: 0.1),
+                    Colors.white.withValues(alpha: 0.05),
+                  ],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 拖拽指示器
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: GlassmorphismColors.textTertiary.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // 标题
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.settings,
+                          color: GlassmorphismColors.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '设置选项',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: GlassmorphismColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // 设置选项列表
+                    _buildSettingsOptionItem(
+                      Icons.person,
+                      '个人信息',
+                      '修改个人资料和头像',
+                      () {
+                        Navigator.pop(context);
+                        _editProfile();
+                      },
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    _buildSettingsOptionItem(
+                      Icons.notifications,
+                      '通知设置',
+                      '管理推送和提醒',
+                      () {
+                        Navigator.pop(context);
+                        _navigateToNotifications();
+                      },
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    _buildSettingsOptionItem(
+                      Icons.security,
+                      '账户安全',
+                      '密码和安全设置',
+                      () {
+                        Navigator.pop(context);
+                        _navigateToSecurity();
+                      },
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    _buildSettingsOptionItem(
+                      Icons.info,
+                      '关于应用',
+                      '版本信息和法律条款',
+                      () {
+                        Navigator.pop(context);
+                        _navigateToAbout();
+                      },
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // 退出登录按钮
+                    GlassInteractiveButton(
+                      text: '退出登录',
+                      icon: Icons.logout,
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _logout();
+                      },
+                      backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.1),
+                      foregroundColor: GlassmorphismColors.error,
+                      height: 48,
+                    ),
+                    
+                    SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsOptionItem(
+    IconData icon,
+    String title,
+    String description,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              GlassmorphismColors.glassSurface.withValues(alpha: 0.3),
+              GlassmorphismColors.glassSurface.withValues(alpha: 0.1),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: GlassmorphismColors.glassBorder.withValues(alpha: 0.5),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    GlassmorphismColors.primary.withValues(alpha: 0.15),
+                    GlassmorphismColors.primary.withValues(alpha: 0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: GlassmorphismColors.primary.withValues(alpha: 0.2),
+                  width: 0.5,
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: GlassmorphismColors.primary,
+              ),
+            ),
+            
+            const SizedBox(width: 16),
+            
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: GlassmorphismColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: GlassmorphismColors.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            Icon(
+              Icons.chevron_right,
+              color: GlassmorphismColors.textTertiary,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
