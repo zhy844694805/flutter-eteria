@@ -15,7 +15,9 @@ import 'glass_forgot_password_page.dart';
 
 /// 玻璃拟态登录页面
 class GlassLoginPage extends StatefulWidget {
-  const GlassLoginPage({super.key});
+  final VoidCallback? onBackPressed;
+  
+  const GlassLoginPage({super.key, this.onBackPressed});
 
   @override
   State<GlassLoginPage> createState() => _GlassLoginPageState();
@@ -173,7 +175,10 @@ class _GlassLoginPageState extends State<GlassLoginPage>
       top: MediaQuery.of(context).padding.top + 16,
       left: 16,
       child: GlassButton(
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          widget.onBackPressed?.call();
+          Navigator.of(context).pop();
+        },
         child: const Icon(
           Icons.arrow_back_ios,
           color: GlassmorphismColors.textOnGlass,

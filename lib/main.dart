@@ -113,7 +113,13 @@ class _MainScreenState extends State<MainScreen> {
               });
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const GlassLoginPage(),
+                  builder: (context) => GlassLoginPage(
+                    onBackPressed: () {
+                      setState(() {
+                        _showWelcome = true;
+                      });
+                    },
+                  ),
                 ),
               );
             },
@@ -129,7 +135,13 @@ class _MainScreenState extends State<MainScreen> {
         // 如果用户选择了登录但未登录成功，显示登录页面（排除游客模式）
         if (!_showWelcome && !authProvider.isLoggedIn && !_isGuestMode) {
           _hasLoadedData = false; // 重置加载状态
-          return const GlassLoginPage();
+          return GlassLoginPage(
+            onBackPressed: () {
+              setState(() {
+                _showWelcome = true;
+              });
+            },
+          );
         }
         
         // 用户已登录或处于游客模式，自动加载纪念数据

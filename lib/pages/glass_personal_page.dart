@@ -821,13 +821,9 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
   // 交互方法
   void _editAvatar() {
     HapticFeedback.lightImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('头像编辑功能开发中'),
-        backgroundColor: GlassmorphismColors.info.withValues(alpha: 0.9),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PersonalInfoPage()),
     );
   }
 
