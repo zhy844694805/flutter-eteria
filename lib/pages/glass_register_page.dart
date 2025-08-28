@@ -7,6 +7,9 @@ import '../utils/form_validators.dart';
 import '../widgets/glass_icons.dart';
 import '../widgets/glass_form_field.dart';
 import '../widgets/glass_interactive_widgets.dart';
+import '../widgets/google_sign_in_button.dart';
+import '../services/google_api_service.dart';
+import '../config/api_config.dart';
 import 'user_agreement_page.dart';
 import 'privacy_policy_page.dart';
 
@@ -33,6 +36,7 @@ class _GlassRegisterPageState extends State<GlassRegisterPage>
   bool _agreedToTerms = false;
   bool _isCodeSent = false;
   bool _isSendingCode = false;
+  bool _isGoogleLoading = false;
 
   late AnimationController _headerController;
   late AnimationController _formController;
@@ -143,6 +147,10 @@ class _GlassRegisterPageState extends State<GlassRegisterPage>
                                   _buildTermsSection(),
                                   const SizedBox(height: 24),
                                   _buildGlassRegisterButton(),
+                                  const SizedBox(height: 24),
+                                  _buildOrDivider(),
+                                  const SizedBox(height: 24),
+                                  _buildGoogleSignInButton(),
                                   const SizedBox(height: 24),
                                   _buildBottomLinks(),
                                 ],
@@ -627,6 +635,107 @@ class _GlassRegisterPageState extends State<GlassRegisterPage>
     }
   }
 
+  Future<void> _handleGoogleRegister() async {
+    if (!_agreedToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('请先同意用户协议和隐私政策'),
+          backgroundColor: GlassmorphismColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      if (ApiConfig.isDevelopment) {
+        // 开发环境显示提示信息
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Google注册功能（开发模式）'),
+                const SizedBox(height: 4),
+                Text(
+                  '生产环境需要配置Google OAuth密钥',
+                  style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.8)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.orange,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      // 执行Google注册流程
+      final result = await GoogleAuthHelper.performGoogleSignIn();
+      
+      if (result != null && mounted) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        
+        // 使用Google注册结果更新认证状态
+        final userData = result['data']?['user'];
+        final token = result['data']?['token'];
+        
+        if (userData != null && token != null) {
+          // 更新认证状态
+          await authProvider.setGoogleUser(userData, token);
+          
+          final scaffoldMessenger = ScaffoldMessenger.of(context);
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: const Text('Google注册成功'),
+              backgroundColor: GlassmorphismColors.success,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+
+          // 返回登录页面或跳转到主页
+          Navigator.of(context).pop();
+        }
+      }
+    } catch (error) {
+      if (mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Google注册失败: ${error.toString()}'),
+            backgroundColor: GlassmorphismColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGoogleLoading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -753,6 +862,61 @@ class _GlassRegisterPageState extends State<GlassRegisterPage>
         },
         transitionDuration: const Duration(milliseconds: 300),
       ),
+    );
+  }
+
+  Widget _buildOrDivider() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  GlassmorphismColors.glassBorder.withValues(alpha: 0.3),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            '或',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: GlassmorphismColors.textSecondary.withValues(alpha: 0.7),
+              fontSize: 14,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  GlassmorphismColors.glassBorder.withValues(alpha: 0.3),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGoogleSignInButton() {
+    return GoogleSignInButton(
+      onPressed: _isLoading || _isGoogleLoading || !_agreedToTerms ? null : _handleGoogleRegister,
+      isLoading: _isGoogleLoading,
+      enabled: !_isLoading && !_isGoogleLoading && _agreedToTerms,
+      text: 'Google 注册',
+      height: 56,
     );
   }
 

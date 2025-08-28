@@ -106,6 +106,29 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Google登录设置用户状态
+  Future<void> setGoogleUser(Map<String, dynamic> userData, String token) async {
+    try {
+      _lastError = null;
+      
+      // 将Google用户数据转换为User对象
+      final user = User.fromJson(userData);
+      
+      // 设置token到服务中
+      await _service.setToken(token);
+      
+      // 设置当前用户
+      _currentUser = user;
+      
+      print('✅ [AuthProvider] Google用户设置成功: ${user.name}');
+      notifyListeners();
+    } catch (e) {
+      print('❌ [AuthProvider] 设置Google用户失败: $e');
+      _lastError = _parseErrorMessage(e.toString());
+      rethrow;
+    }
+  }
+
   // 解析错误信息，提供更友好的提示
   String _parseErrorMessage(String error) {
     print('🔍 [AuthProvider] 解析错误信息: $error');

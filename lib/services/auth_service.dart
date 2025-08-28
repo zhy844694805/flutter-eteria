@@ -31,6 +31,13 @@ class AuthService {
     await prefs.remove('auth_token');
     _api.token = null;
   }
+
+  Future<void> setToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+    _api.token = token;
+    print('✅ [AuthService] Token已设置');
+  }
   
   Future<void> sendVerificationCode(String email) async {
     print('🌐 [AuthService] 发送验证码请求到: ${ApiClient.baseUrl}/auth/send-verification-code');

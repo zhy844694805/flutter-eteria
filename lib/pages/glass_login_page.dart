@@ -7,6 +7,9 @@ import '../utils/form_validators.dart';
 import '../widgets/glass_icons.dart';
 import '../widgets/glass_form_field.dart';
 import '../widgets/glass_interactive_widgets.dart';
+import '../widgets/google_sign_in_button.dart';
+import '../services/google_api_service.dart';
+import '../config/api_config.dart';
 import 'glass_register_page.dart';
 import 'glass_forgot_password_page.dart';
 
@@ -25,6 +28,7 @@ class _GlassLoginPageState extends State<GlassLoginPage>
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
 
   late AnimationController _logoController;
   late AnimationController _formController;
@@ -129,6 +133,10 @@ class _GlassLoginPageState extends State<GlassLoginPage>
                                     _buildGlassForm(),
                                     const SizedBox(height: 24),
                                     _buildGlassLoginButton(),
+                                    const SizedBox(height: 24),
+                                    _buildOrDivider(),
+                                    const SizedBox(height: 24),
+                                    _buildGoogleSignInButton(),
                                     const SizedBox(height: 20),
                                     _buildBottomLinks(),
                                   ],
@@ -386,6 +394,61 @@ class _GlassLoginPageState extends State<GlassLoginPage>
     );
   }
 
+  Widget _buildOrDivider() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  GlassmorphismColors.glassBorder.withValues(alpha: 0.3),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            '或',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: GlassmorphismColors.textSecondary.withValues(alpha: 0.7),
+              fontSize: 14,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  GlassmorphismColors.glassBorder.withValues(alpha: 0.3),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGoogleSignInButton() {
+    return GoogleSignInButton(
+      onPressed: _isLoading || _isGoogleLoading ? null : _handleGoogleLogin,
+      isLoading: _isGoogleLoading,
+      enabled: !_isLoading && !_isGoogleLoading,
+      text: 'Google 登录',
+      height: 56,
+    );
+  }
+
   Widget _buildBottomLinks() {
     return Column(
       children: [
@@ -480,6 +543,94 @@ class _GlassLoginPageState extends State<GlassLoginPage>
         transitionDuration: const Duration(milliseconds: 400),
       ),
     );
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      if (ApiConfig.isDevelopment) {
+        // 开发环境显示提示信息
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Google登录功能（开发模式）'),
+                const SizedBox(height: 4),
+                Text(
+                  '生产环境需要配置Google OAuth密钥',
+                  style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.8)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.orange,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      // 执行Google登录流程
+      final result = await GoogleAuthHelper.performGoogleSignIn();
+      
+      if (result != null && mounted) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        
+        // 使用Google登录结果更新认证状态
+        // 这里需要根据后端API的实际响应格式调整
+        final userData = result['data']?['user'];
+        final token = result['data']?['token'];
+        
+        if (userData != null && token != null) {
+          // 更新认证状态（需要在AuthProvider中添加对应方法）
+          await authProvider.setGoogleUser(userData, token);
+          
+          final scaffoldMessenger = ScaffoldMessenger.of(context);
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: const Text('Google登录成功'),
+              backgroundColor: GlassmorphismColors.success,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+
+          // 返回上一页或跳转到主页
+          Navigator.of(context).pop();
+        }
+      }
+    } catch (error) {
+      if (mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Google登录失败: ${error.toString()}'),
+            backgroundColor: GlassmorphismColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGoogleLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _handleLogin() async {
