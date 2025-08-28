@@ -593,20 +593,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
         onTap: () => _showSettingsOptions(),
       ),
       MenuItemData(
-        icon: GlassIcons.photo,
-        title: '珍藏相册',
-        description: '保存珍贵回忆',
-        color: GlassmorphismColors.info,
-        onTap: () => _navigateToPhotoManager(),
-      ),
-      MenuItemData(
-        icon: Icons.backup,
-        title: '纪念备份',
-        description: '永久保存记忆',
-        color: GlassmorphismColors.success,
-        onTap: () => _navigateToBackup(),
-      ),
-      MenuItemData(
         icon: Icons.privacy_tip,
         title: '隐私设置',
         description: '保护缅怀隐私',
@@ -1250,25 +1236,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
     );
   }
 
-  void _navigateToPhotoManager() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('珍藏相册功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  void _navigateToBackup() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('纪念备份功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
 
   void _navigateToPrivacy() {
     Navigator.push(
