@@ -127,9 +127,16 @@ The app uses a **two-step registration process**:
 
 ### Complete Authentication Pages
 - `WelcomePage`: Initial choice between guest mode and login
-- `GlassLoginPage`: Glassmorphism-styled login with email/password
-- `GlassRegisterPage`: Multi-step registration with user agreement/privacy policy
+- `GlassLoginPage`: Glassmorphism-styled login with email/password and Google OAuth
+- `GlassRegisterPage`: Multi-step registration with user agreement/privacy policy and Google OAuth
 - `GlassForgotPasswordPage`: Two-step password reset with email verification
+
+### Google OAuth Integration
+- **GoogleAuthService**: Core Google authentication with development mode support
+- **GoogleApiService**: Backend API communication for Google sign-in/register
+- **GoogleSignInButton**: Custom glassmorphism-styled Google button component
+- **Development Mode**: Shows configuration prompts when Google OAuth is not configured
+- **Production Setup**: Complete configuration guide in `GOOGLE_OAUTH_SETUP.md`
 
 ## API Integration
 
@@ -142,6 +149,9 @@ The app uses a **two-step registration process**:
 - `POST /auth/send-verification-code` - Send 6-digit email verification code
 - `POST /auth/register` - Register with verification code
 - `POST /auth/login` - User login
+- `POST /auth/google/signin` - Google OAuth sign-in
+- `POST /auth/google/register` - Google OAuth registration
+- `POST /auth/google/check` - Check if Google account exists
 - `GET /auth/me` - Get current user
 - `GET /memorials` - List memorials
 - `POST /memorials` - Create memorial
@@ -226,10 +236,10 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 
 ### Critical Frontend Directories
 - `/lib/models/` - Data models with JSON serialization (Memorial, User, FilterType)
-- `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService, FeedbackService)
+- `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService, FeedbackService, GoogleAuthService, GoogleApiService)
 - `/lib/providers/` - State management (AuthProvider, MemorialProvider)
 - `/lib/pages/` - UI screens including glass-style pages (WelcomePage, GlassHomePage, GlassCreatePage, GlassPersonalPage, GlassLoginPage, GlassRegisterPage, GlassForgotPasswordPage, DigitalLifePage, GlassPrivacySettingsPage, HelpCenterPage, RecentActivitiesPage, etc.)
-- `/lib/widgets/` - Reusable UI components with glass effects (GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView, PlatformImage, etc.)
+- `/lib/widgets/` - Reusable UI components with glass effects (GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView, PlatformImage, GoogleSignInButton, etc.)
 - `/lib/theme/` - Design system including glassmorphism_theme.dart and app_theme.dart
 - `/lib/utils/` - Utilities (ImageHelper, FormValidators, ErrorHandler, UIHelpers)
 - `/lib/config/` - Configuration files and constants
@@ -293,6 +303,7 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **intl**: ^0.20.2 - Internationalization and date formatting
 - **google_fonts**: ^6.2.1 - Custom font support
 - **json_annotation**: ^4.9.0 - JSON serialization annotations
+- **google_sign_in**: ^6.2.1 - Google OAuth authentication
 - **mailer**: ^6.1.2 - Email functionality
 - **crypto**: ^3.0.5 - Cryptographic operations
 - **cupertino_icons**: ^1.0.8 - iOS-style icons
@@ -480,3 +491,16 @@ void _likeMemorial(Memorial memorial) async {
 - **Help Center**: Comprehensive help system with search functionality and FAQ categories
 - **Interactive Help**: Quick actions, contact information, and contextual guidance
 - **User Onboarding**: Step-by-step guides for memorial creation, sharing, and privacy management
+
+## Navigation Architecture
+
+### Login Navigation Fix
+- **Welcome Page Returns**: Fixed issue where login page back button didn't return to welcome page
+- **Callback Pattern**: GlassLoginPage accepts `onBackPressed` callback to reset welcome state
+- **State Management**: MainScreen manages `_showWelcome` and `_isGuestMode` flags
+- **Navigation Consistency**: Maintains proper flow between welcome → login → main app screens
+
+### Avatar Edit Simplification
+- **Direct Access**: Avatar edit button now directly opens PersonalInfoPage
+- **Reduced Steps**: Simplified from "Personal Center → Settings → Personal Info" to direct access
+- **User Experience**: More intuitive path for profile editing functionality
