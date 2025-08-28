@@ -2,23 +2,24 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/api_config.dart';
 
 class ApiClient {
-  // 根据平台自动选择正确的地址
-  static String get baseUrl {
-    if (Platform.isAndroid) {
-      // Android模拟器使用10.0.2.2映射到主机的127.0.0.1
-      return 'http://10.0.2.2:3000/api/v1';
-    } else {
-      // iOS模拟器和其他平台使用127.0.0.1
-      return 'http://127.0.0.1:3000/api/v1';
-    }
-  }
+  // 使用配置文件管理API地址
+  static String get baseUrl => ApiConfig.apiUrl;
   
   // 单例模式
   static final ApiClient _instance = ApiClient._internal();
   factory ApiClient() => _instance;
-  ApiClient._internal();
+  ApiClient._internal() {
+    // 初始化时验证配置并打印信息（仅开发环境）
+    if (ApiConfig.isDevelopment) {
+      ApiConfig.printConfig();
+      if (!ApiConfig.validateConfig()) {
+        print('⚠️ [ApiClient] 配置验证失败，请检查API配置');
+      }
+    }
+  }
   
   String? token;
   
