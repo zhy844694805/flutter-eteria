@@ -593,13 +593,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
         onTap: () => _showSettingsOptions(),
       ),
       MenuItemData(
-        icon: Icons.privacy_tip,
-        title: '隐私设置',
-        description: '保护缅怀隐私',
-        color: GlassmorphismColors.warning,
-        onTap: () => _navigateToPrivacy(),
-      ),
-      MenuItemData(
         icon: Icons.help,
         title: '帮助中心',
         description: '获取使用帮助',
@@ -1112,6 +1105,18 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                       () {
                         Navigator.pop(context);
                         _navigateToSecurity();
+                      },
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    _buildSettingsOptionItem(
+                      Icons.privacy_tip,
+                      '隐私设置',
+                      '保护缅怀隐私',
+                      () {
+                        Navigator.pop(context);
+                        _navigateToPrivacy();
                       },
                     ),
                     
