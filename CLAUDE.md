@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend that allows users to create digital memorial spaces for deceased loved ones. The app features user authentication with email verification, memorial management, photo uploads, and social interactions.
 
-**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, complete glassmorphism UI design, and integration with a Node.js backend. Key features implemented include guest mode access, waterfall grid layout with staggered grid view, memorial creation/viewing, photo upload with compression, comprehensive authentication flow with email verification, detailed memorial pages with interactive elements, and a digital life section.
+**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, complete glassmorphism UI design, and integration with a Node.js backend. Key features implemented include guest mode access, waterfall grid layout with staggered grid view, memorial creation/viewing, photo upload with compression, comprehensive authentication flow with Google OAuth support, detailed memorial pages with interactive elements, and a streamlined personal center with dedicated logout functionality.
 
 ## Architecture
 
@@ -496,3 +496,46 @@ void _likeMemorial(Memorial memorial) async {
 - **Direct Access**: Avatar edit button now directly opens PersonalInfoPage
 - **Reduced Steps**: Simplified from "Personal Center → Settings → Personal Info" to direct access
 - **User Experience**: More intuitive path for profile editing functionality
+
+### Logout Function Repositioning
+- **Prominent Placement**: Logout functionality moved from settings menu to dedicated card in personal page
+- **Visual Design**: Red-themed glassmorphism card with clear logout icon and description
+- **User Experience**: More accessible logout without navigating through settings menu
+- **Simplified Settings**: Removed duplicate logout button from settings menu to avoid redundancy
+
+## Recent UI Simplifications
+
+### Feature Cleanup and Optimization
+- **Recent Activities Removal**: Completely removed the recent activities tracking system to simplify the personal page
+- **Personal Page Streamlining**: Reduced clutter by focusing on essential features: user profile, statistics, menu grid, and logout
+- **Settings Menu Optimization**: Cleaned up redundant options and improved navigation flow
+- **Code Reduction**: Removed approximately 800+ lines of code related to activity tracking and display
+
+## Digital Life (天堂之音) Feature
+
+### Overview
+The Digital Life page has been restructured from a complex 3-step workflow to a simple overview page that displays created "heavenly voices" (天堂回音) and guides users to create their first one.
+
+### Architecture Changes
+- **Page Structure**: Changed from step-by-step flow (memorial selection → voice training → AI chat) to overview format
+- **State Management**: Simplified to use only `List<Map<String, dynamic>> _heavenlyVoices` for data storage
+- **Layout**: Uses `CustomScrollView` with `SliverToBoxAdapter` for optimal scrolling behavior
+- **Navigation**: Bottom navigation label updated from '数字生命' to '天堂之音'
+
+### Key Components
+- **`DigitalLifePage`**: Main page with overview content and creation guidance
+- **`_buildEmptyVoicesGuide()`**: Displays feature introduction and creation buttons for users with no voices
+- **`_buildVoicesList()`**: Future implementation for displaying created heavenly voices
+- **Guest Mode Support**: Shows login prompt for unauthenticated users
+
+### Implementation Details
+- **User Flow**: Checks if user has existing memorials, shows appropriate creation path
+- **Layout Fixes**: Resolved render overflow warnings by using proper Sliver structure
+- **Button Design**: Uses ElevatedButton with Row layout (icon + text) for optimal visual appeal
+- **Integration Ready**: Prepared for backend API integration for voice training and LLM functionality
+
+### Technical Notes
+- **Layout Structure**: Avoids `SliverFillRemaining` to prevent overflow warnings
+- **Scroll Behavior**: Uses `crossAxisAlignment.center` instead of `mainAxisAlignment.center` 
+- **API Integration**: Ready for integration with deployed LLM, speech recognition, and TTS models
+- **Feature State**: Currently shows "天堂回音创建功能即将开启" placeholder message

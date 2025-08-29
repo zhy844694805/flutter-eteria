@@ -36,7 +36,7 @@ class _GlassBottomNavigationState extends State<GlassBottomNavigation>
     NavItem(
       icon: Icons.auto_awesome_outlined,
       activeIcon: Icons.auto_awesome,
-      label: '数字生命',
+      label: '天堂之音',
     ),
     NavItem(
       icon: GlassIcons.profile,
