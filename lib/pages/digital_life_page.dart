@@ -4,6 +4,7 @@ import '../models/memorial.dart';
 import '../providers/auth_provider.dart';
 import '../providers/memorial_provider.dart';
 import '../theme/glassmorphism_theme.dart';
+import 'create_heavenly_voice_page.dart';
 
 class DigitalLifePage extends StatefulWidget {
   const DigitalLifePage({super.key});
@@ -547,11 +548,9 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
   }
   
   void _startCreateHeavenlyVoice() {
-    // TODO: 开始创建天堂回音的流程
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('天堂回音创建功能即将开启'),
-        backgroundColor: GlassmorphismColors.warmAccent,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const CreateHeavenlyVoicePage(),
       ),
     );
   }
