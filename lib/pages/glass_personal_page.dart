@@ -20,7 +20,6 @@ import 'account_security_page.dart';
 import 'about_page.dart';
 import 'glass_privacy_settings_page.dart';
 import 'help_center_page.dart';
-import 'recent_activities_page.dart';
 
 /// 玻璃拟态个人页面
 class GlassPersonalPage extends StatefulWidget {
@@ -117,7 +116,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                         _buildUserProfile(),
                         _buildStatisticsCard(),
                         _buildMenuGrid(),
-                        _buildRecentActivity(),
+                        _buildLogoutCard(),
                         SliverToBoxAdapter(
                           child: SizedBox(height: MediaQuery.of(context).padding.bottom + 80),
                         ),
@@ -707,90 +706,63 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
     );
   }
 
-  Widget _buildRecentActivity() {
+  Widget _buildLogoutCard() {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.all(20),
         child: GlassHoverCard(
-          onTap: _navigateToRecentActivities,
+          onTap: _logout,
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.history,
-                    color: GlassmorphismColors.primary,
-                    size: 20,
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      GlassmorphismColors.error.withValues(alpha: 0.15),
+                      GlassmorphismColors.error.withValues(alpha: 0.05),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '最近活动',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: GlassmorphismColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: GlassmorphismColors.error.withValues(alpha: 0.2),
+                    width: 1,
                   ),
-                  const Spacer(),
-                  Icon(
-                    Icons.chevron_right,
-                    color: GlassmorphismColors.textSecondary,
-                    size: 16,
-                  ),
-                ],
+                ),
+                child: Icon(
+                  Icons.logout,
+                  color: GlassmorphismColors.error,
+                  size: 24,
+                ),
               ),
-              
-              const SizedBox(height: 20),
-              
-              // 活动预览
-              Column(
-                children: [
-                  _buildActivityPreviewItem(
-                    icon: GlassIcons.create,
-                    iconColor: GlassmorphismColors.primary,
-                    title: '创建了纪念"慈祥的奶奶"',
-                    timeAgo: '2小时前',
-                  ),
-                  const SizedBox(height: 12),
-                  _buildActivityPreviewItem(
-                    icon: GlassIcons.flower,
-                    iconColor: GlassmorphismColors.error,
-                    title: '收到了一朵鲜花',
-                    timeAgo: '5小时前',
-                  ),
-                  const SizedBox(height: 12),
-                  _buildActivityPreviewItem(
-                    icon: Icons.comment_outlined,
-                    iconColor: GlassmorphismColors.secondary,
-                    title: '收到了新留言',
-                    timeAgo: '1天前',
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          GlassmorphismColors.primary.withValues(alpha: 0.1),
-                          GlassmorphismColors.primary.withValues(alpha: 0.05),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: GlassmorphismColors.primary.withValues(alpha: 0.2),
-                        width: 1,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '退出登录',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: GlassmorphismColors.textPrimary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: Text(
-                      '查看全部活动',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: GlassmorphismColors.primary,
-                        fontWeight: FontWeight.w500,
+                    const SizedBox(height: 4),
+                    Text(
+                      '退出当前账户，返回欢迎页面',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: GlassmorphismColors.textSecondary,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: GlassmorphismColors.textTertiary,
+                size: 18,
               ),
             ],
           ),
@@ -798,7 +770,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
       ),
     );
   }
-
 
   Widget _buildFloatingActionButton() {
     return AnimatedScale(
@@ -1128,21 +1099,6 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
                       },
                     ),
                     
-                    const SizedBox(height: 20),
-                    
-                    // 退出登录按钮
-                    GlassInteractiveButton(
-                      text: '退出登录',
-                      icon: Icons.logout,
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _logout();
-                      },
-                      backgroundColor: GlassmorphismColors.error.withValues(alpha: 0.1),
-                      foregroundColor: GlassmorphismColors.error,
-                      height: 48,
-                    ),
-                    
                     SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
                   ],
                 ),
@@ -1256,72 +1212,7 @@ class _GlassPersonalPageState extends State<GlassPersonalPage>
     );
   }
 
-  void _navigateToRecentActivities() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const RecentActivitiesPage(),
-      ),
-    );
-  }
 
-  Widget _buildActivityPreviewItem({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String timeAgo,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                iconColor.withValues(alpha: 0.15),
-                iconColor.withValues(alpha: 0.05),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: iconColor.withValues(alpha: 0.2),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: iconColor,
-            size: 16,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: GlassmorphismColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                timeAgo,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: GlassmorphismColors.textTertiary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   void _navigateToNotifications() {
     Navigator.push(

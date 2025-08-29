@@ -238,7 +238,7 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - `/lib/models/` - Data models with JSON serialization (Memorial, User, FilterType)
 - `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService, FeedbackService, GoogleAuthService, GoogleApiService)
 - `/lib/providers/` - State management (AuthProvider, MemorialProvider)
-- `/lib/pages/` - UI screens including glass-style pages (WelcomePage, GlassHomePage, GlassCreatePage, GlassPersonalPage, GlassLoginPage, GlassRegisterPage, GlassForgotPasswordPage, DigitalLifePage, GlassPrivacySettingsPage, HelpCenterPage, RecentActivitiesPage, etc.)
+- `/lib/pages/` - UI screens including glass-style pages (WelcomePage, GlassHomePage, GlassCreatePage, GlassPersonalPage, GlassLoginPage, GlassRegisterPage, GlassForgotPasswordPage, DigitalLifePage, GlassPrivacySettingsPage, HelpCenterPage, etc.)
 - `/lib/widgets/` - Reusable UI components with glass effects (GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView, PlatformImage, GoogleSignInButton, etc.)
 - `/lib/theme/` - Design system including glassmorphism_theme.dart and app_theme.dart
 - `/lib/utils/` - Utilities (ImageHelper, FormValidators, ErrorHandler, UIHelpers)
@@ -476,14 +476,6 @@ void _likeMemorial(Memorial memorial) async {
 - **API Security**: optionalAuth middleware pattern for public/private content access
 - **Icon Gradients**: Card icons use blue-to-orange gradients via ShaderMask for warmth and vitality
 - **Navigation Optimization**: Deeper gray (#777777) for inactive navigation items to improve readability
-
-### Recent Activities System
-- **Activity Tracking**: Comprehensive user activity logging and display system
-- **Activity Types**: Memorial-related, interactions (flowers/comments), and system notifications
-- **Filtering System**: Multi-category filtering (all, memorial, interaction, system)
-- **Personal Integration**: Activity preview in personal page with clickable navigation
-- **Activity Management**: Clear all activities function with confirmation dialogs
-- **Real-time Updates**: Activity timeline with relative timestamps and status indicators
 
 ### Privacy Settings & Help System
 - **Glassmorphism Privacy Settings**: Complete privacy control system with glass UI design
