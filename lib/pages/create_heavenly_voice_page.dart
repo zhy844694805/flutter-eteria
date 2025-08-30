@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import '../models/memorial.dart';
@@ -575,7 +577,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
                     ),
                   ),
                   child: Text(
-                    '💡 上传TA生前的语音片段，我们将运用AI技术让TA的声音重现，与您进行温暖对话',
+                    '💡 上传TA生前的语音片段或记录TA说过的话，我们将运用AI技术让TA的声音和话语重现，与您进行温暖对话',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: GlassmorphismColors.textOnGlass,
                       height: 1.5,
@@ -662,7 +664,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '建议：上传多段5-60秒的语音，包含不同情感表达，效果会更自然真实',
+                    '建议：上传多段5-60秒的语音和丰富的文字记录，内容越全面，AI效果会更自然真实',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: GlassmorphismColors.info,
                       height: 1.4,
@@ -730,16 +732,14 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
           
           // 完成按钮
           ElevatedButton(
-            onPressed: _audioFiles.isEmpty || _isSubmitting ? null : _submitForm,
+            onPressed: _isSubmitting ? null : _submitForm,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _audioFiles.isEmpty 
-                  ? Colors.grey 
-                  : GlassmorphismColors.warmAccent,
+              backgroundColor: GlassmorphismColors.warmAccent,
               minimumSize: const Size(double.infinity, 56),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),
-              elevation: _audioFiles.isEmpty ? 0 : 8,
+              elevation: 8,
               shadowColor: GlassmorphismColors.warmAccent.withValues(alpha: 0.4),
             ),
             child: _isSubmitting
@@ -761,7 +761,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _audioFiles.isEmpty ? '完成创建 (至少需要1个音频)' : '创建天堂回音',
+                        '创建天堂回音',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -1222,26 +1222,17 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
   }
 
   void _submitForm() async {
-    if (_audioFiles.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('请至少上传一个音频文件'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
 
     setState(() {
       _isSubmitting = true;
     });
 
     try {
-      // TODO: 实现表单提交逻辑
-      await Future.delayed(const Duration(seconds: 2)); // 模拟提交
+      // 保存天堂之音数据到本地
+      await _saveHeavenlyVoiceToLocal();
       
       if (mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true); // 返回true表示创建成功
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${_selectedMemorial?.name}的天堂之音创建成功！'),
@@ -1265,5 +1256,30 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
         });
       }
     }
+  }
+
+  Future<void> _saveHeavenlyVoiceToLocal() async {
+    if (_selectedMemorial == null) return;
+    
+    final prefs = await SharedPreferences.getInstance();
+    final voicesJson = prefs.getStringList('heavenly_voices') ?? [];
+    
+    // 创建天堂之音数据
+    final heavenlyVoice = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'memorialId': _selectedMemorial!.id,
+      'memorialName': _selectedMemorial!.name,
+      'relationship': _selectedMemorial!.relationship,
+      'audioCount': _audioFiles.length,
+      'textCount': _textEntries.length,
+      'audioFiles': _audioFiles.map((f) => f.path).toList(),
+      'textEntries': _textEntries,
+      'createdAt': DateTime.now().toIso8601String(),
+      'status': 'created', // created, training, ready
+    };
+    
+    // 添加到列表并保存
+    voicesJson.add(jsonEncode(heavenlyVoice));
+    await prefs.setStringList('heavenly_voices', voicesJson);
   }
 }

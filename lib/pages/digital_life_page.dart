@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../models/memorial.dart';
 import '../providers/auth_provider.dart';
 import '../providers/memorial_provider.dart';
@@ -26,9 +28,18 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
 
   void _loadHeavenlyVoices() {
     // TODO: 从后端加载用户创建的天堂回音
-    // 模拟数据
+    // 模拟数据 - 从SharedPreferences加载
+    _loadHeavenlyVoicesFromLocal();
+  }
+
+  void _loadHeavenlyVoicesFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final voicesJson = prefs.getStringList('heavenly_voices') ?? [];
+    
     setState(() {
-      _heavenlyVoices = [];
+      _heavenlyVoices = voicesJson.map((jsonStr) {
+        return Map<String, dynamic>.from(jsonDecode(jsonStr));
+      }).toList();
     });
   }
 
@@ -491,7 +502,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      voice['name'] ?? '天堂回音',
+                      voice['memorialName'] ?? '天堂回音',
                       style: TextStyle(
                         color: GlassmorphismColors.textOnGlass,
                         fontWeight: FontWeight.w600,
@@ -500,7 +511,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '创建于 ${voice['createdAt'] ?? '今天'}',
+                      '创建于 ${_formatDate(voice['createdAt'])}',
                       style: TextStyle(
                         color: GlassmorphismColors.textSecondary,
                         fontSize: 14,
@@ -518,9 +529,17 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildStatusChip('已训练', GlassmorphismColors.success),
+              _buildStatusChip(
+                voice['status'] == 'created' ? '已创建' : '已训练', 
+                voice['status'] == 'created' ? GlassmorphismColors.warmAccent : GlassmorphismColors.success
+              ),
               const SizedBox(width: 12),
-              _buildStatusChip('${voice['voiceCount'] ?? 0}段回音', GlassmorphismColors.primary),
+              if ((voice['audioCount'] ?? 0) > 0)
+                _buildStatusChip('${voice['audioCount']}段音频', GlassmorphismColors.primary),
+              if ((voice['audioCount'] ?? 0) > 0 && (voice['textCount'] ?? 0) > 0)
+                const SizedBox(width: 12),
+              if ((voice['textCount'] ?? 0) > 0)
+                _buildStatusChip('${voice['textCount']}段文字', GlassmorphismColors.secondary),
             ],
           ),
         ],
@@ -547,11 +566,38 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
     );
   }
   
-  void _startCreateHeavenlyVoice() {
-    Navigator.of(context).push(
+  void _startCreateHeavenlyVoice() async {
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const CreateHeavenlyVoicePage(),
       ),
     );
+    
+    // 如果创建成功，刷新列表
+    if (result == true) {
+      _loadHeavenlyVoices();
+    }
+  }
+
+  String _formatDate(String? isoString) {
+    if (isoString == null) return '今天';
+    
+    try {
+      final date = DateTime.parse(isoString);
+      final now = DateTime.now();
+      final difference = now.difference(date);
+      
+      if (difference.inDays == 0) {
+        return '今天';
+      } else if (difference.inDays == 1) {
+        return '昨天';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays}天前';
+      } else {
+        return '${date.month}月${date.day}日';
+      }
+    } catch (e) {
+      return '今天';
+    }
   }
 }
