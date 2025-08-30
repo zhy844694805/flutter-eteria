@@ -514,55 +514,117 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 上传指南
+          // 温馨提示卡片
           Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: GlassmorphismColors.info.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: GlassmorphismColors.info.withValues(alpha: 0.3),
-              ),
+            padding: const EdgeInsets.all(20),
+            decoration: GlassmorphismDecorations.glassCard.copyWith(
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.lightbulb_outline,
-                      color: GlassmorphismColors.info,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '收集指南',
-                      style: TextStyle(
-                        color: GlassmorphismColors.info,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            GlassmorphismColors.warmAccent.withValues(alpha: 0.8),
+                            GlassmorphismColors.warmAccent,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
+                      child: const Icon(
+                        Icons.favorite,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '收集珍贵回音',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: GlassmorphismColors.textOnGlass,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '让TA的声音永远陪伴您',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: GlassmorphismColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                _buildGuideItem('音频文件：支持MP3、WAV、M4A、AAC、OGG格式，5-60秒最佳'),
-                _buildGuideItem('文字记录：记录逝者说过的话，句子或对话片段'),
-                _buildGuideItem('至少需要1个音频文件才能完成创建'),
-                _buildGuideItem('内容越丰富，AI效果越真实自然'),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: GlassmorphismColors.warmAccent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: GlassmorphismColors.warmAccent.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    '💡 上传TA生前的语音片段，我们将运用AI技术让TA的声音重现，与您进行温暖对话',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: GlassmorphismColors.textOnGlass,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
           
           const SizedBox(height: 24),
           
-          // 音频上传区域
-          Text(
-            '音频文件 (${_audioFiles.length})',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: GlassmorphismColors.textOnGlass,
-              fontWeight: FontWeight.w600,
-            ),
+          // 音频收集区域
+          Row(
+            children: [
+              Icon(
+                Icons.music_note_rounded,
+                color: GlassmorphismColors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'TA的声音片段',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: GlassmorphismColors.textOnGlass,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _audioFiles.isNotEmpty
+                      ? GlassmorphismColors.success.withValues(alpha: 0.2)
+                      : GlassmorphismColors.textSecondary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${_audioFiles.length}个',
+                  style: TextStyle(
+                    color: _audioFiles.isNotEmpty
+                        ? GlassmorphismColors.success
+                        : GlassmorphismColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           
@@ -577,15 +639,79 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
             }).toList(),
           ],
           
+          const SizedBox(height: 24),
+          
+          // 贴心提示
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: GlassmorphismColors.info.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: GlassmorphismColors.info.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  color: GlassmorphismColors.info,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '建议：上传多段5-60秒的语音，包含不同情感表达，效果会更自然真实',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: GlassmorphismColors.info,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
           const SizedBox(height: 32),
           
-          // 文字记录区域
-          Text(
-            '文字记录 (${_textEntries.length})',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: GlassmorphismColors.textOnGlass,
-              fontWeight: FontWeight.w600,
-            ),
+          // 文字记忆区域  
+          Row(
+            children: [
+              Icon(
+                Icons.format_quote_rounded,
+                color: GlassmorphismColors.secondary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'TA说过的话',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: GlassmorphismColors.textOnGlass,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _textEntries.isNotEmpty
+                      ? GlassmorphismColors.secondary.withValues(alpha: 0.2)
+                      : GlassmorphismColors.textSecondary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${_textEntries.length}条',
+                  style: TextStyle(
+                    color: _textEntries.isNotEmpty
+                        ? GlassmorphismColors.secondary
+                        : GlassmorphismColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           
@@ -635,11 +761,11 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        '完成创建 (需要至少1个音频)',
+                        _audioFiles.isEmpty ? '完成创建 (至少需要1个音频)' : '创建天堂回音',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
-                          fontSize: 18,
+                          fontSize: 17,
                         ),
                       ),
                     ],
@@ -687,46 +813,66 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
       onTap: _pickAudioFile,
       child: Container(
         width: double.infinity,
-        height: 120,
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              GlassmorphismColors.primary.withValues(alpha: 0.08),
+              GlassmorphismColors.secondary.withValues(alpha: 0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: GlassmorphismColors.glassBorder,
+            color: GlassmorphismColors.primary.withValues(alpha: 0.3),
+            width: 1.5,
             style: BorderStyle.solid,
-            width: 2,
           ),
-          color: GlassmorphismColors.glassSurface,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
-                color: GlassmorphismColors.primary,
-                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [
+                    GlassmorphismColors.primary,
+                    GlassmorphismColors.secondary,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: GlassmorphismColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: const Icon(
-                Icons.audio_file,
+                Icons.add_rounded,
+                size: 28,
                 color: Colors.white,
-                size: 24,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
-              '选择音频文件',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              '点击上传音频',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: GlassmorphismColors.textOnGlass,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
-              '支持 MP3, WAV, M4A, AAC, OGG 格式，最大50MB',
+              '支持 MP3、WAV、M4A、AAC、OGG\n建议 5-60秒，最大50MB',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: GlassmorphismColors.textSecondary,
+                height: 1.4,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -863,103 +1009,130 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
   }
 
   Widget _buildTextInputArea() {
-    return Column(
-      children: [
-        TextField(
-          controller: _textController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: '记录逝者说过的话，比如："记得要照顾好自己"、"我永远爱你"...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: GlassmorphismColors.glassBorder),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: GlassmorphismColors.primary),
-            ),
-            filled: true,
-            fillColor: GlassmorphismColors.glassSurface,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: _addTextEntry,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: GlassmorphismColors.secondary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            '添加文字记录',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTextEntryCard(String text, int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: GlassmorphismColors.glassSurface,
+      decoration: GlassmorphismDecorations.glassCard.copyWith(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: GlassmorphismColors.glassBorder),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: GlassmorphismColors.secondary.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+          TextField(
+            controller: _textController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: '记录TA常说的话...\n例如："要好好照顾自己"\n"爸爸/妈妈永远爱你"',
+              hintStyle: TextStyle(
+                color: GlassmorphismColors.textTertiary,
+                fontSize: 14,
+                height: 1.4,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             ),
-            child: Icon(
-              Icons.format_quote,
-              color: GlassmorphismColors.secondary,
-              size: 20,
+            style: TextStyle(
+              color: GlassmorphismColors.textOnGlass,
+              fontSize: 15,
+              height: 1.4,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Container(
+            width: double.infinity,
+            height: 1,
+            color: GlassmorphismColors.glassBorder,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  text,
-                  style: TextStyle(
-                    color: GlassmorphismColors.textOnGlass,
-                    fontSize: 14,
-                    height: 1.4,
+                  '用文字记录TA的温暖话语',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: GlassmorphismColors.textTertiary,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '文字记录 ${index + 1}',
-                  style: TextStyle(
-                    color: GlassmorphismColors.textSecondary,
-                    fontSize: 12,
+                TextButton(
+                  onPressed: _addTextEntry,
+                  style: TextButton.styleFrom(
+                    backgroundColor: GlassmorphismColors.success.withValues(alpha: 0.1),
+                    foregroundColor: GlassmorphismColors.success,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    '添加',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextEntryCard(String text, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            GlassmorphismColors.secondary.withValues(alpha: 0.08),
+            GlassmorphismColors.secondary.withValues(alpha: 0.04),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: GlassmorphismColors.secondary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: GlassmorphismColors.secondary.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              Icons.format_quote_rounded,
+              color: GlassmorphismColors.secondary,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '"$text"',
+              style: TextStyle(
+                color: GlassmorphismColors.textOnGlass,
+                fontSize: 15,
+                height: 1.5,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
           IconButton(
-            onPressed: () {
-              setState(() {
-                _textEntries.removeAt(index);
-              });
-            },
+            onPressed: () => _removeTextEntry(index),
             icon: Icon(
-              Icons.close,
-              color: GlassmorphismColors.textSecondary,
-              size: 20,
+              Icons.close_rounded,
+              color: GlassmorphismColors.error.withValues(alpha: 0.8),
+              size: 18,
+            ),
+            constraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 32,
+            ),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: GlassmorphismColors.error.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -1040,6 +1213,12 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> {
         _textController.clear();
       });
     }
+  }
+
+  void _removeTextEntry(int index) {
+    setState(() {
+      _textEntries.removeAt(index);
+    });
   }
 
   void _submitForm() async {
