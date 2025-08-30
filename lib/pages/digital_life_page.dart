@@ -197,144 +197,116 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
     );
   }
 
-  // 1. 天堂之音介绍部分
+  // 1. 天堂之音介绍部分 - 干净大气的设计
   Widget _buildHeavenlyVoiceIntroduction() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标题和副标题
-          Text(
-            '天堂之音',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: GlassmorphismColors.textOnGlass,
-            ),
+          // 极简标题区域
+          Column(
+            children: [
+              // 大气的图标设计
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      GlassmorphismColors.primary.withValues(alpha: 0.8),
+                      GlassmorphismColors.warmAccent.withValues(alpha: 0.8),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(48),
+                ),
+                child: Icon(
+                  Icons.spatial_audio_off_outlined,
+                  size: 48,
+                  color: Colors.white,
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // 简洁的标题
+              Text(
+                '天堂之音',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w300,
+                  color: GlassmorphismColors.textOnGlass,
+                  letterSpacing: 2.0,
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // 精炼的副标题
+              Text(
+                'AI 重现挚爱声音，让思念有声相伴',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: GlassmorphismColors.textSecondary,
+                  height: 1.5,
+                  letterSpacing: 0.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            '让逝去的挚爱用温暖的声音陪伴您',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: GlassmorphismColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 20),
           
-          // 详细功能介绍卡片
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: GlassmorphismDecorations.glassCard.copyWith(
-              borderRadius: BorderRadius.circular(16),
+          const SizedBox(height: 48),
+          
+          // 极简功能展示
+          _buildMinimalFeatures(),
+        ],
+      ),
+    );
+  }
+
+  // 极简功能展示
+  Widget _buildMinimalFeatures() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildMinimalFeature(
+              Icons.mic_none_outlined,
+              '录音训练',
+              '上传语音',
             ),
-            child: Column(
-              children: [
-                // 主要图标和标题
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        GlassmorphismColors.primary,
-                        GlassmorphismColors.warmAccent,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(40),
-                    boxShadow: [
-                      BoxShadow(
-                        color: GlassmorphismColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.psychology,
-                    size: 40,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                
-                Text(
-                  'AI重现挚爱声音',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: GlassmorphismColors.textOnGlass,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                
-                // 详细描述
-                Text(
-                  '天堂之音是一项革命性的AI技术，通过深度学习算法分析和重现逝者的声音特征。我们将他们的语音片段和文字记录转化为永恒的数字回音，让您能够重新听到那些熟悉而温暖的声音。',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: GlassmorphismColors.textOnGlass,
-                    height: 1.6,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                
-                // 功能特点列表
-                Column(
-                  children: [
-                    _buildFeatureHighlight(
-                      Icons.mic,
-                      '语音克隆技术',
-                      '上传5-60秒的语音片段，AI学习声音特征',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildFeatureHighlight(
-                      Icons.chat_bubble_outline,
-                      '智能对话生成',
-                      '基于文字记录生成个性化的温暖话语',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildFeatureHighlight(
-                      Icons.favorite,
-                      '情感陪伴',
-                      '在思念时刻，聆听来自天堂的温暖声音',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                
-                // 温馨提示
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: GlassmorphismColors.warmAccent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: GlassmorphismColors.warmAccent.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.lightbulb_outline,
-                        color: GlassmorphismColors.warmAccent,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '建议上传多段不同情感的语音和丰富的文字记录，这样AI重现的声音会更加自然真实',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: GlassmorphismColors.textOnGlass,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          ),
+          Container(
+            width: 1,
+            height: 48,
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
+          Expanded(
+            child: _buildMinimalFeature(
+              Icons.psychology_outlined,
+              'AI学习',
+              '声音重现',
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 48,
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
+          Expanded(
+            child: _buildMinimalFeature(
+              Icons.favorite_outline,
+              '温暖陪伴',
+              '永恒对话',
             ),
           ),
         ],
@@ -342,41 +314,87 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
     );
   }
 
-  // 2. 空状态显示
+  // 极简功能项
+  Widget _buildMinimalFeature(IconData icon, String title, String subtitle) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          size: 32,
+          color: GlassmorphismColors.primary.withValues(alpha: 0.8),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: GlassmorphismColors.textOnGlass,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: GlassmorphismColors.textSecondary,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  // 2. 空状态显示 - 极简设计
   Widget _buildEmptyVoicesState() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: GlassmorphismDecorations.glassCard.copyWith(
-          borderRadius: BorderRadius.circular(16),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+      padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 32),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 0.5,
         ),
-        child: Column(
-          children: [
-            Icon(
-              Icons.record_voice_over_outlined,
-              size: 64,
-              color: GlassmorphismColors.textSecondary.withValues(alpha: 0.6),
+      ),
+      child: Column(
+        children: [
+          // 极简图标
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: GlassmorphismColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(36),
             ),
-            const SizedBox(height: 16),
-            Text(
-              '还没有天堂回音',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: GlassmorphismColors.textOnGlass,
-                fontWeight: FontWeight.w600,
-              ),
+            child: Icon(
+              Icons.spatial_audio_off_outlined,
+              size: 36,
+              color: GlassmorphismColors.primary.withValues(alpha: 0.6),
             ),
-            const SizedBox(height: 8),
-            Text(
-              '创建您的第一个天堂回音，让AI重现挚爱的声音',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: GlassmorphismColors.textSecondary,
-                height: 1.4,
-              ),
-              textAlign: TextAlign.center,
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // 简洁文字
+          Text(
+            '暂无天堂回音',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: GlassmorphismColors.textOnGlass.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w400,
             ),
-          ],
-        ),
+          ),
+          
+          const SizedBox(height: 8),
+          
+          Text(
+            '创建您的第一个声音记忆',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: GlassmorphismColors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -426,7 +444,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
     );
   }
 
-  // 3. 创建回音按钮
+  // 3. 创建回音按钮 - 大气简洁设计
   Widget _buildCreateVoiceButton() {
     return Consumer<MemorialProvider>(
       builder: (context, memorialProvider, child) {
@@ -434,67 +452,103 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
             .where((m) => m.isOwnedBy(Provider.of<AuthProvider>(context, listen: false).currentUser?.id))
             .toList();
             
-        return Padding(
-          padding: const EdgeInsets.all(20),
+        return Container(
+          margin: const EdgeInsets.fromLTRB(24, 24, 24, 40),
           child: userMemorials.isNotEmpty
-              ? ElevatedButton(
-                  onPressed: _startCreateHeavenlyVoice,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: GlassmorphismColors.warmAccent,
-                    minimumSize: const Size(double.infinity, 56),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    elevation: 8,
-                    shadowColor: GlassmorphismColors.warmAccent.withValues(alpha: 0.4),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.add_circle_outline,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        _heavenlyVoices.isEmpty ? '创建第一个天堂回音' : '创建新的天堂回音',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: GlassmorphismDecorations.glassCard.copyWith(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: GlassmorphismColors.warning,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '请先创建一个纪念页面，才能创建天堂回音',
-                          style: TextStyle(
-                            color: GlassmorphismColors.textSecondary,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              ? _buildCreateButton()
+              : _buildRequirementHint(),
         );
       },
+    );
+  }
+
+  // 大气的创建按钮
+  Widget _buildCreateButton() {
+    return Container(
+      width: double.infinity,
+      height: 64,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            GlassmorphismColors.primary,
+            GlassmorphismColors.warmAccent,
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: GlassmorphismColors.primary.withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _startCreateHeavenlyVoice,
+          borderRadius: BorderRadius.circular(32),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  _heavenlyVoices.isEmpty ? '创建天堂回音' : '创建新回音',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 前置条件提示
+  Widget _buildRequirementHint() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+      decoration: BoxDecoration(
+        color: GlassmorphismColors.warning.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: GlassmorphismColors.warning.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: GlassmorphismColors.warning,
+            size: 24,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              '请先创建纪念页面，才能开始制作天堂回音',
+              style: TextStyle(
+                color: GlassmorphismColors.textOnGlass,
+                fontSize: 16,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -740,12 +794,12 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
 
   Widget _buildVoicesList() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final voice = _heavenlyVoices[index];
-            return _buildVoiceCard(voice);
+            return _buildModernVoiceCard(voice, index);
           },
           childCount: _heavenlyVoices.length,
         ),
@@ -753,35 +807,49 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
     );
   }
   
-  Widget _buildVoiceCard(Map<String, dynamic> voice) {
+  Widget _buildModernVoiceCard(Map<String, dynamic> voice, int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: GlassmorphismDecorations.glassCard,
+      margin: EdgeInsets.only(bottom: index == _heavenlyVoices.length - 1 ? 0 : 24),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 顶部信息行
           Row(
             children: [
+              // 简洁的头像
               Container(
-                width: 60,
-                height: 60,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      GlassmorphismColors.primary,
-                      GlassmorphismColors.secondary,
+                      GlassmorphismColors.primary.withValues(alpha: 0.8),
+                      GlassmorphismColors.warmAccent.withValues(alpha: 0.8),
                     ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(24),
                 ),
-                child: const Icon(
-                  Icons.person,
+                child: Icon(
+                  Icons.spatial_audio_off_outlined,
                   color: Colors.white,
-                  size: 30,
+                  size: 24,
                 ),
               ),
+              
               const SizedBox(width: 16),
+              
+              // 名称和时间
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -792,11 +860,12 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                         color: GlassmorphismColors.textOnGlass,
                         fontWeight: FontWeight.w600,
                         fontSize: 18,
+                        letterSpacing: 0.2,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '创建于 ${_formatDate(voice['createdAt'])}',
+                      _formatDate(voice['createdAt']),
                       style: TextStyle(
                         color: GlassmorphismColors.textSecondary,
                         fontSize: 14,
@@ -805,30 +874,107 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: GlassmorphismColors.textSecondary,
-              ),
+              
+              // 状态指示器
+              _buildModernStatusIndicator(voice['status'] ?? 'created'),
             ],
           ),
-          const SizedBox(height: 16),
+          
+          const SizedBox(height: 20),
+          
+          // 内容统计 - 现代极简风格
           Row(
             children: [
-              _buildStatusChip(
-                voice['status'] == 'created' ? '已创建' : '已训练', 
-                voice['status'] == 'created' ? GlassmorphismColors.warmAccent : GlassmorphismColors.success
-              ),
-              const SizedBox(width: 12),
-              if ((voice['audioCount'] ?? 0) > 0)
-                _buildStatusChip('${voice['audioCount']}段音频', GlassmorphismColors.primary),
-              if ((voice['audioCount'] ?? 0) > 0 && (voice['textCount'] ?? 0) > 0)
-                const SizedBox(width: 12),
-              if ((voice['textCount'] ?? 0) > 0)
-                _buildStatusChip('${voice['textCount']}段文字', GlassmorphismColors.secondary),
+              if ((voice['audioCount'] ?? 0) > 0) ...[
+                _buildContentStat(
+                  Icons.mic_none_outlined,
+                  '${voice['audioCount']}',
+                  '音频',
+                ),
+                const SizedBox(width: 24),
+              ],
+              if ((voice['textCount'] ?? 0) > 0) ...[
+                _buildContentStat(
+                  Icons.text_snippet_outlined,
+                  '${voice['textCount']}',
+                  '文本',
+                ),
+              ],
+              if ((voice['audioCount'] ?? 0) == 0 && (voice['textCount'] ?? 0) == 0)
+                Text(
+                  '准备中...',
+                  style: TextStyle(
+                    color: GlassmorphismColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  // 现代状态指示器
+  Widget _buildModernStatusIndicator(String status) {
+    Color statusColor;
+    
+    switch (status) {
+      case 'ready':
+        statusColor = GlassmorphismColors.success;
+        break;
+      case 'training':
+        statusColor = GlassmorphismColors.primary;
+        break;
+      default:
+        statusColor = GlassmorphismColors.warmAccent;
+    }
+    
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: [
+          BoxShadow(
+            color: statusColor.withValues(alpha: 0.4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 内容统计项
+  Widget _buildContentStat(IconData icon, String count, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: GlassmorphismColors.primary.withValues(alpha: 0.8),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          count,
+          style: TextStyle(
+            color: GlassmorphismColors.textOnGlass,
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: GlassmorphismColors.textSecondary,
+            fontSize: 14,
+          ),
+        ),
+      ],
     );
   }
   
