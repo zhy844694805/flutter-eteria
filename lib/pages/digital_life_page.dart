@@ -177,39 +177,324 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
   Widget _buildOverviewContent() {
     return CustomScrollView(
       slivers: [
-        // Header
+        // 1. 天堂之音介绍 (始终显示)
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+          child: _buildHeavenlyVoiceIntroduction(),
+        ),
+        
+        // 2. 已创建的回音列表
+        _heavenlyVoices.isEmpty
+            ? SliverToBoxAdapter(
+                child: _buildEmptyVoicesState(),
+              )
+            : _buildVoicesList(),
+            
+        // 3. 创建回音按钮 (始终显示)
+        SliverToBoxAdapter(
+          child: _buildCreateVoiceButton(),
+        ),
+      ],
+    );
+  }
+
+  // 1. 天堂之音介绍部分
+  Widget _buildHeavenlyVoiceIntroduction() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题和副标题
+          Text(
+            '天堂之音',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: GlassmorphismColors.textOnGlass,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '让逝去的挚爱用温暖的声音陪伴您',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: GlassmorphismColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 20),
+          
+          // 详细功能介绍卡片
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: GlassmorphismDecorations.glassCard.copyWith(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // 主要图标和标题
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        GlassmorphismColors.primary,
+                        GlassmorphismColors.warmAccent,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(40),
+                    boxShadow: [
+                      BoxShadow(
+                        color: GlassmorphismColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.psychology,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                
                 Text(
-                  '天堂之音',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  'AI重现挚爱声音',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: GlassmorphismColors.textOnGlass,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
+                
+                // 详细描述
                 Text(
-                  '让逝去的挚爱用温暖的声音陪伴您',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: GlassmorphismColors.textSecondary,
+                  '天堂之音是一项革命性的AI技术，通过深度学习算法分析和重现逝者的声音特征。我们将他们的语音片段和文字记录转化为永恒的数字回音，让您能够重新听到那些熟悉而温暖的声音。',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: GlassmorphismColors.textOnGlass,
+                    height: 1.6,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                
+                // 功能特点列表
+                Column(
+                  children: [
+                    _buildFeatureHighlight(
+                      Icons.mic,
+                      '语音克隆技术',
+                      '上传5-60秒的语音片段，AI学习声音特征',
+                    ),
+                    const SizedBox(height: 16),
+                    _buildFeatureHighlight(
+                      Icons.chat_bubble_outline,
+                      '智能对话生成',
+                      '基于文字记录生成个性化的温暖话语',
+                    ),
+                    const SizedBox(height: 16),
+                    _buildFeatureHighlight(
+                      Icons.favorite,
+                      '情感陪伴',
+                      '在思念时刻，聆听来自天堂的温暖声音',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                
+                // 温馨提示
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: GlassmorphismColors.warmAccent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: GlassmorphismColors.warmAccent.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.lightbulb_outline,
+                        color: GlassmorphismColors.warmAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '建议上传多段不同情感的语音和丰富的文字记录，这样AI重现的声音会更加自然真实',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: GlassmorphismColors.textOnGlass,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // 2. 空状态显示
+  Widget _buildEmptyVoicesState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        decoration: GlassmorphismDecorations.glassCard.copyWith(
+          borderRadius: BorderRadius.circular(16),
         ),
-        
-        // Content
-        _heavenlyVoices.isEmpty
-            ? SliverToBoxAdapter(
-                child: _buildEmptyVoicesGuide(),
-              )
-            : _buildVoicesList(),
+        child: Column(
+          children: [
+            Icon(
+              Icons.record_voice_over_outlined,
+              size: 64,
+              color: GlassmorphismColors.textSecondary.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '还没有天堂回音',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: GlassmorphismColors.textOnGlass,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '创建您的第一个天堂回音，让AI重现挚爱的声音',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: GlassmorphismColors.textSecondary,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 功能特点高亮组件
+  Widget _buildFeatureHighlight(IconData icon, String title, String description) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: GlassmorphismColors.primary.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Icon(
+            icon,
+            color: GlassmorphismColors.primary,
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: GlassmorphismColors.textOnGlass,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: GlassmorphismColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
+    );
+  }
+
+  // 3. 创建回音按钮
+  Widget _buildCreateVoiceButton() {
+    return Consumer<MemorialProvider>(
+      builder: (context, memorialProvider, child) {
+        final userMemorials = memorialProvider.memorials
+            .where((m) => m.isOwnedBy(Provider.of<AuthProvider>(context, listen: false).currentUser?.id))
+            .toList();
+            
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: userMemorials.isNotEmpty
+              ? ElevatedButton(
+                  onPressed: _startCreateHeavenlyVoice,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: GlassmorphismColors.warmAccent,
+                    minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    elevation: 8,
+                    shadowColor: GlassmorphismColors.warmAccent.withValues(alpha: 0.4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.add_circle_outline,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        _heavenlyVoices.isEmpty ? '创建第一个天堂回音' : '创建新的天堂回音',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: GlassmorphismDecorations.glassCard.copyWith(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: GlassmorphismColors.warning,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '请先创建一个纪念页面，才能创建天堂回音',
+                          style: TextStyle(
+                            color: GlassmorphismColors.textSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+        );
+      },
     );
   }
 
