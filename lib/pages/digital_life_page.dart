@@ -8,6 +8,7 @@ import '../providers/memorial_provider.dart';
 import '../theme/glassmorphism_theme.dart';
 import 'create_heavenly_voice_page.dart';
 import 'edit_heavenly_voice_page.dart';
+import 'heavenly_conversation_page.dart';
 
 class DigitalLifePage extends StatefulWidget {
   const DigitalLifePage({super.key});
@@ -1460,11 +1461,9 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
 
   // 开始对话功能（占位符）
   void _startConversation(Map<String, dynamic> voice) {
-    // TODO: 实现对话功能
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('正在与${voice['memorialName']}对话...'),
-        backgroundColor: GlassmorphismColors.primary,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => HeavenlyConversationPage(heavenlyVoice: voice),
       ),
     );
   }

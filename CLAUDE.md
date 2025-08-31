@@ -291,6 +291,14 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **BuildContext Safety**: Use local references for ScaffoldMessenger when crossing async gaps
 - **Glassmorphism UI**: The app uses a custom glassmorphism theme with warm colors, blur effects, and gradient backgrounds
 
+### Critical UI Patterns & Fixes
+- **TextController Listeners**: Always add `_textController.addListener(() => setState(() {}))` in initState() for real-time button state updates
+- **Dialog Background Fix**: Use `GlassmorphismColors.backgroundPrimary` instead of `glassSurface` for clear dialog content
+- **File Picker Validation**: Implement proper file size (50MB) and format validation with user-friendly error messages
+- **Layout Stack Issues**: Avoid using `Positioned` widgets that overlay scrollable content; use Column layout instead
+- **Animation Controller Disposal**: Always dispose animation controllers and text controllers in dispose() method
+- **Border Style Compatibility**: Use standard `Border.all()` instead of `BorderStyle.dashed` which is not supported
+
 ## Key Dependencies
 
 ### Main Dependencies
@@ -314,6 +322,7 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **url_launcher**: ^6.3.1 - URL launching
 - **screenshot**: ^3.0.0 - Screenshot capture
 - **path**: ^1.9.0 - File path manipulation
+- **file_picker**: ^6.1.1 - File selection for audio and document uploads
 
 ### Development Dependencies
 - **build_runner**: ^2.4.13 - Code generation runner
@@ -536,6 +545,24 @@ The Heavenly Voice feature allows users to create AI-powered digital recreations
 - **Text Collection**: Multiple text entries for personality and speech patterns
 - **Memorial Selection**: Choose from user's existing memorials
 - **Local Persistence**: Automatic saving to SharedPreferences on completion
+- **TextController Listener**: Real-time button state updates via controller listeners
+
+#### EditHeavenlyVoicePage (Edit Existing Voices)
+- **Complete Edit Interface**: Full editing capability for existing heavenly voices
+- **Audio File Management**: Add/remove audio files with validation (50MB limit, audio formats only)
+- **Text Entry Management**: Add/remove text entries with real-time UI updates
+- **Data Loading**: Loads existing voice data and filters non-existent audio files
+- **Save Functionality**: Updates SharedPreferences with modified data
+- **Error Handling**: Comprehensive file validation and user feedback
+
+#### HeavenlyConversationPage (AI Conversation Interface)
+- **Chat Interface**: Real-time messaging interface with glassmorphism design
+- **Message Bubbles**: Differentiated user and AI message bubbles with timestamps
+- **AI Response System**: Simulated AI responses based on collected voice data
+- **Voice Playback**: Mock voice playback functionality for AI messages
+- **Typing Indicators**: Animated typing indicator during AI response generation
+- **Conversation Management**: Clear conversation, settings, and sharing options
+- **Auto-scroll**: Automatic scrolling to newest messages
 
 ### Data Structure
 ```dart
@@ -559,6 +586,8 @@ The Heavenly Voice feature allows users to create AI-powered digital recreations
 - **Status Tracking**: Tracks voice status (created, training, ready) for future AI integration
 - **Content Statistics**: Displays audio count and text count for each voice
 - **Date Formatting**: User-friendly date display (今天, 昨天, X天前, MM月DD日)
+- **Conversation Integration**: Direct navigation from voice cards to conversation interface
+- **AI Simulation**: Mock AI responses with personality-based text generation
 
 ### Technical Features
 - **File Handling**: Supports common audio formats through file_picker
@@ -566,6 +595,8 @@ The Heavenly Voice feature allows users to create AI-powered digital recreations
 - **Navigation Flow**: Proper result handling with Navigator.pop(true) pattern
 - **UI Consistency**: Glassmorphism design matching app theme
 - **Performance**: Lazy loading and efficient list updates
+- **Real-time Chat**: WebSocket-ready architecture for future real-time AI integration
+- **Animation System**: TickerProviderStateMixin for smooth typing and message animations
 
 ### User Experience Enhancements
 - **Detailed Introduction**: Comprehensive explanation of AI voice cloning technology
@@ -574,11 +605,26 @@ The Heavenly Voice feature allows users to create AI-powered digital recreations
 - **Visual Design**: Gradient icons and professional card layouts
 - **Accessibility**: Clear status indicators and progress feedback
 
+### Adaptive UI System
+- **Single Voice Display**: Featured card layout with large avatar (72px), detailed statistics, and prominent action buttons
+- **Multiple Voice Display**: Compact list layout with smaller avatars (48px) and condensed information
+- **Smart Layout Switching**: Automatically detects voice count and switches display modes
+- **Interactive Features**: Edit and delete buttons integrated into both display modes
+- **Delete Confirmation**: Glassmorphism-styled confirmation dialogs with proper background opacity
+
+### Conversation System Architecture
+- **Message Structure**: ChatMessage class with user/AI differentiation, timestamps, and voice capability flags
+- **State Management**: Local message list with real-time updates and scroll position management  
+- **UI Components**: Glassmorphism message bubbles, typing indicators, and voice playback controls
+- **Navigation Integration**: Seamless navigation from DigitalLifePage voice cards to conversation interface
+- **Mock AI System**: Personality-based response generation using collected text entries
+
 ### Future Integration Points
 - **Backend API**: Ready for voice training service integration
 - **AI Models**: Prepared for TTS and voice cloning model deployment  
 - **Real-time Status**: Infrastructure for training progress updates
 - **Audio Processing**: Framework for server-side audio analysis
+- **WebSocket Support**: Architecture prepared for real-time AI conversation streaming
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
