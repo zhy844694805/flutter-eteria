@@ -1861,24 +1861,67 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
         const SizedBox(height: 16),
         
         // 添加按钮
-        SizedBox(
+        Container(
           width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _textController.text.trim().isEmpty ? null : _addTextEntry,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: GlassmorphismColors.primary.withValues(alpha: 0.8),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: _textController.text.trim().isNotEmpty
+                ? LinearGradient(
+                    colors: [
+                      GlassmorphismColors.secondary.withValues(alpha: 0.9),
+                      GlassmorphismColors.warmAccent.withValues(alpha: 0.8),
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  )
+                : null,
+            color: _textController.text.trim().isEmpty 
+                ? GlassmorphismColors.textSecondary.withValues(alpha: 0.2)
+                : null,
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: _textController.text.trim().isNotEmpty ? [
+              BoxShadow(
+                color: GlassmorphismColors.warmAccent.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-            ),
-            child: Text(
-              '添加文字记录',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+            ] : null,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _textController.text.trim().isEmpty ? null : _addTextEntry,
+              borderRadius: BorderRadius.circular(26),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.add_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      '添加文字记录',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
