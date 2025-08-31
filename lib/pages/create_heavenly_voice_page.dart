@@ -61,27 +61,37 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
           gradient: GlassmorphismColors.backgroundGradient,
         ),
         child: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              _buildModernHeader(),
-              _buildModernStepIndicator(),
-              Expanded(
-                child: AnimatedBuilder(
-                  animation: _animationController,
-                  builder: (context, child) {
-                    return FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SlideTransition(
-                        position: _slideAnimation,
-                        child: _currentStep == 0
-                            ? _buildStepOneMemorialSelection()
-                            : _buildStepTwoContentCollection(),
-                      ),
-                    );
-                  },
-                ),
+              Column(
+                children: [
+                  _buildModernHeader(),
+                  _buildModernStepIndicator(),
+                  Expanded(
+                    child: AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        return FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: SlideTransition(
+                            position: _slideAnimation,
+                            child: _currentStep == 0
+                                ? _buildStepOneMemorialSelection()
+                                : _buildStepTwoContentCollection(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-              _buildBottomActionBar(),
+              // 浮动在内容之上的底部操作栏
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _buildBottomActionBar(),
+              ),
             ],
           ),
         ),
@@ -1656,7 +1666,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                   _buildAudioUploadSection(),
                   const SizedBox(height: 24),
                   _buildTextInputSection(),
-                  const SizedBox(height: 120), // 增加底部空间，避免被底部操作栏遮挡
+                  const SizedBox(height: 100), // 为底部浮动操作栏留出空间
                 ],
               ),
             ),
