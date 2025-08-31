@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../providers/memorial_provider.dart';
 import '../theme/glassmorphism_theme.dart';
 import 'create_heavenly_voice_page.dart';
+import 'edit_heavenly_voice_page.dart';
 
 class DigitalLifePage extends StatefulWidget {
   const DigitalLifePage({super.key});
@@ -501,7 +502,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _heavenlyVoices.isEmpty ? '创建天堂回音' : '创建新回音',
+                  _heavenlyVoices.isEmpty ? '创建天堂回音' : '创建另一个回音',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -793,6 +794,17 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
   }
 
   Widget _buildVoicesList() {
+    // 如果只有一个回音，使用特殊的单个回音展示
+    if (_heavenlyVoices.length == 1) {
+      return SliverToBoxAdapter(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+          child: _buildFeaturedVoiceCard(_heavenlyVoices[0]),
+        ),
+      );
+    }
+    
+    // 多个回音时使用原来的列表展示
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       sliver: SliverList(
@@ -804,6 +816,397 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
           childCount: _heavenlyVoices.length,
         ),
       ),
+    );
+  }
+
+  // 特色单个回音卡片 - 突出显示主要回音
+  Widget _buildFeaturedVoiceCard(Map<String, dynamic> voice) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            GlassmorphismColors.primary.withValues(alpha: 0.08),
+            GlassmorphismColors.warmAccent.withValues(alpha: 0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: GlassmorphismColors.primary.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: GlassmorphismColors.primary.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // 顶部区域 - 更大的头像和信息
+          Row(
+            children: [
+              // 大型头像
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      GlassmorphismColors.primary,
+                      GlassmorphismColors.warmAccent,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(36),
+                  boxShadow: [
+                    BoxShadow(
+                      color: GlassmorphismColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.spatial_audio_off_outlined,
+                  color: Colors.white,
+                  size: 36,
+                ),
+              ),
+              
+              const SizedBox(width: 20),
+              
+              // 主要信息
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      voice['memorialName'] ?? '天堂回音',
+                      style: TextStyle(
+                        color: GlassmorphismColors.textOnGlass,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 24,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      voice['relationship'] ?? '',
+                      style: TextStyle(
+                        color: GlassmorphismColors.textSecondary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '创建于 ${_formatDate(voice['createdAt'])}',
+                      style: TextStyle(
+                        color: GlassmorphismColors.textSecondary.withValues(alpha: 0.8),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 28),
+          
+          // 内容统计区域 - 更加突出
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1),
+                width: 0.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                if ((voice['audioCount'] ?? 0) > 0) ...[
+                  Expanded(
+                    child: _buildFeaturedContentStat(
+                      Icons.mic_none_outlined,
+                      '${voice['audioCount']}',
+                      '音频文件',
+                      GlassmorphismColors.primary,
+                    ),
+                  ),
+                ],
+                if ((voice['audioCount'] ?? 0) > 0 && (voice['textCount'] ?? 0) > 0)
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.white.withValues(alpha: 0.1),
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                if ((voice['textCount'] ?? 0) > 0) ...[
+                  Expanded(
+                    child: _buildFeaturedContentStat(
+                      Icons.format_quote_rounded,
+                      '${voice['textCount']}',
+                      '文字记录',
+                      GlassmorphismColors.warmAccent,
+                    ),
+                  ),
+                ],
+                if ((voice['audioCount'] ?? 0) == 0 && (voice['textCount'] ?? 0) == 0)
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.hourglass_empty,
+                            color: GlassmorphismColors.textSecondary.withValues(alpha: 0.6),
+                            size: 24,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '准备中...',
+                            style: TextStyle(
+                              color: GlassmorphismColors.textSecondary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // 操作按钮区域
+          _buildFeaturedActionButtons(voice),
+        ],
+      ),
+    );
+  }
+
+  // 特色状态指示器
+  Widget _buildFeaturedStatusIndicator(String status) {
+    Color statusColor;
+    String statusText;
+    
+    switch (status) {
+      case 'ready':
+        statusColor = GlassmorphismColors.success;
+        statusText = '已就绪';
+        break;
+      case 'training':
+        statusColor = GlassmorphismColors.primary;
+        statusText = '训练中';
+        break;
+      default:
+        statusColor = GlassmorphismColors.warmAccent;
+        statusText = '已创建';
+    }
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: statusColor.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: statusColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            statusText,
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 特色内容统计项
+  Widget _buildFeaturedContentStat(IconData icon, String count, String label, Color color) {
+    return Column(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: color.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 28,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          count,
+          style: TextStyle(
+            color: GlassmorphismColors.textOnGlass,
+            fontWeight: FontWeight.w700,
+            fontSize: 24,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: GlassmorphismColors.textSecondary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 特色操作按钮
+  Widget _buildFeaturedActionButtons(Map<String, dynamic> voice) {
+    return Row(
+      children: [
+        // 开始对话按钮
+        Expanded(
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  GlassmorphismColors.primary,
+                  GlassmorphismColors.warmAccent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: GlassmorphismColors.primary.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _startConversation(voice),
+                borderRadius: BorderRadius.circular(28),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.chat_bubble_outline,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '开始对话',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        
+        const SizedBox(width: 16),
+        
+        // 编辑按钮
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                print('编辑按钮点击测试'); // 调试信息
+                _editVoice(voice);
+              },
+              borderRadius: BorderRadius.circular(28),
+              child: Icon(
+                Icons.edit_outlined,
+                color: GlassmorphismColors.textOnGlass,
+                size: 24,
+              ),
+            ),
+          ),
+        ),
+        
+        const SizedBox(width: 12),
+        
+        // 删除按钮
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: Colors.red.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: Colors.red.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _deleteVoice(voice),
+              borderRadius: BorderRadius.circular(28),
+              child: Icon(
+                Icons.delete_outline,
+                color: Colors.red.withValues(alpha: 0.8),
+                size: 24,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
   
@@ -875,8 +1278,31 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                 ),
               ),
               
-              // 状态指示器
-              _buildModernStatusIndicator(voice['status'] ?? 'created'),
+              // 删除按钮
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.red.withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _deleteVoice(voice),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Colors.red.withValues(alpha: 0.8),
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
           
@@ -1029,6 +1455,193 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
       }
     } catch (e) {
       return '今天';
+    }
+  }
+
+  // 开始对话功能（占位符）
+  void _startConversation(Map<String, dynamic> voice) {
+    // TODO: 实现对话功能
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('正在与${voice['memorialName']}对话...'),
+        backgroundColor: GlassmorphismColors.primary,
+      ),
+    );
+  }
+
+  // 编辑回音功能
+  void _editVoice(Map<String, dynamic> voice) async {
+    print('编辑按钮被点击了: ${voice['memorialName']}'); // 调试信息
+    
+    // 暂时显示一个简单的对话框来测试
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: GlassmorphismColors.backgroundPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            '编辑功能测试',
+            style: TextStyle(
+              color: GlassmorphismColors.textOnGlass,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Text(
+            '编辑按钮成功点击！\n回音名称：${voice['memorialName']}',
+            style: TextStyle(
+              color: GlassmorphismColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                '关闭',
+                style: TextStyle(
+                  color: GlassmorphismColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // 尝试导航到编辑页面
+                try {
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => EditHeavenlyVoicePage(voice: voice),
+                    ),
+                  );
+                  
+                  print('编辑页面返回结果: $result'); // 调试信息
+                  
+                  // 如果编辑成功，刷新列表
+                  if (result == true) {
+                    _loadHeavenlyVoices();
+                  }
+                } catch (e) {
+                  print('编辑页面导航错误: $e'); // 调试信息
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('打开编辑页面失败: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: Text(
+                '打开编辑页面',
+                style: TextStyle(
+                  color: GlassmorphismColors.warmAccent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 删除回音功能
+  void _deleteVoice(Map<String, dynamic> voice) async {
+    // 显示确认对话框
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: GlassmorphismColors.backgroundPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            '删除天堂回音',
+            style: TextStyle(
+              color: GlassmorphismColors.textOnGlass,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Text(
+            '确定要删除「${voice['memorialName']}」的天堂回音吗？此操作无法撤销。',
+            style: TextStyle(
+              color: GlassmorphismColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                '取消',
+                style: TextStyle(
+                  color: GlassmorphismColors.textSecondary,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                '删除',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _performDeleteVoice(voice);
+    }
+  }
+
+  // 执行删除操作
+  Future<void> _performDeleteVoice(Map<String, dynamic> voice) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final voicesJson = prefs.getStringList('heavenly_voices') ?? [];
+      
+      // 找到要删除的回音并移除
+      voicesJson.removeWhere((jsonStr) {
+        final voiceData = Map<String, dynamic>.from(jsonDecode(jsonStr));
+        return voiceData['id'] == voice['id'];
+      });
+      
+      // 保存更新后的列表
+      await prefs.setStringList('heavenly_voices', voicesJson);
+      
+      // 更新UI
+      setState(() {
+        _heavenlyVoices.removeWhere((v) => v['id'] == voice['id']);
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('已删除「${voice['memorialName']}」的天堂回音'),
+            backgroundColor: GlassmorphismColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('删除失败：$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

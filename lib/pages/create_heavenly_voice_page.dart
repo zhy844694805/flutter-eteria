@@ -42,6 +42,12 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
     _slideAnimation = Tween<Offset>(begin: const Offset(0.3, 0), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
+    
+    // 添加文本监听器以实时更新按钮状态
+    _textController.addListener(() {
+      setState(() {}); // 触发重新构建以更新按钮状态
+    });
+    
     _animationController.forward();
   }
 
