@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend that allows users to create digital memorial spaces for deceased loved ones. The app features user authentication with email verification, memorial management, photo uploads, and social interactions.
 
-**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, complete glassmorphism UI design, and integration with a Node.js backend. Key features implemented include guest mode access, waterfall grid layout with staggered grid view, memorial creation/viewing, photo upload with compression, comprehensive authentication flow with Google OAuth support, detailed memorial pages with interactive elements, and a streamlined personal center with dedicated logout functionality.
+**Current Status**: The app includes a fully functional Flutter frontend with Provider state management, complete glassmorphism UI design, and integration with a Node.js backend. Key features implemented include guest mode access, waterfall grid layout with staggered grid view, memorial creation/viewing, photo upload with compression, comprehensive authentication flow with Google OAuth support, detailed memorial pages with interactive elements, streamlined personal center with dedicated logout functionality, and the complete Heavenly Voice (天堂之音) AI voice recreation feature with local data persistence.
 
 ## Architecture
 
@@ -511,31 +511,77 @@ void _likeMemorial(Memorial memorial) async {
 - **Settings Menu Optimization**: Cleaned up redundant options and improved navigation flow
 - **Code Reduction**: Removed approximately 800+ lines of code related to activity tracking and display
 
-## Digital Life (天堂之音) Feature
+## Heavenly Voice (天堂之音) Feature
 
 ### Overview
-The Digital Life page has been restructured from a complex 3-step workflow to a simple overview page that displays created "heavenly voices" (天堂回音) and guides users to create their first one.
+The Heavenly Voice feature allows users to create AI-powered digital recreations of their deceased loved ones' voices. Users can upload audio files and text entries to train an AI model that can generate conversations in the voice of the departed.
 
-### Architecture Changes
-- **Page Structure**: Changed from step-by-step flow (memorial selection → voice training → AI chat) to overview format
-- **State Management**: Simplified to use only `List<Map<String, dynamic>> _heavenlyVoices` for data storage
-- **Layout**: Uses `CustomScrollView` with `SliverToBoxAdapter` for optimal scrolling behavior
-- **Navigation**: Bottom navigation label updated from '数字生命' to '天堂之音'
+### Architecture Implementation
+- **Data Storage**: Uses SharedPreferences for local persistence with key `heavenly_voices`
+- **Page Structure**: Three-part layout: detailed introduction, created voices list, and creation button
+- **State Management**: Simple list-based state with automatic loading and refresh
+- **Audio Requirement**: Audio files are optional - users can create voices with text-only content
 
 ### Key Components
-- **`DigitalLifePage`**: Main page with overview content and creation guidance
-- **`_buildEmptyVoicesGuide()`**: Displays feature introduction and creation buttons for users with no voices
-- **`_buildVoicesList()`**: Future implementation for displaying created heavenly voices
-- **Guest Mode Support**: Shows login prompt for unauthenticated users
+
+#### DigitalLifePage (Main Overview)
+- **`_buildHeavenlyVoiceIntroduction()`**: Detailed feature introduction with AI technology explanation
+- **`_buildEmptyVoicesState()`**: Clean empty state when no voices exist
+- **`_buildVoicesList()`**: Displays created heavenly voices with stats and status
+- **`_buildCreateVoiceButton()`**: Dynamic creation button with prerequisite checks
+- **Guest Mode Support**: Full authentication prompts for unauthenticated users
+
+#### CreateHeavenlyVoicePage (Creation Flow)
+- **Audio Upload**: Optional audio file selection with flutter file_picker
+- **Text Collection**: Multiple text entries for personality and speech patterns
+- **Memorial Selection**: Choose from user's existing memorials
+- **Local Persistence**: Automatic saving to SharedPreferences on completion
+
+### Data Structure
+```dart
+{
+  'id': DateTime.now().millisecondsSinceEpoch.toString(),
+  'memorialId': selectedMemorial.id,
+  'memorialName': selectedMemorial.name,
+  'relationship': selectedMemorial.relationship,
+  'audioCount': audioFiles.length,
+  'textCount': textEntries.length,
+  'audioFiles': List<String> // file paths
+  'textEntries': List<String>,
+  'createdAt': DateTime.now().toIso8601String(),
+  'status': 'created' // created, training, ready
+}
+```
 
 ### Implementation Details
-- **User Flow**: Checks if user has existing memorials, shows appropriate creation path
-- **Layout Fixes**: Resolved render overflow warnings by using proper Sliver structure
-- **Button Design**: Uses ElevatedButton with Row layout (icon + text) for optimal visual appeal
-- **Integration Ready**: Prepared for backend API integration for voice training and LLM functionality
+- **Audio Optional**: Removed requirement for audio files - text-only voices supported
+- **Real-time Feedback**: Shows creation success and automatically refreshes list
+- **Status Tracking**: Tracks voice status (created, training, ready) for future AI integration
+- **Content Statistics**: Displays audio count and text count for each voice
+- **Date Formatting**: User-friendly date display (今天, 昨天, X天前, MM月DD日)
 
-### Technical Notes
-- **Layout Structure**: Avoids `SliverFillRemaining` to prevent overflow warnings
-- **Scroll Behavior**: Uses `crossAxisAlignment.center` instead of `mainAxisAlignment.center` 
-- **API Integration**: Ready for integration with deployed LLM, speech recognition, and TTS models
-- **Feature State**: Currently shows "天堂回音创建功能即将开启" placeholder message
+### Technical Features
+- **File Handling**: Supports common audio formats through file_picker
+- **Error Handling**: Graceful fallbacks when audio processing fails
+- **Navigation Flow**: Proper result handling with Navigator.pop(true) pattern
+- **UI Consistency**: Glassmorphism design matching app theme
+- **Performance**: Lazy loading and efficient list updates
+
+### User Experience Enhancements
+- **Detailed Introduction**: Comprehensive explanation of AI voice cloning technology
+- **Feature Highlights**: Three key benefits (voice cloning, dialogue generation, emotional companionship)
+- **Usage Tips**: Guidance for optimal audio and text input
+- **Visual Design**: Gradient icons and professional card layouts
+- **Accessibility**: Clear status indicators and progress feedback
+
+### Future Integration Points
+- **Backend API**: Ready for voice training service integration
+- **AI Models**: Prepared for TTS and voice cloning model deployment  
+- **Real-time Status**: Infrastructure for training progress updates
+- **Audio Processing**: Framework for server-side audio analysis
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
