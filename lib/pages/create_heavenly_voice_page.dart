@@ -61,37 +61,28 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
           gradient: GlassmorphismColors.backgroundGradient,
         ),
         child: SafeArea(
-          child: Stack(
+          child: Column(
             children: [
-              Column(
-                children: [
-                  _buildModernHeader(),
-                  _buildModernStepIndicator(),
-                  Expanded(
-                    child: AnimatedBuilder(
-                      animation: _animationController,
-                      builder: (context, child) {
-                        return FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: SlideTransition(
-                            position: _slideAnimation,
-                            child: _currentStep == 0
-                                ? _buildStepOneMemorialSelection()
-                                : _buildStepTwoContentCollection(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+              _buildModernHeader(),
+              _buildModernStepIndicator(),
+              Expanded(
+                child: AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: _currentStep == 0
+                            ? _buildStepOneMemorialSelection()
+                            : _buildStepTwoContentCollection(),
+                      ),
+                    );
+                  },
+                ),
               ),
-              // 浮动在内容之上的底部操作栏
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _buildBottomActionBar(),
-              ),
+              // 底部操作栏
+              _buildBottomActionBar(),
             ],
           ),
         ),
@@ -1661,12 +1652,13 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
           // 内容收集区域
           Expanded(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   _buildAudioUploadSection(),
                   const SizedBox(height: 24),
                   _buildTextInputSection(),
-                  const SizedBox(height: 100), // 为底部浮动操作栏留出空间
+                  const SizedBox(height: 24), // 正常底部间距
                 ],
               ),
             ),
@@ -2035,14 +2027,66 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
   Future<void> _pickAudioFiles() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.audio,
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'ogg'],
         allowMultiple: true,
       );
 
-      if (result != null) {
-        setState(() {
-          _audioFiles.addAll(result.paths.map((path) => File(path!)).toList());
-        });
+      if (result != null && result.files.isNotEmpty) {
+        List<File> validFiles = [];
+        
+        for (var file in result.files) {
+          if (file.path != null) {
+            File audioFile = File(file.path!);
+            
+            // 检查文件大小（限制为50MB）
+            int fileSize = await audioFile.length();
+            if (fileSize > 50 * 1024 * 1024) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('文件 ${file.name} 大小超过50MB，已跳过'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              }
+              continue;
+            }
+
+            // 检查文件扩展名
+            String extension = path.extension(audioFile.path).toLowerCase();
+            List<String> allowedExtensions = ['.mp3', '.wav', '.m4a', '.aac', '.ogg'];
+            
+            if (!allowedExtensions.contains(extension)) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('文件 ${file.name} 格式不支持，已跳过'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              }
+              continue;
+            }
+            
+            validFiles.add(audioFile);
+          }
+        }
+
+        if (validFiles.isNotEmpty) {
+          setState(() {
+            _audioFiles.addAll(validFiles);
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('成功添加 ${validFiles.length} 个音频文件'),
+                backgroundColor: GlassmorphismColors.success,
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -2059,13 +2103,13 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
   // 现代化底部操作栏
   Widget _buildBottomActionBar() {
     return Container(
-      padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + MediaQuery.of(context).padding.bottom),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            GlassmorphismColors.backgroundPrimary.withValues(alpha: 0.8),
+            GlassmorphismColors.backgroundPrimary.withValues(alpha: 0.9),
             GlassmorphismColors.backgroundPrimary,
           ],
         ),
