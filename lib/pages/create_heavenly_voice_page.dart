@@ -1656,7 +1656,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                   _buildAudioUploadSection(),
                   const SizedBox(height: 24),
                   _buildTextInputSection(),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 120), // 增加底部空间，避免被底部操作栏遮挡
                 ],
               ),
             ),
