@@ -143,7 +143,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              '为哪位挚爱创建天堂之音？选择后我们将收集他们的声音片段',
+                              '为哪位挚爱添加对话功能？我们将收集TA的语音和话语特征，让AI学会TA的说话方式',
                               style: TextStyle(
                                 color: GlassmorphismColors.info,
                                 fontSize: 14,
@@ -215,7 +215,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '为${_selectedMemorial?.name}收集回音',
+                          '为${_selectedMemorial?.name}设置邮件',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -276,7 +276,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
             child: Column(
               children: [
                 Text(
-                  '要创建天堂之音，您需要先为挚爱创建一个纪念。纪念是保存回忆的地方，也是天堂之音的基础。',
+                  '要添加对话对象，您需要先为挚爱创建一个纪念。纪念是保存回忆的地方，也是对话对象的基础。',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: GlassmorphismColors.textOnGlass,
                     height: 1.6,
@@ -691,7 +691,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        '创建天堂回音',
+                        '添加对话对象',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -797,7 +797,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
             ),
             const SizedBox(height: 6),
             Text(
-              '支持 MP3、WAV、M4A、AAC、OGG\n建议 5-60秒，最大50MB',
+              '支持 MP3、WAV、M4A、AAC、OGG\n语音样本最大50MB',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: GlassmorphismColors.textSecondary,
                 height: 1.4,
@@ -1103,7 +1103,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('不支持的音频格式，请选择 MP3, WAV, M4A, AAC 或 OGG 格式'),
+                content: Text('不支持的语音格式，请选择 MP3, WAV, M4A, AAC 或 OGG 格式'),
                 backgroundColor: Colors.red,
               ),
             );
@@ -1165,7 +1165,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
         Navigator.of(context).pop(true); // 返回true表示创建成功
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${_selectedMemorial?.name}的天堂之音创建成功！'),
+            content: Text('对话对象${_selectedMemorial?.name}添加成功！'),
             backgroundColor: GlassmorphismColors.success,
           ),
         );
@@ -1192,10 +1192,10 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
     if (_selectedMemorial == null) return;
     
     final prefs = await SharedPreferences.getInstance();
-    final voicesJson = prefs.getStringList('heavenly_voices') ?? [];
+    final recipientsJson = prefs.getStringList('email_recipients') ?? [];
     
-    // 创建天堂之音数据
-    final heavenlyVoice = {
+    // 创建邮件收信人数据
+    final emailRecipient = {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'memorialId': _selectedMemorial!.id,
       'memorialName': _selectedMemorial!.name,
@@ -1209,8 +1209,8 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
     };
     
     // 添加到列表并保存
-    voicesJson.add(jsonEncode(heavenlyVoice));
-    await prefs.setStringList('heavenly_voices', voicesJson);
+    recipientsJson.add(jsonEncode(emailRecipient));
+    await prefs.setStringList('email_recipients', recipientsJson);
   }
 
   // 现代化头部设计
@@ -1251,7 +1251,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '创建天堂之音',
+                  '创建收信人',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: GlassmorphismColors.textOnGlass,
@@ -1279,7 +1279,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
       margin: const EdgeInsets.fromLTRB(24, 32, 24, 24),
       child: Row(
         children: [
-          _buildModernStepDot(0, '选择纪念'),
+          _buildModernStepDot(0, '选择对象'),
           Expanded(
             child: Container(
               height: 2,
@@ -1292,7 +1292,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
               ),
             ),
           ),
-          _buildModernStepDot(1, '收集内容'),
+          _buildModernStepDot(1, '设置特征'),
         ],
       ),
     );
@@ -1359,9 +1359,9 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
   String _getStepDescription() {
     switch (_currentStep) {
       case 0:
-        return '选择一位挚爱开始创建';
+        return '选择一位挚爱开始添加';
       case 1:
-        return '为${_selectedMemorial?.name ?? ''}收集珍贵声音记忆';
+        return '为${_selectedMemorial?.name ?? ''}设置对话特征';
       default:
         return '';
     }
@@ -1427,7 +1427,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '选择纪念对象',
+                            '选择对话对象',
                             style: TextStyle(
                               color: GlassmorphismColors.textOnGlass,
                               fontSize: 16,
@@ -1436,7 +1436,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '为哪一位挚爱创建专属的天堂之音',
+                            '为哪一位挚爱设置专属的对话功能',
                             style: TextStyle(
                               color: GlassmorphismColors.textSecondary,
                               fontSize: 14,
@@ -1630,7 +1630,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '为 ${_selectedMemorial?.name} 收集内容',
+                        '为 ${_selectedMemorial?.name} 设置对话特征',
                         style: TextStyle(
                           color: GlassmorphismColors.textOnGlass,
                           fontSize: 16,
@@ -1639,7 +1639,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '上传音频文件或添加文字记录，内容越丰富效果越好',
+                        '收集TA的语音样本和常用语句，让AI学会模仿说话风格',
                         style: TextStyle(
                           color: GlassmorphismColors.textSecondary,
                           fontSize: 14,
@@ -1680,7 +1680,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '语音片段 (可选)',
+          '语音邮件样本 (可选)',
           style: TextStyle(
             color: GlassmorphismColors.textOnGlass,
             fontSize: 18,
@@ -1689,7 +1689,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
         ),
         const SizedBox(height: 12),
         Text(
-          '上传5-60秒的音频文件，AI会学习声音特征',
+          '上传语音邮件样本，AI会学习声音特征',
           style: TextStyle(
             color: GlassmorphismColors.textSecondary,
             fontSize: 14,
@@ -1725,7 +1725,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _audioFiles.isEmpty ? '点击上传音频文件' : '已上传 ${_audioFiles.length} 个文件',
+                    _audioFiles.isEmpty ? '点击上传语音样本' : '已上传 ${_audioFiles.length} 个样本',
                     style: TextStyle(
                       color: GlassmorphismColors.textOnGlass,
                       fontSize: 16,
@@ -1810,7 +1810,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '文字记录',
+          '常用语句',
           style: TextStyle(
             color: GlassmorphismColors.textOnGlass,
             fontSize: 18,
@@ -1819,7 +1819,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
         ),
         const SizedBox(height: 12),
         Text(
-          '记录TA说过的话、口头禅、表达习惯等',
+          '记录TA经常说的话、口头禅、表达习惯等',
           style: TextStyle(
             color: GlassmorphismColors.textSecondary,
             fontSize: 14,
@@ -2205,7 +2205,7 @@ class _CreateHeavenlyVoicePageState extends State<CreateHeavenlyVoicePage> with 
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          _currentStep == 0 ? '下一步' : '创建天堂回音',
+                          _currentStep == 0 ? '下一步' : '添加对话对象',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,

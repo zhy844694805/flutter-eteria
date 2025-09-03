@@ -5,11 +5,11 @@ import '../providers/auth_provider.dart';
 import '../theme/glassmorphism_theme.dart';
 
 class HeavenlyConversationPage extends StatefulWidget {
-  final Map<String, dynamic> heavenlyVoice;
+  final Map<String, dynamic> emailRecipient;
 
   const HeavenlyConversationPage({
     super.key,
-    required this.heavenlyVoice,
+    required this.emailRecipient,
   });
 
   @override
@@ -62,7 +62,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
 
   void _addWelcomeMessage() {
     final welcomeMessage = ChatMessage(
-      text: '你好，我是${widget.heavenlyVoice['memorialName']}。很高兴能再次与你对话。',
+      text: '亲爱的，我是${widget.emailRecipient['memorialName']}。很想念你，我们可以聆天了。',
       isFromUser: false,
       timestamp: DateTime.now(),
       hasVoice: true,
@@ -170,7 +170,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.heavenlyVoice['memorialName'] ?? '天堂之音',
+                  widget.emailRecipient['memorialName'] ?? '对话对象',
                   style: TextStyle(
                     color: GlassmorphismColors.textOnGlass,
                     fontSize: 18,
@@ -247,7 +247,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
             ),
             const SizedBox(width: 8),
             Text(
-              'AI重现中 · 基于${widget.heavenlyVoice['textCount']}条记录${widget.heavenlyVoice['audioCount'] > 0 ? '和${widget.heavenlyVoice['audioCount']}段语音' : ''}',
+              'AI对话助手 · 基于${widget.emailRecipient['textCount']}条记录${widget.emailRecipient['audioCount'] > 0 ? '和${widget.emailRecipient['audioCount']}个语音样本' : ''}',
               style: TextStyle(
                 color: GlassmorphismColors.info,
                 fontSize: 12,
@@ -534,7 +534,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
                   fontSize: 16,
                 ),
                 decoration: InputDecoration(
-                  hintText: '与${widget.heavenlyVoice['memorialName']}对话...',
+                  hintText: '和${widget.emailRecipient['memorialName']}聊天...',
                   hintStyle: TextStyle(
                     color: GlassmorphismColors.textSecondary.withValues(alpha: 0.7),
                     fontSize: 16,

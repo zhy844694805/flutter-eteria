@@ -19,27 +19,27 @@ class DigitalLifePage extends StatefulWidget {
 
 class _DigitalLifePageState extends State<DigitalLifePage> {
   // 总览页面状态
-  List<Map<String, dynamic>> _heavenlyVoices = [];
+  List<Map<String, dynamic>> _emailRecipients = [];
 
   @override
   void initState() {
     super.initState();
-    // 加载已创建的天堂回音数据
-    _loadHeavenlyVoices();
+    // 加载已创建的邮件收信人数据
+    _loadEmailRecipients();
   }
 
-  void _loadHeavenlyVoices() {
-    // TODO: 从后端加载用户创建的天堂回音
+  void _loadEmailRecipients() {
+    // TODO: 从后端加载用户创建的邮件收信人
     // 模拟数据 - 从SharedPreferences加载
-    _loadHeavenlyVoicesFromLocal();
+    _loadEmailRecipientsFromLocal();
   }
 
-  void _loadHeavenlyVoicesFromLocal() async {
+  void _loadEmailRecipientsFromLocal() async {
     final prefs = await SharedPreferences.getInstance();
-    final voicesJson = prefs.getStringList('heavenly_voices') ?? [];
+    final recipientsJson = prefs.getStringList('email_recipients') ?? [];
     
     setState(() {
-      _heavenlyVoices = voicesJson.map((jsonStr) {
+      _emailRecipients = recipientsJson.map((jsonStr) {
         return Map<String, dynamic>.from(jsonDecode(jsonStr));
       }).toList();
     });
@@ -89,7 +89,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                       ],
                     ),
                     child: const Icon(
-                      Icons.psychology,
+                      Icons.email,
                       size: 56,
                       color: Colors.white,
                     ),
@@ -98,7 +98,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   const SizedBox(height: 32),
                   
                   Text(
-                    '天堂之音',
+                    '天堂邮箱',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -122,7 +122,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                     child: Column(
                       children: [
                         Text(
-                          '聆听来自天堂的温暖声音，感受永恒的爱与陪伴',
+                          '接收来自天堂的温暖邮件，感受永恒的爱与陪伴',
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: GlassmorphismColors.textOnGlass,
                             height: 1.6,
@@ -185,7 +185,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
         ),
         
         // 2. 已创建的回音列表
-        _heavenlyVoices.isEmpty
+        _emailRecipients.isEmpty
             ? SliverToBoxAdapter(
                 child: _buildEmptyVoicesState(),
               )
@@ -224,7 +224,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   borderRadius: BorderRadius.circular(48),
                 ),
                 child: Icon(
-                  Icons.spatial_audio_off_outlined,
+                  Icons.inbox,
                   size: 48,
                   color: Colors.white,
                 ),
@@ -234,7 +234,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
               
               // 简洁的标题
               Text(
-                '天堂之音',
+                '天堂邮箱',
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.w300,
                   color: GlassmorphismColors.textOnGlass,
@@ -246,7 +246,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
               
               // 精炼的副标题
               Text(
-                'AI 重现挚爱声音，让思念有声相伴',
+                'AI 重现挚爱话语，让思念有邮相伴',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: GlassmorphismColors.textSecondary,
                   height: 1.5,
@@ -282,9 +282,9 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
         children: [
           Expanded(
             child: _buildMinimalFeature(
-              Icons.mic_none_outlined,
-              '录音训练',
-              '上传语音',
+              Icons.record_voice_over_outlined,
+              '语音邮件',
+              '收集声音',
             ),
           ),
           Container(
@@ -294,9 +294,9 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
           ),
           Expanded(
             child: _buildMinimalFeature(
-              Icons.psychology_outlined,
-              'AI学习',
-              '声音重现',
+              Icons.smart_toy_outlined,
+              'AI回复',
+              '智能邮件',
             ),
           ),
           Container(
@@ -306,9 +306,9 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
           ),
           Expanded(
             child: _buildMinimalFeature(
-              Icons.favorite_outline,
-              '温暖陪伴',
-              '永恒对话',
+              Icons.mail_outline,
+              '温暖邮件',
+              '永恒通信',
             ),
           ),
         ],
@@ -371,7 +371,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
               borderRadius: BorderRadius.circular(36),
             ),
             child: Icon(
-              Icons.spatial_audio_off_outlined,
+              Icons.inbox_outlined,
               size: 36,
               color: GlassmorphismColors.primary.withValues(alpha: 0.6),
             ),
@@ -381,7 +381,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
           
           // 简洁文字
           Text(
-            '暂无天堂回音',
+            '暂无对话对象',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: GlassmorphismColors.textOnGlass.withValues(alpha: 0.8),
               fontWeight: FontWeight.w400,
@@ -391,7 +391,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
           const SizedBox(height: 8),
           
           Text(
-            '创建您的第一个声音记忆',
+            '添加您的第一个对话对象',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: GlassmorphismColors.textSecondary,
             ),
@@ -497,13 +497,13 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  Icons.add_circle_outline,
+                  Icons.person_add_outlined,
                   color: Colors.white,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _heavenlyVoices.isEmpty ? '创建天堂回音' : '创建另一个回音',
+                  _emailRecipients.isEmpty ? '添加对话对象' : '添加另一个对象',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -541,7 +541,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              '请先创建纪念页面，才能开始制作天堂回音',
+              '请先创建纪念页面，才能添加对话对象',
               style: TextStyle(
                 color: GlassmorphismColors.textOnGlass,
                 fontSize: 16,
@@ -796,11 +796,11 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
 
   Widget _buildVoicesList() {
     // 如果只有一个回音，使用特殊的单个回音展示
-    if (_heavenlyVoices.length == 1) {
+    if (_emailRecipients.length == 1) {
       return SliverToBoxAdapter(
         child: Container(
           margin: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-          child: _buildFeaturedVoiceCard(_heavenlyVoices[0]),
+          child: _buildFeaturedVoiceCard(_emailRecipients[0]),
         ),
       );
     }
@@ -811,10 +811,10 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            final voice = _heavenlyVoices[index];
+            final voice = _emailRecipients[index];
             return _buildModernVoiceCard(voice, index);
           },
-          childCount: _heavenlyVoices.length,
+          childCount: _emailRecipients.length,
         ),
       ),
     );
@@ -874,7 +874,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   ],
                 ),
                 child: Icon(
-                  Icons.spatial_audio_off_outlined,
+                  Icons.email,
                   color: Colors.white,
                   size: 36,
                 ),
@@ -888,7 +888,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      voice['memorialName'] ?? '天堂回音',
+                      voice['memorialName'] ?? '对话对象',
                       style: TextStyle(
                         color: GlassmorphismColors.textOnGlass,
                         fontWeight: FontWeight.w700,
@@ -1128,13 +1128,13 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.chat_bubble_outline,
+                        Icons.send_outlined,
                         color: Colors.white,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '开始对话',
+                        '发送邮件',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -1213,7 +1213,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
   
   Widget _buildModernVoiceCard(Map<String, dynamic> voice, int index) {
     return Container(
-      margin: EdgeInsets.only(bottom: index == _heavenlyVoices.length - 1 ? 0 : 24),
+      margin: EdgeInsets.only(bottom: index == _emailRecipients.length - 1 ? 0 : 24),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
@@ -1245,7 +1245,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Icon(
-                  Icons.spatial_audio_off_outlined,
+                  Icons.email_outlined,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -1259,7 +1259,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      voice['memorialName'] ?? '天堂回音',
+                      voice['memorialName'] ?? '对话对象',
                       style: TextStyle(
                         color: GlassmorphismColors.textOnGlass,
                         fontWeight: FontWeight.w600,
@@ -1433,7 +1433,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
     
     // 如果创建成功，刷新列表
     if (result == true) {
-      _loadHeavenlyVoices();
+      _loadEmailRecipients();
     }
   }
 
@@ -1463,7 +1463,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
   void _startConversation(Map<String, dynamic> voice) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => HeavenlyConversationPage(heavenlyVoice: voice),
+        builder: (context) => HeavenlyConversationPage(emailRecipient: voice),
       ),
     );
   }
@@ -1521,7 +1521,7 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
                   
                   // 如果编辑成功，刷新列表
                   if (result == true) {
-                    _loadHeavenlyVoices();
+                    _loadEmailRecipients();
                   }
                 } catch (e) {
                   print('编辑页面导航错误: $e'); // 调试信息
@@ -1561,14 +1561,14 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
             borderRadius: BorderRadius.circular(20),
           ),
           title: Text(
-            '删除天堂回音',
+            '删除对话对象',
             style: TextStyle(
               color: GlassmorphismColors.textOnGlass,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
-            '确定要删除「${voice['memorialName']}」的天堂回音吗？此操作无法撤销。',
+            '确定要删除对话对象「${voice['memorialName']}」吗？此操作无法撤销。',
             style: TextStyle(
               color: GlassmorphismColors.textSecondary,
               height: 1.5,
@@ -1608,26 +1608,26 @@ class _DigitalLifePageState extends State<DigitalLifePage> {
   Future<void> _performDeleteVoice(Map<String, dynamic> voice) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final voicesJson = prefs.getStringList('heavenly_voices') ?? [];
+      final recipientsJson = prefs.getStringList('email_recipients') ?? [];
       
-      // 找到要删除的回音并移除
-      voicesJson.removeWhere((jsonStr) {
-        final voiceData = Map<String, dynamic>.from(jsonDecode(jsonStr));
-        return voiceData['id'] == voice['id'];
+      // 找到要删除的收信人并移除
+      recipientsJson.removeWhere((jsonStr) {
+        final recipientData = Map<String, dynamic>.from(jsonDecode(jsonStr));
+        return recipientData['id'] == voice['id'];
       });
       
       // 保存更新后的列表
-      await prefs.setStringList('heavenly_voices', voicesJson);
+      await prefs.setStringList('email_recipients', recipientsJson);
       
       // 更新UI
       setState(() {
-        _heavenlyVoices.removeWhere((v) => v['id'] == voice['id']);
+        _emailRecipients.removeWhere((v) => v['id'] == voice['id']);
       });
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('已删除「${voice['memorialName']}」的天堂回音'),
+            content: Text('已删除对话对象「${voice['memorialName']}」'),
             backgroundColor: GlassmorphismColors.success,
           ),
         );

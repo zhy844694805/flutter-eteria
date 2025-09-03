@@ -890,11 +890,11 @@ class _EditHeavenlyVoicePageState extends State<EditHeavenlyVoicePage> with Tick
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final voicesJson = prefs.getStringList('heavenly_voices') ?? [];
+      final recipientsJson = prefs.getStringList('email_recipients') ?? [];
       
       // 找到要更新的回音数据
-      for (int i = 0; i < voicesJson.length; i++) {
-        final voiceData = Map<String, dynamic>.from(jsonDecode(voicesJson[i]));
+      for (int i = 0; i < recipientsJson.length; i++) {
+        final voiceData = Map<String, dynamic>.from(jsonDecode(recipientsJson[i]));
         if (voiceData['id'] == widget.voice['id']) {
           // 更新数据
           voiceData['audioCount'] = _audioFiles.length;
@@ -903,13 +903,13 @@ class _EditHeavenlyVoicePageState extends State<EditHeavenlyVoicePage> with Tick
           voiceData['textEntries'] = _textEntries;
           
           // 替换原数据
-          voicesJson[i] = jsonEncode(voiceData);
+          recipientsJson[i] = jsonEncode(voiceData);
           break;
         }
       }
       
       // 保存更新后的数据
-      await prefs.setStringList('heavenly_voices', voicesJson);
+      await prefs.setStringList('email_recipients', recipientsJson);
       
       if (mounted) {
         Navigator.of(context).pop(true); // 返回true表示已保存

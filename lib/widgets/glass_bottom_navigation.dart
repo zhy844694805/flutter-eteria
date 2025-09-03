@@ -34,9 +34,9 @@ class _GlassBottomNavigationState extends State<GlassBottomNavigation>
       label: '创建',
     ),
     NavItem(
-      icon: Icons.auto_awesome_outlined,
-      activeIcon: Icons.auto_awesome,
-      label: '天堂之音',
+      icon: Icons.email_outlined,
+      activeIcon: Icons.email,
+      label: '天堂邮箱',
     ),
     NavItem(
       icon: GlassIcons.profile,
