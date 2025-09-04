@@ -13,22 +13,27 @@ Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend th
 ### Flutter Frontend (Main Repository)
 - **Framework**: Flutter 3.9.0+ with Dart SDK 3.0.0+
 - **UI Theme**: Custom glassmorphism theme with clean fog blue/Morandi green color scheme
-- **State Management**: Provider pattern with AuthProvider and MemorialProvider
-- **API Communication**: Singleton ApiClient with JWT token management at `http://127.0.0.1:3000/api/v1`
-- **Data Persistence**: SharedPreferences for user sessions and local storage
+- **State Management**: Provider pattern with AuthProvider (session management) and MemorialProvider (with pagination)
+- **API Communication**: Enhanced ApiClient with retry mechanisms, error recovery, and request statistics
+- **Data Persistence**: SharedPreferences for user sessions, local storage, and cache management
 - **Image Handling**: ImagePicker for selection, flutter_image_compress for optimization, cached_network_image for display
 - **Code Generation**: JSON serialization using build_runner and json_serializable
 - **UI Components**: Glass-style widgets including GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView
 - **Navigation**: Bottom navigation with glassmorphism effects and Hero animations
+- **Error Handling**: Global exception handler with circuit breaker patterns
+- **Caching**: Multi-layer caching with memory and persistent storage strategies
+- **Session Management**: Automatic timeout, activity tracking, and secure cleanup
 
 ### Backend API (Sibling Directory)
 - **Location**: `/Users/tuohai/Documents/后端/eteria-backend/`
 - **Framework**: Node.js with Express.js
 - **Database**: PostgreSQL with Sequelize ORM
 - **Cache**: Redis for session management and verification codes
-- **Authentication**: JWT tokens with email verification workflow
+- **Authentication**: JWT tokens with email verification workflow, session management with timeout
 - **Email Service**: Aruba SMTP for verification codes
 - **File Storage**: Local file system with multer and sharp for image processing
+- **Error Handling**: Global exception handling with retry mechanisms
+- **Security**: Rate limiting, CORS configuration, input validation middleware
 
 ## Version Compatibility
 
@@ -38,9 +43,66 @@ Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend th
 - **PostgreSQL**: 12.x+ (backend database)
 - **Redis**: 6.x+ (session management and caching)
 
+## DevOps & Development Tools
+
+### CI/CD Pipeline
+- **GitHub Actions**: Automated workflows in `.github/workflows/`
+  - `flutter.yml`: Flutter CI/CD with testing, building, and deployment
+  - `backend.yml`: Node.js backend testing and Docker deployment (in backend repo)
+- **Pre-commit Hooks**: Automated code quality checks via Husky
+- **Docker Support**: Development environment containerization
+- **Security Scanning**: Trivy vulnerability scanning integration
+
+### Code Quality & Analysis  
+- **Flutter Analysis**: Enhanced `analysis_options.yaml` with comprehensive rules
+- **ESLint + Prettier**: Backend code formatting and linting
+- **Test Coverage**: 80%+ requirement with automated reporting
+- **Code Generation**: Automated JSON serialization with build_runner
+
+### Environment Management
+- **Multi-Environment**: Development, Staging, Production configurations via `AppConfig`
+- **Environment Variables**: Centralized configuration management
+- **Database Management**: Automated migrations and seeding
+- **Session Management**: Automatic timeout and cleanup
+
 ## Key Development Commands
 
-### Flutter Frontend
+### Modern Development Workflow (Recommended)
+Use the unified Makefile commands for streamlined development:
+
+```bash
+# Show all available commands
+make help
+
+# Initial project setup (installs all dependencies)
+make init
+
+# Start development environment (frontend + backend)
+make dev
+
+# Start only frontend
+make dev-frontend
+
+# Start only backend  
+make dev-backend
+
+# Run all tests and quality checks
+make test
+
+# Check code quality (lint + format check)
+make lint format
+
+# Build all platforms
+make build
+
+# Clean and reinstall everything
+make reinstall
+
+# Verify project health
+make verify
+```
+
+### Traditional Flutter Commands
 ```bash
 # Install dependencies
 flutter pub get
@@ -66,9 +128,10 @@ flutter test test/widget_test.dart
 # Build for release
 flutter build apk --release        # Android
 flutter build ios --release        # iOS
+flutter build web --release        # Web
 
 # Check for lint issues
-flutter analyze
+flutter analyze --fatal-infos --fatal-warnings
 
 # Format code
 dart format .
@@ -241,8 +304,8 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - `/lib/pages/` - UI screens including glass-style pages (WelcomePage, GlassHomePage, GlassCreatePage, GlassPersonalPage, GlassLoginPage, GlassRegisterPage, GlassForgotPasswordPage, DigitalLifePage, GlassPrivacySettingsPage, HelpCenterPage, etc.)
 - `/lib/widgets/` - Reusable UI components with glass effects (GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView, PlatformImage, GoogleSignInButton, etc.)
 - `/lib/theme/` - Design system including glassmorphism_theme.dart and app_theme.dart
-- `/lib/utils/` - Utilities (ImageHelper, FormValidators, ErrorHandler, UIHelpers)
-- `/lib/config/` - Configuration files and constants
+- `/lib/utils/` - Utilities (ImageHelper, FormValidators, ErrorHandler, UIHelpers, ExceptionHandler, CacheManager)
+- `/lib/config/` - Configuration files and constants including `app_config.dart` for environment management
 
 ### Critical Backend Directories
 - `/src/controllers/` - API endpoint handlers (authController, memorialController, fileController)
@@ -298,6 +361,8 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **Layout Stack Issues**: Avoid using `Positioned` widgets that overlay scrollable content; use Column layout instead
 - **Animation Controller Disposal**: Always dispose animation controllers and text controllers in dispose() method
 - **Border Style Compatibility**: Use standard `Border.all()` instead of `BorderStyle.dashed` which is not supported
+- **Null-to-Bool Conversion**: Use if-null operator `(user?.isVerified ?? false)` instead of `user?.isVerified == true` for better Dart idioms
+- **Memory Leak Prevention**: Always implement proper `dispose()` methods and use `_disposed` flags in providers
 
 ## Key Dependencies
 
@@ -322,7 +387,7 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - **url_launcher**: ^6.3.1 - URL launching
 - **screenshot**: ^3.0.0 - Screenshot capture
 - **path**: ^1.9.0 - File path manipulation
-- **file_picker**: ^6.1.1 - File selection for audio and document uploads
+- **file_picker**: ^8.1.2 - File selection for audio and document uploads (updated for platform compatibility)
 
 ### Development Dependencies
 - **build_runner**: ^2.4.13 - Code generation runner
@@ -471,10 +536,14 @@ void _likeMemorial(Memorial memorial) async {
 ## Performance Guidelines
 
 - **Image Optimization**: All images automatically compressed to JPEG format during upload
-- **Network Efficiency**: Cached image loading with proper fallbacks to prevent loading failures
+- **Network Efficiency**: Cached image loading with proper fallbacks to prevent loading failures  
 - **State Management**: Minimal rebuilds using targeted Consumer widgets and listen: false patterns
 - **Memory Management**: Proper disposal of controllers, animations, and streams in dispose() methods
 - **Platform Optimization**: Platform-specific network configuration for optimal simulator connectivity
+- **API Retry Logic**: Automatic retry with exponential backoff for failed network requests
+- **Caching Strategy**: Multi-layer caching (memory + persistent) with configurable TTL
+- **Session Management**: Automatic session timeout and cleanup to prevent memory leaks
+- **Request Statistics**: Built-in monitoring for API performance and failure rates
 
 ## Security Implementation
 
