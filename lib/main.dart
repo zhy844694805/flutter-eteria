@@ -11,10 +11,14 @@ import 'pages/welcome_page.dart';
 import 'widgets/glass_bottom_navigation.dart';
 import 'providers/memorial_provider.dart';
 import 'providers/auth_provider.dart';
+import 'utils/exception_handler.dart';
 
 void main() {
-  // 在调试模式下关闭溢出指示器
+  // 初始化Flutter绑定
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 初始化全局异常处理
+  ExceptionHandler.initialize();
   
   runApp(const EteriaApp());
 }

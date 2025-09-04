@@ -8,10 +8,17 @@ class ErrorHandler {
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.success,
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -22,10 +29,17 @@ class ErrorHandler {
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -36,10 +50,17 @@ class ErrorHandler {
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.warning,
+        content: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.orange,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -50,10 +71,17 @@ class ErrorHandler {
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.info,
+        content: Row(
+          children: [
+            const Icon(Icons.info, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.blue,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -82,7 +110,7 @@ class ErrorHandler {
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: isDangerous
-                ? TextButton.styleFrom(foregroundColor: AppColors.error)
+                ? TextButton.styleFrom(foregroundColor: Colors.red)
                 : null,
             child: Text(confirmText),
           ),
@@ -125,7 +153,11 @@ class ErrorHandler {
     Future<T> Function() operation, {
     String? loadingMessage,
     String? successMessage,
+    String? errorMessage,
     bool showLoading = true,
+    bool showSuccess = false,
+    bool showError = true,
+    Duration? timeout,
   }) async {
     if (!context.mounted) return null;
 
@@ -134,15 +166,19 @@ class ErrorHandler {
         showLoadingDialog(context, message: loadingMessage);
       }
 
-      final result = await operation();
+      final Future<T> futureOperation = timeout != null 
+          ? operation().timeout(timeout)
+          : operation();
+      
+      final result = await futureOperation;
 
       if (context.mounted) {
         if (showLoading && loadingMessage != null) {
           hideDialog(context);
         }
 
-        if (successMessage != null) {
-          showSuccess(context, successMessage);
+        if (showSuccess && successMessage != null) {
+          ErrorHandler.showSuccess(context, successMessage);
         }
       }
 
@@ -153,9 +189,69 @@ class ErrorHandler {
           hideDialog(context);
         }
 
-        showError(context, '操作失败: $e');
+        if (showError) {
+          final message = errorMessage ?? _getErrorMessage(e);
+          ErrorHandler.showError(context, message);
+        }
       }
       return null;
     }
+  }
+  
+  // 获取友好的错误消息
+  static String _getErrorMessage(Object error) {
+    final errorString = error.toString();
+    
+    if (errorString.contains('SocketException') || 
+        errorString.contains('Connection refused')) {
+      return '网络连接失败，请检查网络设置';
+    }
+    
+    if (errorString.contains('TimeoutException') ||
+        errorString.contains('timeout')) {
+      return '请求超时，请重试';
+    }
+    
+    if (errorString.contains('FormatException') ||
+        errorString.contains('Invalid JSON')) {
+      return '服务器响应格式错误';
+    }
+    
+    // 移除Exception前缀
+    final cleanError = errorString.replaceAll('Exception: ', '').trim();
+    return cleanError.isEmpty ? '操作失败，请重试' : cleanError;
+  }
+  
+  // 显示网络错误提示
+  static void showNetworkError(BuildContext context, {VoidCallback? onRetry}) {
+    if (!context.mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.wifi_off, color: Colors.red),
+            SizedBox(width: 8),
+            Text('网络连接失败'),
+          ],
+        ),
+        content: const Text('请检查网络连接后重试'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('关闭'),
+          ),
+          if (onRetry != null)
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onRetry();
+              },
+              child: const Text('重试'),
+            ),
+        ],
+      ),
+    );
   }
 }

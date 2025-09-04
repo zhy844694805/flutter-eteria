@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../theme/glassmorphism_theme.dart';
 import '../widgets/glass_hover_card.dart';
-import '../widgets/glass_interactive_widgets.dart' hide GlassHoverCard;
 import '../widgets/glass_icons.dart';
 
 /// 关于页面

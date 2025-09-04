@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 前端代码检查
+echo "🔍 Running Flutter code analysis..."
+flutter analyze --fatal-infos --fatal-warnings
+
+echo "🎨 Checking Flutter code formatting..."
+dart format --output=none --set-exit-if-changed .
+
+echo "🧪 Running Flutter tests..."
+flutter test
+
+# 后端代码检查（如果存在后端更改）
+if [ -d "../后端/eteria-backend" ]; then
+  echo "🔍 Running backend linting..."
+  cd ../后端/eteria-backend
+  npm run lint
+  
+  echo "🎨 Checking backend code formatting..."
+  npm run format:check
+  
+  echo "🧪 Running backend tests..."
+  npm run test:ci
+  cd -
+fi
+
+echo "✅ Pre-commit checks passed!"

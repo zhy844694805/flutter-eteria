@@ -5,7 +5,6 @@ import '../providers/auth_provider.dart';
 import '../theme/glassmorphism_theme.dart';
 import '../widgets/glass_hover_card.dart';
 import '../widgets/glass_interactive_widgets.dart' hide GlassHoverCard;
-import '../widgets/glass_icons.dart';
 
 /// 账号安全页面
 class AccountSecurityPage extends StatefulWidget {
@@ -162,13 +161,13 @@ class _AccountSecurityPageState extends State<AccountSecurityPage>
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: (user?.isVerified == true 
+                        color: ((user?.isVerified ?? false)
                             ? GlassmorphismColors.success 
                             : GlassmorphismColors.warning)
                             .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: (user?.isVerified == true 
+                          color: ((user?.isVerified ?? false)
                               ? GlassmorphismColors.success 
                               : GlassmorphismColors.warning)
                               .withValues(alpha: 0.3),
@@ -176,9 +175,9 @@ class _AccountSecurityPageState extends State<AccountSecurityPage>
                         ),
                       ),
                       child: Text(
-                        user?.isVerified == true ? '已验证' : '未验证',
+                        (user?.isVerified ?? false) ? '已验证' : '未验证',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: user?.isVerified == true 
+                          color: (user?.isVerified ?? false)
                               ? GlassmorphismColors.success 
                               : GlassmorphismColors.warning,
                           fontWeight: FontWeight.w500,
@@ -697,7 +696,7 @@ class _AccountSecurityPageState extends State<AccountSecurityPage>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.currentUser;
     
-    if (user?.isVerified == true) {
+    if (user?.isVerified ?? false) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('邮箱已经验证过了'),

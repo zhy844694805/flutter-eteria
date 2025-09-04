@@ -1,32 +1,48 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
+import '../utils/exception_handler.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _service = AuthService();
   User? _currentUser;
   bool _isLoading = false;
+  bool _disposed = false;
+  Timer? _sessionTimer;
+  
+  // 会话管理
+  static const Duration sessionTimeout = Duration(hours: 24);
+  DateTime? _lastActivity;
 
   User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _currentUser != null && _currentUser!.isVerified;
 
   Future<void> initialize() async {
+    if (_disposed) return;
+    
     _isLoading = true;
-    notifyListeners();
+    _safeNotifyListeners();
     
     try {
       await _service.initializeToken();
       _currentUser = await _service.getCurrentUser();
+      
+      if (_currentUser != null) {
+        _updateLastActivity();
+        _startSessionTimer();
+      }
     } catch (e) {
-      print('⚠️ [AuthProvider] 初始化失败，可能token已失效: $e');
-      // 如果获取用户信息失败，清除当前用户状态
+      if (kDebugMode) {
+        print('⚠️ [AuthProvider] 初始化失败，可能token已失效: $e');
+      }
       _currentUser = null;
-      // 这里不需要调用logout，因为token已经在ApiClient中被清除了
+      _lastActivity = null;
     }
     
     _isLoading = false;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   String? _lastError;
@@ -82,22 +98,39 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> login(String email, String password) async {
+    if (_disposed) return false;
+    
     try {
       _lastError = null;
       _currentUser = await _service.login(email, password);
-      notifyListeners();
+      
+      if (_currentUser != null) {
+        _updateLastActivity();
+        _startSessionTimer();
+      }
+      
+      _safeNotifyListeners();
       return true;
     } catch (e) {
-      print('❌ [AuthProvider] 登录失败: $e');
+      if (kDebugMode) {
+        print('❌ [AuthProvider] 登录失败: $e');
+      }
       _lastError = _parseErrorMessage(e.toString());
       return false;
     }
   }
 
   Future<void> logout() async {
+    if (_disposed) return;
+    
     await _service.logout();
     _currentUser = null;
-    notifyListeners();
+    _lastActivity = null;
+    _lastError = null;
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
+    
+    _safeNotifyListeners();
   }
 
   // 兼容旧方法
@@ -108,22 +141,26 @@ class AuthProvider extends ChangeNotifier {
 
   // Google登录设置用户状态
   Future<void> setGoogleUser(Map<String, dynamic> userData, String token) async {
+    if (_disposed) return;
+    
     try {
       _lastError = null;
       
-      // 将Google用户数据转换为User对象
       final user = User.fromJson(userData);
-      
-      // 设置token到服务中
       await _service.setToken(token);
-      
-      // 设置当前用户
       _currentUser = user;
       
-      print('✅ [AuthProvider] Google用户设置成功: ${user.name}');
-      notifyListeners();
+      _updateLastActivity();
+      _startSessionTimer();
+      
+      if (kDebugMode) {
+        print('✅ [AuthProvider] Google用户设置成功: ${user.name}');
+      }
+      _safeNotifyListeners();
     } catch (e) {
-      print('❌ [AuthProvider] 设置Google用户失败: $e');
+      if (kDebugMode) {
+        print('❌ [AuthProvider] 设置Google用户失败: $e');
+      }
       _lastError = _parseErrorMessage(e.toString());
       rethrow;
     }
@@ -176,5 +213,70 @@ class AuthProvider extends ChangeNotifier {
     
     // 返回原始错误信息（如果没有匹配到特定类型）
     return cleanError.isNotEmpty ? cleanError : '操作失败，请重试';
+  }
+  
+  /// 安全的notifyListeners调用
+  void _safeNotifyListeners() {
+    if (!_disposed) {
+      notifyListeners();
+    }
+  }
+  
+  /// 更新最后活动时间
+  void _updateLastActivity() {
+    _lastActivity = DateTime.now();
+  }
+  
+  /// 启动会话计时器
+  void _startSessionTimer() {
+    _sessionTimer?.cancel();
+    _sessionTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      if (_disposed) {
+        timer.cancel();
+        return;
+      }
+      
+      final now = DateTime.now();
+      if (_lastActivity != null && 
+          now.difference(_lastActivity!) > sessionTimeout) {
+        if (kDebugMode) {
+          print('⏰ [AuthProvider] 会话超时，自动登出');
+        }
+        logout();
+        timer.cancel();
+      }
+    });
+  }
+  
+  /// 检查会话是否有效
+  bool get isSessionValid {
+    if (_lastActivity == null) return false;
+    return DateTime.now().difference(_lastActivity!) < sessionTimeout;
+  }
+  
+  /// 刷新会话
+  void refreshSession() {
+    if (_currentUser != null && isLoggedIn) {
+      _updateLastActivity();
+    }
+  }
+  
+  /// 获取会话信息
+  Map<String, dynamic> getSessionInfo() {
+    return {
+      'isLoggedIn': isLoggedIn,
+      'lastActivity': _lastActivity?.toIso8601String(),
+      'sessionValid': isSessionValid,
+      'timeUntilExpiry': _lastActivity != null 
+          ? sessionTimeout.inMilliseconds - DateTime.now().difference(_lastActivity!).inMilliseconds
+          : 0,
+    };
+  }
+  
+  @override
+  void dispose() {
+    _disposed = true;
+    _sessionTimer?.cancel();
+    super.dispose();
   }
 }

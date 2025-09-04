@@ -355,7 +355,22 @@ class MemorialProvider extends ChangeNotifier {
     }
   }
 
+  /// 刷新纪念数据
+  Future<void> refresh() async {
+    print('🔄 [MemorialProvider] 刷新纪念数据...');
+    _currentPage = 1;
+    _hasMoreData = true;
+    await loadMemorials();
+  }
+
+  /// 游客模式刷新
+  Future<void> refreshPublic() async {
+    print('🔄 [MemorialProvider] 游客模式刷新纪念数据...');
+    _currentPage = 1;
+    _hasMoreData = true;
+    await loadPublicMemorials();
+  }
+
   // 兼容旧方法名
   Future<bool> createMemorial(Memorial memorial) => addMemorial(memorial);
-  Future<void> refresh() => loadMemorials();
 }

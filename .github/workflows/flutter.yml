@@ -1,0 +1,156 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # 静态分析和测试
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.9.0'
+        channel: 'stable'
+    
+    - name: Get dependencies
+      run: flutter pub get
+    
+    - name: Verify formatting
+      run: dart format --output=none --set-exit-if-changed .
+    
+    - name: Analyze project source
+      run: flutter analyze --fatal-infos --fatal-warnings
+    
+    - name: Run code generation
+      run: dart run build_runner build --delete-conflicting-outputs
+    
+    - name: Run tests
+      run: flutter test --coverage --reporter=github
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: coverage/lcov.info
+        flags: flutter
+        name: flutter-coverage
+    
+    - name: Check test coverage threshold
+      run: |
+        COVERAGE=$(grep -o 'SF:.*' coverage/lcov.info | wc -l)
+        if [ $COVERAGE -lt 80 ]; then
+          echo "Coverage is below 80%"
+          exit 1
+        fi
+
+  # 构建检查
+  build-check:
+    runs-on: ubuntu-latest
+    needs: analyze-and-test
+    strategy:
+      matrix:
+        platform: [android, ios, web]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.9.0'
+        channel: 'stable'
+    
+    - name: Setup Android SDK (for Android)
+      if: matrix.platform == 'android'
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: 33
+        target: google_apis
+    
+    - name: Setup iOS environment (for iOS)
+      if: matrix.platform == 'ios' && runner.os == 'macOS'
+      run: |
+        sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+        xcrun simctl list
+    
+    - name: Get dependencies
+      run: flutter pub get
+    
+    - name: Run code generation
+      run: dart run build_runner build --delete-conflicting-outputs
+    
+    - name: Build APK (Android)
+      if: matrix.platform == 'android'
+      run: flutter build apk --debug
+    
+    - name: Build iOS (without signing)
+      if: matrix.platform == 'ios' && runner.os == 'macOS'
+      run: flutter build ios --debug --no-codesign
+    
+    - name: Build Web
+      if: matrix.platform == 'web'
+      run: flutter build web --debug
+
+  # 安全扫描
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: analyze-and-test
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # 发布（仅在主分支）
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: [analyze-and-test, build-check, security-scan]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.9.0'
+        channel: 'stable'
+    
+    - name: Get dependencies
+      run: flutter pub get
+    
+    - name: Run code generation
+      run: dart run build_runner build --delete-conflicting-outputs
+    
+    - name: Build release APK
+      run: flutter build apk --release
+    
+    - name: Build release App Bundle
+      run: flutter build appbundle --release
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          build/app/outputs/flutter-apk/app-release.apk
+          build/app/outputs/bundle/release/app-release.aab
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
