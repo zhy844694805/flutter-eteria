@@ -1,0 +1,38 @@
+# 备份原始配置
+# 这是原始的严格分析配置的备份
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # 基本规则
+    prefer_single_quotes: true
+    avoid_print: false
+    prefer_const_constructors: true
+    use_key_in_widget_constructors: true
+    
+    # 性能相关
+    avoid_function_literals_in_foreach_calls: true
+    prefer_const_constructors_in_immutables: true
+    
+    # 可读性
+    avoid_unnecessary_containers: true
+    prefer_is_empty: true
+    prefer_is_not_empty: true
+    
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart" 
+    - "**/*.gr.dart"
+    - "**/*.config.dart"
+    - "**/generated/**"
+    - "**/build/**"
+    - "**/.dart_tool/**"
+  
+  errors:
+    missing_return: error
+    unused_import: warning
+    unused_local_variable: warning
+    todo: ignore
+    fixme: ignore
+    invalid_annotation_target: ignore

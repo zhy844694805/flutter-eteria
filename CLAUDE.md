@@ -34,6 +34,35 @@ Eteria (永念) is a memorial app with a Flutter frontend and Node.js backend th
 - **File Storage**: Local file system with multer and sharp for image processing
 - **Error Handling**: Global exception handling with retry mechanisms
 - **Security**: Rate limiting, CORS configuration, input validation middleware
+- **Admin Panel**: Custom glassmorphism-styled management interface at `/admin`
+- **AI Integration**: LLM API for Heavenly Voice conversations and content generation
+
+## Key Architecture Patterns
+
+### State Management Architecture
+- **AuthProvider**: Manages user authentication state, login/logout, registration, and guest mode detection
+- **MemorialProvider**: Handles memorial CRUD operations, filtering, and interactive features (likes/views)
+  - Auto-loading: Automatically loads memorial data after successful login or guest mode selection
+  - Guest Mode Support: `loadPublicMemorials()` method for fetching public content without authentication
+  - Real-time Updates: Uses `notifyListeners()` to update UI immediately after API calls
+- **Provider Pattern**: Used throughout for reactive state updates with Consumer<AuthProvider> wrapping
+
+### API Response Architecture
+- **ApiClient Singleton**: Centralized HTTP client with automatic token management and platform-specific base URLs
+- **Error Recovery**: Circuit breaker patterns with automatic retry mechanisms
+- **Field Mapping**: Backend uses snake_case, frontend uses camelCase with `@JsonKey` annotations
+- **Optional Authentication**: Routes like stats support both authenticated and anonymous access via `optionalAuth` middleware
+
+### UI Component Architecture
+- **Glassmorphism Theme**: Custom theme with fog blue (#5C9EAD) primary and warm orange (#E6A57E) accent colors
+- **Glass Components**: Reusable glass-effect widgets (GlassBottomNavigation, GlassMemorialCard, etc.)
+- **Responsive Layouts**: StaggeredGridView for adaptive waterfall layouts
+- **Hero Animations**: Seamless page transitions with shared element animations
+
+### Data Persistence Strategy
+- **SharedPreferences**: User sessions, app settings, and Heavenly Voice data
+- **Caching**: Multi-layer caching with memory and persistent storage for images
+- **Local-First**: App works offline with cached data, syncs when connection available
 
 ## Version Compatibility
 
@@ -169,6 +198,39 @@ npm test
 # Kill processes on port 3000 (if needed)
 lsof -ti:3000 | xargs kill -9
 ```
+
+## Management Backend
+
+A custom-built admin panel is available for managing users, memorials, and files through a web interface.
+
+### Access Information
+- **URL**: http://localhost:3000/admin (when backend is running)
+- **Credentials**: 
+  - Email: admin@eteria.com
+  - Password: eteria123
+- **Environment Variables**: `ADMIN_EMAIL` and `ADMIN_PASSWORD` in backend `.env`
+
+### Features
+- **User Management**: View registered users (2 users), verification status, registration dates
+- **Memorial Management**: Browse memorials (28 entries), review content, check visibility settings
+- **File Management**: Monitor uploaded files (25 files), file types, sizes, and associations
+- **Statistics Dashboard**: Real-time counts of users, memorials, files, and daily signups
+- **Session Management**: Secure admin authentication with 24-hour session timeout
+
+### Technical Implementation
+- **Architecture**: Custom Express.js router (`/src/admin/simpleAdmin.js`)
+- **Authentication**: Session-based with bcrypt password hashing in production
+- **UI Design**: Glassmorphism theme matching the main app's aesthetic
+- **Database Queries**: Sequelize ORM with proper model associations
+- **Security**: Environment-based credentials, secure session management
+- **Localization**: Complete Chinese interface with responsive design
+
+### Why Custom Implementation
+AdminJS compatibility issues with newer Node.js versions led to a custom implementation that provides:
+- Better version stability and maintenance
+- Consistent glassmorphism design with the main app
+- Optimized queries for large datasets
+- Flexible customization for specific business needs
 
 ## Authentication Flow
 
@@ -694,6 +756,44 @@ The Heavenly Voice feature allows users to create AI-powered digital recreations
 - **Real-time Status**: Infrastructure for training progress updates
 - **Audio Processing**: Framework for server-side audio analysis
 - **WebSocket Support**: Architecture prepared for real-time AI conversation streaming
+
+## Critical Development Patterns
+
+### Code Generation Workflow
+Always run after modifying `@JsonSerializable` models:
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### API Integration Patterns
+- **Platform-specific URLs**: ApiConfig automatically handles Android (10.0.2.2) vs iOS (127.0.0.1) base URLs
+- **Field Mapping**: Use `@JsonKey(name: 'snake_case_field')` for backend compatibility
+- **Error Handling**: All API calls should use try-catch with fallback states
+- **Authentication Flow**: Check `authProvider.isLoggedIn` before restricted operations
+
+### State Management Best Practices
+- Use `Provider.of<T>(context, listen: false)` for actions, `Consumer<T>` for UI updates
+- Always call `notifyListeners()` after state changes in Provider classes
+- Check `mounted` before calling `setState()` in async callbacks
+- Use local references for ScaffoldMessenger when crossing async gaps
+
+### UI Development Guidelines
+- **Hero Animations**: Use unique tags like `memorial_image_${memorial.id}` for memorial images
+- **Glass Effects**: Use existing glass components rather than creating new ones
+- **Color Scheme**: Follow the established fog blue/Morandi green palette with orange accents
+- **Interactive Feedback**: Provide immediate visual feedback for user actions before API calls
+
+### Guest Mode Implementation
+- Never reset app state with `pushNamedAndRemoveUntil('/', (route) => false)` in guest mode
+- Use direct page navigation: `Navigator.push(MaterialPageRoute(builder: (context) => Page()))`
+- Always check authentication status before allowing restricted features
+- Provide clear prompts for login when guest users try restricted actions
+
+### Database & Backend Patterns  
+- **Model Associations**: Use proper `as: 'alias'` in Sequelize includes for consistent data access
+- **NULL Handling**: Backend handles NULL values by initializing to 0 before increment/decrement
+- **Optional Auth**: Use `optionalAuth` middleware for routes that support both guest and authenticated access
+- **Admin Panel**: Access via http://localhost:3000/admin with admin@eteria.com/eteria123
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

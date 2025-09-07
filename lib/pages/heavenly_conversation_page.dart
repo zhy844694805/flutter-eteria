@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../providers/auth_provider.dart';
 import '../theme/glassmorphism_theme.dart';
+import '../services/ai_service.dart' show AIService, ChatMessage;
 
 class HeavenlyConversationPage extends StatefulWidget {
   final Map<String, dynamic> emailRecipient;
@@ -20,7 +21,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
     with TickerProviderStateMixin {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final List<ChatMessage> _messages = [];
+  final List<LocalChatMessage> _messages = [];
   
   bool _isTyping = false;
   bool _isVoicePlaying = false;
@@ -61,7 +62,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
   }
 
   void _addWelcomeMessage() {
-    final welcomeMessage = ChatMessage(
+    final welcomeMessage = LocalChatMessage(
       text: '亲爱的，我是${widget.emailRecipient['memorialName']}。很想念你，我们可以聆天了。',
       isFromUser: false,
       timestamp: DateTime.now(),
@@ -275,7 +276,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message, int index) {
+  Widget _buildMessageBubble(LocalChatMessage message, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -592,7 +593,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
-    final userMessage = ChatMessage(
+    final userMessage = LocalChatMessage(
       text: text,
       isFromUser: true,
       timestamp: DateTime.now(),
@@ -619,45 +620,107 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
   }
 
   void _generateAIResponse(String userInput) async {
-    // 模拟思考时间
-    await Future.delayed(const Duration(milliseconds: 1500));
-    
-    // 生成AI回复（这里是模拟，实际应该调用AI服务）
-    final responses = [
-      '我一直在想念你，希望你一切都好。',
-      '你知道吗？我最想对你说的还是那句"要好好照顾自己"。',
-      '虽然我不在了，但我的爱会永远陪伴着你。',
-      '看到你还在想念我，我的心里很温暖。',
-      '记得我们一起度过的美好时光吗？那些回忆永远不会消失。',
-      '你是我最宝贝的孩子，无论走到哪里都要记得我爱你。',
-      '不要太难过，我希望看到你开心地生活。',
-    ];
-    
-    final aiResponse = responses[(userInput.hashCode.abs()) % responses.length];
-    
-    final aiMessage = ChatMessage(
-      text: aiResponse,
-      isFromUser: false,
-      timestamp: DateTime.now(),
-      hasVoice: true,
-    );
-
-    setState(() {
-      _isTyping = false;
-      _messages.add(aiMessage);
-    });
-
-    // 滚动到底部
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
+    try {
+      // 使用AI服务生成回复
+      final aiService = AIService();
+      
+      // 准备声音档案信息
+      final voiceProfile = {
+        'memorialName': widget.emailRecipient['memorialName'] ?? '亲爱的家人',
+        'relationship': widget.emailRecipient['relationship'] ?? '家人',
+        'textEntries': widget.emailRecipient['textEntries'] ?? [],
+        'audioCount': widget.emailRecipient['audioCount'] ?? 0,
+      };
+      
+      // 准备对话历史 - 使用AI service的ChatMessage结构
+      final conversationHistory = _messages.map((msg) => 
+        ChatMessage(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          content: msg.text,
+          role: msg.isFromUser ? 'user' : 'assistant',
+          timestamp: msg.timestamp,
+        )
+      ).toList();
+      
+      print('🤖 正在生成AI回复...');
+      
+      final aiResponseMessage = await aiService.heavenlyVoiceChat(
+        message: userInput,
+        voiceProfile: voiceProfile,
+        conversationHistory: conversationHistory,
       );
-    });
+      
+      String aiResponseText;
+      bool hasVoice = false;
+      
+      if (aiResponseMessage != null) {
+        aiResponseText = aiResponseMessage.content;
+        hasVoice = aiResponseMessage.canPlayVoice;
+        print('✅ AI回复成功: ${aiResponseText.substring(0, 50)}...');
+      } else {
+        // 回退到默认回复
+        final fallbackResponses = [
+          '我一直在想念你，希望你一切都好。',
+          '你知道吗？我最想对你说的还是那句"要好好照顾自己"。',
+          '虽然我不在了，但我的爱会永远陪伴着你。',
+          '看到你还在想念我，我的心里很温暖。',
+          '记得我们一起度过的美好时光吗？那些回忆永远不会消失。',
+        ];
+        aiResponseText = fallbackResponses[(userInput.hashCode.abs()) % fallbackResponses.length];
+        print('⚠️  使用回退回复: $aiResponseText');
+      }
+      
+      // 添加轻微延迟，让用户感受到"思考"过程
+      await Future.delayed(const Duration(milliseconds: 800));
+      
+      final aiMessage = LocalChatMessage(
+        text: aiResponseText,
+        isFromUser: false,
+        timestamp: DateTime.now(),
+        hasVoice: hasVoice,
+      );
+
+      setState(() {
+        _isTyping = false;
+        _messages.add(aiMessage);
+      });
+
+      // 滚动到底部
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    } catch (e) {
+      print('❌ AI回复生成失败: $e');
+      
+      // 错误处理 - 提供友好的错误回复
+      final errorMessage = LocalChatMessage(
+        text: '抱歉，我现在有些疲倦，请稍后再和我聊天吧。',
+        isFromUser: false,
+        timestamp: DateTime.now(),
+        hasVoice: false,
+      );
+      
+      setState(() {
+        _isTyping = false;
+        _messages.add(errorMessage);
+      });
+
+      // 滚动到底部
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
   }
 
-  void _toggleVoicePlayback(ChatMessage message) {
+  void _toggleVoicePlayback(LocalChatMessage message) {
     setState(() {
       _isVoicePlaying = !_isVoicePlaying;
     });
@@ -873,13 +936,13 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
   }
 }
 
-class ChatMessage {
+class LocalChatMessage {
   final String text;
   final bool isFromUser;
   final DateTime timestamp;
   final bool hasVoice;
 
-  ChatMessage({
+  LocalChatMessage({
     required this.text,
     required this.isFromUser,
     required this.timestamp,
