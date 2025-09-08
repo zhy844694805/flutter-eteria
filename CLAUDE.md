@@ -287,6 +287,13 @@ The app uses a **two-step registration process**:
 - `POST /files/upload-single` - Upload single file
 - `DELETE /files/:id` - Delete file
 
+### AI API Endpoints
+- `GET /ai/status` - Check AI service health and configuration
+- `POST /ai/chat` - General AI conversation (requires authentication)
+- `POST /ai/heavenly-voice` - Personalized memorial conversations (requires authentication)
+- `POST /ai/memorial-content` - Generate memorial content (eulogy, poem, memory)
+- `POST /ai/generate-suggestions` - Generate conversation suggestions
+
 ## Data Models
 
 ### User Model
@@ -361,9 +368,9 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 
 ### Critical Frontend Directories
 - `/lib/models/` - Data models with JSON serialization (Memorial, User, FilterType)
-- `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService, FeedbackService, GoogleAuthService, GoogleApiService)
+- `/lib/services/` - API communication layer (ApiClient, AuthService, MemorialService, FileService, EmailService, FeedbackService, GoogleAuthService, GoogleApiService, **AIService**)
 - `/lib/providers/` - State management (AuthProvider, MemorialProvider)
-- `/lib/pages/` - UI screens including glass-style pages (WelcomePage, GlassHomePage, GlassCreatePage, GlassPersonalPage, GlassLoginPage, GlassRegisterPage, GlassForgotPasswordPage, DigitalLifePage, GlassPrivacySettingsPage, HelpCenterPage, etc.)
+- `/lib/pages/` - UI screens including glass-style pages (WelcomePage, GlassHomePage, GlassCreatePage, GlassPersonalPage, GlassLoginPage, GlassRegisterPage, GlassForgotPasswordPage, DigitalLifePage, GlassPrivacySettingsPage, HelpCenterPage, **HeavenlyConversationPage**, etc.)
 - `/lib/widgets/` - Reusable UI components with glass effects (GlassBottomNavigation, GlassMemorialCard, PhotoCarousel, StaggeredGridView, PlatformImage, GoogleSignInButton, etc.)
 - `/lib/theme/` - Design system including glassmorphism_theme.dart and app_theme.dart
 - `/lib/utils/` - Utilities (ImageHelper, FormValidators, ErrorHandler, UIHelpers, ExceptionHandler, CacheManager)
@@ -373,8 +380,8 @@ The backend requires PostgreSQL and Redis services running locally. Use the prov
 - `/src/controllers/` - API endpoint handlers (authController, memorialController, fileController)
 - `/src/models/` - Database models (User, Memorial, File)
 - `/src/middleware/` - Authentication, validation, error handling, file upload (multer)
-- `/src/services/` - Email service and external integrations
-- `/src/routes/` - API route definitions
+- `/src/services/` - Email service, external integrations, and **aiService.js** (LLM API integration)
+- `/src/routes/` - API route definitions including **ai.js** (AI endpoints)
 
 ## Common Issues & Troubleshooting
 
@@ -750,6 +757,46 @@ The Heavenly Voice feature allows users to create AI-powered digital recreations
 - **Navigation Integration**: Seamless navigation from DigitalLifePage voice cards to conversation interface
 - **Mock AI System**: Personality-based response generation using collected text entries
 
+### AI Integration (LLM API)
+
+The Heavenly Voice feature now includes real AI-powered conversations through LLM API integration.
+
+#### Backend Implementation
+- **API Integration**: OneAPI (https://oneapi.maiduoduo.it/) with Woka1.5-14B model
+- **OpenAI SDK**: Using `openai` npm package for API compatibility
+- **Environment Configuration**: AI service configured via `OPENAI_API_BASE`, `OPENAI_API_KEY`, `OPENAI_MODEL`
+- **Service Architecture**: Singleton `aiService.js` with comprehensive error handling and fallbacks
+- **Authentication**: All AI endpoints require user authentication via JWT tokens
+
+#### Frontend Implementation  
+- **AIService Client**: Complete Flutter service in `lib/services/ai_service.dart`
+- **ChatMessage Model**: Dual structure - AI service ChatMessage for API, LocalChatMessage for UI
+- **Real-time Conversations**: Replace mock responses with actual AI-generated conversations
+- **Context Management**: Conversation history and voice profile support for personalized responses
+- **Error Handling**: Graceful fallbacks when AI service is unavailable
+
+#### Configuration Details
+```bash
+# Backend .env configuration
+OPENAI_API_BASE=https://oneapi.maiduoduo.it/v1  # Note: /v1 suffix required
+OPENAI_API_KEY=sk-dgKbgYexmIWUuHeJDdC0Cf2cB621478a845c050b17906825
+OPENAI_MODEL=Woka1.5-14B
+```
+
+#### API Endpoints
+- `GET /ai/status` - Service health check and configuration info  
+- `POST /ai/heavenly-voice` - Personalized conversations with voice profiles
+- `POST /ai/chat` - General AI conversations with context
+- `POST /ai/memorial-content` - Generate eulogies, poems, and memories
+- `POST /ai/generate-suggestions` - Conversation topic suggestions
+
+#### Response Quality
+The AI generates contextual, emotionally appropriate responses:
+- **Personalization**: Uses memorial information and relationship context
+- **Emotional Tone**: Warm, motherly/fatherly responses based on relationship
+- **Cultural Sensitivity**: Responses appropriate for Chinese memorial culture
+- **Conversation Continuity**: Maintains context across message exchanges
+
 ### Future Integration Points
 - **Backend API**: Ready for voice training service integration
 - **AI Models**: Prepared for TTS and voice cloning model deployment  
@@ -794,6 +841,15 @@ dart run build_runner build --delete-conflicting-outputs
 - **NULL Handling**: Backend handles NULL values by initializing to 0 before increment/decrement
 - **Optional Auth**: Use `optionalAuth` middleware for routes that support both guest and authenticated access
 - **Admin Panel**: Access via http://localhost:3000/admin with admin@eteria.com/eteria123
+
+### AI Integration Patterns
+- **API URL Format**: Always include `/v1` suffix for OpenAI compatibility (`https://oneapi.maiduoduo.it/v1`)
+- **Error Handling**: AI service provides fallback responses when LLM API is unavailable
+- **Authentication**: Use `authenticate` middleware (not `authenticateToken`) for AI endpoints
+- **Parameter Naming**: Use `body` parameter for ApiClient.post() calls, not `data`
+- **Type Management**: Separate ChatMessage classes for AI API (ChatMessage) and UI (LocalChatMessage)
+- **Context Preparation**: Convert local message history to AI service format for API calls
+- **Response Validation**: Always check for valid API response structure before processing
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

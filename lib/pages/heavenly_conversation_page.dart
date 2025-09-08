@@ -4,6 +4,8 @@ import 'dart:convert';
 import '../providers/auth_provider.dart';
 import '../theme/glassmorphism_theme.dart';
 import '../services/ai_service.dart' show AIService, ChatMessage;
+import 'package:audioplayers/audioplayers.dart';
+import '../services/api_client.dart';
 
 class HeavenlyConversationPage extends StatefulWidget {
   final Map<String, dynamic> emailRecipient;
@@ -25,9 +27,11 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
   
   bool _isTyping = false;
   bool _isVoicePlaying = false;
+  String? _currentPlayingMessageText;
   
   late AnimationController _typingAnimationController;
   late AnimationController _messageAnimationController;
+  late AudioPlayer _audioPlayer;
 
   @override
   void initState() {
@@ -42,6 +46,17 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
+    // 初始化音频播放器
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() {
+          _isVoicePlaying = false;
+          _currentPlayingMessageText = null;
+        });
+      }
+    });
 
     // 添加监听器实时更新发送按钮状态
     _messageController.addListener(() {
@@ -58,6 +73,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
     _scrollController.dispose();
     _typingAnimationController.dispose();
     _messageAnimationController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -372,14 +388,16 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: _isVoicePlaying
+                              color: (_isVoicePlaying && _currentPlayingMessageText == message.text)
                                   ? GlassmorphismColors.primary.withValues(alpha: 0.2)
                                   : GlassmorphismColors.textSecondary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
-                              _isVoicePlaying ? Icons.pause : Icons.play_arrow,
-                              color: _isVoicePlaying
+                              (_isVoicePlaying && _currentPlayingMessageText == message.text) 
+                                  ? Icons.pause 
+                                  : Icons.play_arrow,
+                              color: (_isVoicePlaying && _currentPlayingMessageText == message.text)
                                   ? GlassmorphismColors.primary
                                   : GlassmorphismColors.textSecondary,
                               size: 16,
@@ -644,19 +662,30 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
       
       print('🤖 正在生成AI回复...');
       
-      final aiResponseMessage = await aiService.heavenlyVoiceChat(
+      // 准备音频文件路径（如果有的话）
+      final audioFiles = List<String>.from(widget.emailRecipient['audioFiles'] ?? []);
+      final updatedVoiceProfile = Map<String, dynamic>.from(voiceProfile);
+      updatedVoiceProfile['audioFiles'] = audioFiles;
+      
+      final aiResponseMessage = await aiService.heavenlyVoiceChatWithAudio(
         message: userInput,
-        voiceProfile: voiceProfile,
+        voiceProfile: updatedVoiceProfile,
         conversationHistory: conversationHistory,
+        generateVoice: audioFiles.isNotEmpty,
       );
       
       String aiResponseText;
       bool hasVoice = false;
+      String? audioUrl;
       
       if (aiResponseMessage != null) {
         aiResponseText = aiResponseMessage.content;
-        hasVoice = aiResponseMessage.canPlayVoice;
+        hasVoice = aiResponseMessage.canPlayVoice || aiResponseMessage.hasAudio;
+        audioUrl = aiResponseMessage.audioUrl;
         print('✅ AI回复成功: ${aiResponseText.substring(0, 50)}...');
+        if (aiResponseMessage.hasAudio) {
+          print('🎵 语音已生成: ${audioUrl}');
+        }
       } else {
         // 回退到默认回复
         final fallbackResponses = [
@@ -678,6 +707,7 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
         isFromUser: false,
         timestamp: DateTime.now(),
         hasVoice: hasVoice,
+        audioUrl: audioUrl,
       );
 
       setState(() {
@@ -720,21 +750,67 @@ class _HeavenlyConversationPageState extends State<HeavenlyConversationPage>
     }
   }
 
-  void _toggleVoicePlayback(LocalChatMessage message) {
-    setState(() {
-      _isVoicePlaying = !_isVoicePlaying;
-    });
-    
-    // 这里应该实现真实的语音播放功能
-    // 现在只是模拟播放状态
-    if (_isVoicePlaying) {
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) {
-          setState(() {
-            _isVoicePlaying = false;
-          });
-        }
+  void _toggleVoicePlayback(LocalChatMessage message) async {
+    try {
+      // 如果正在播放其他音频，先停止
+      if (_isVoicePlaying && _currentPlayingMessageText != message.text) {
+        await _audioPlayer.stop();
+        setState(() {
+          _isVoicePlaying = false;
+          _currentPlayingMessageText = null;
+        });
+        return;
+      }
+
+      // 如果正在播放当前消息，则停止
+      if (_isVoicePlaying && _currentPlayingMessageText == message.text) {
+        await _audioPlayer.stop();
+        setState(() {
+          _isVoicePlaying = false;
+          _currentPlayingMessageText = null;
+        });
+        return;
+      }
+
+      // 检查是否有音频URL
+      if (message.audioUrl == null || message.audioUrl!.isEmpty) {
+        print('❌ 没有可用的音频URL');
+        return;
+      }
+
+      setState(() {
+        _isVoicePlaying = true;
+        _currentPlayingMessageText = message.text;
       });
+
+      // 构建完整的音频URL
+      final audioUrl = message.audioUrl!.startsWith('http') 
+          ? message.audioUrl! 
+          : '${ApiClient.baseUrl.replaceAll('/api/v1', '')}${message.audioUrl!}';
+
+      print('🎵 开始播放音频: $audioUrl');
+
+      // 播放音频
+      await _audioPlayer.play(UrlSource(audioUrl));
+      
+    } catch (e) {
+      print('❌ 音频播放失败: $e');
+      
+      setState(() {
+        _isVoicePlaying = false;
+        _currentPlayingMessageText = null;
+      });
+      
+      // 显示错误提示
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('语音播放失败，请稍后再试'),
+            backgroundColor: GlassmorphismColors.error,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -941,11 +1017,13 @@ class LocalChatMessage {
   final bool isFromUser;
   final DateTime timestamp;
   final bool hasVoice;
+  final String? audioUrl;
 
   LocalChatMessage({
     required this.text,
     required this.isFromUser,
     required this.timestamp,
     required this.hasVoice,
+    this.audioUrl,
   });
 }
